@@ -32,67 +32,44 @@ namespace SegmentTree{
     #define all 1,1,n
     #define setmid int mid=(l+r)>>1
     #define setpos int p,int l,int r
-    int tr[maxn<<2],tag[maxn<<2],pos[maxn];
-    int mn[maxn<<2];
-    inline void pu(int p){tr[p]=max(tr[ls],tr[rs]);}
-    inline void pu2(int p){mn[p]=min(mn[ls],mn[rs]);}
-    void build(setpos){if(l==r)return pos[l]=p,tr[p]=a[l],void();setmid;build(lson);build(rson);pu(p);}
-    inline void pt(int x){int p=pos[x];tag[p]=tr[p];while(p^1){if(p&1)p>>=1,tag[p]=max(tr[ls],tag[rs]);else p>>=1,tag[p]=tag[ls];}}
-    int binary(setpos,int x){
-        if(l==r)    return l;
-        setmid;if(x<=mid)return binary(lson,x);
-        if(r>=x){
-            if(max(a[mid],tag[rs])<=x)  return binary(lson,x);
-            return binary(rson,x);
-        }
-        else{
-            if(max(a[mid],tr[rs])<=x)   return binary(lson,x);
-            return binary(rson,x);
-        }
+    int fr[maxn<<2],to[maxn<<2],pos[maxn];  // fr[p] 表示跳出 [l,r] 的最小起点，to[p] 表示跳到的位置（即 max[l,r]）
+    inline void pu(int p){
+        to[p]=max(to[ls],to[rs]);
+        fr[p]=to[ls]>=fr[rs]?fr[ls]:fr[rs];
     }
-    inline void upda(int x,int s){a[x]=s;int p=pos[x];tr[p]=s;while(p>>=1)pu(p);}
-    inline void upd(int x,int s){int p=pos[x];mn[p]=s;while(p>>=1)pu2(p);}
-    int bry(setpos,int x){
-        if(mn[p]>x) return -1;
-        if(l==r)    return l;
-        setmid;if(x>mid)return bry(rson,x);
-        int res=bry(lson,x);if(~res)return res;
-        return bry(rson,x);
-        // if(l<=x){
-        //     if(min(a[mid+1],tag[ls])<=x)    return binary(rson,x);
-        // }
+    void build(setpos){if(l==r)return fr[p]=(a[l]<=l?l+1:l),to[p]=a[l],pos[l]=p,void();setmid;build(lson);build(rson);pu(p);}
+    inline void upd(int x){int p=pos[x];fr[p]=a[x]<=x?x+1:x;to[p]=a[x];while(p>>=1)pu(p);}
+    int jump(setpos,int x,int now){
+        if(l==r)    return max(to[p],now);
+        setmid;
+        if(l>x){
+            if(now>=fr[p])    return max(now,to[p]);
+            if(now>=fr[ls])   return jump(rson,x,max(now,to[ls]));
+            return jump(lson,x,now);
+        }
+        if(x>mid)return jump(rson,x,now);
+        int tp=jump(lson,x,now);
+        if(tp<=mid) return tp;
+        return jump(rson,x,tp);
     }
 }
 using namespace SegmentTree;
-inline int binary(int x){
-    if(a[x]>x)  return x+1;
-    pt(x);
-    return binary(all,x);
-}
 int main(){
     freopen("ds.in","r",stdin);freopen("ds.out","w",stdout);
     read();n=read();q=read();
     for(int i=1;i<=n;i++)   a[i]=read();
     build(all);
-    for(int i=1;i<=n;i++)   upd(i,b[i]=binary(i));
-    // for(int i=1;i<=n;i++)   printf("%d ",b[i]);puts("");
     int lstans=0;
     while(q--){
-        int op=read(),p=read()^lstans,val;
+        int op=read(),p=read()^lstans,v;
         if(op==1){
-            val=read()^lstans;
-            upda(p,val);
-            upd(p,b[p]=binary(p));
-            upd(val,b[val]=binary(val));
+            v=read()^lstans;
+            a[p]=v;upd(p);
         }
         else{
-            if(a[p]<=p){print(lstans=p,'\n');debug("%d\n",lstans);continue;}
-            print(lstans=bry(all,p),'\n');
-            if(lstans==692){
-                for(int i=387;i<=690;i++)   printf("%d ",a[i]);puts("");
-                printf("%d\n",*max_element(a+387,a+690+1));
-                debug("%d %d %d %d\n",p,a[p],lstans,binary(690));
-            }
+            // for(int i=1;i<=n;i++)   printf("%d ",a[i]);
+            // printf("\nquery %d\n",p);
+            print(lstans=jump(all,p,p),'\n');
         }
     }
     flush();
