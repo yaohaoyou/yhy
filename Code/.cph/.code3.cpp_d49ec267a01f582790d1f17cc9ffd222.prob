@@ -1,0 +1,1 @@
+{"name":"Local: code3","url":"e:\\yhy\\Code\\code3.cpp","tests":[{"id":1717329584762,"input":"3 4\n2 1 2\n","output":"14"},{"id":1717330979045,"input":"4 8\n1 2 3 4\n","output":"65536"},{"id":1717331062758,"input":"4 9\n2 3 4 1","output":"628"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"e:\\yhy\\Code\\code3.cpp","group":"local","local":true}

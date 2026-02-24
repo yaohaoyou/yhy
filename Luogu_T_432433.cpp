@@ -1,0 +1,8 @@
+#include<bits/stdc++.h>
+using namespace std;
+long long n;
+int main(){
+    cin>>n;
+    if(n!=2)    cout<<n-1;
+    else    cout<<0;
+}

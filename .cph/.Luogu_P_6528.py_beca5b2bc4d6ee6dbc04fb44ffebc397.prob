@@ -1,0 +1,1 @@
+{"batch":{"id":"exlg","size":1},"name":"Luogu_P6528","group":"Luogu","url":"https://www.luogu.com.cn/problem/P6528","interactive":"false","memoryLimit":256,"timeLimit":3000,"tests":[],"input":{"type":"stdin"},"output":{"type":"stdout"},"language":{"java":{"mainClass":"Main","taskClass":"P6528"}},"testType":"single","srcPath":"s:\\yhy\\Luogu_P_6528.py"}
