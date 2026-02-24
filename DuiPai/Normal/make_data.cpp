@@ -19,7 +19,7 @@ int n,m,k;
 int a[maxn],b[maxn],p[maxn];
 int main(){
     srand(millisec_since_epoch);
-    int T=1;
+    int T=10;
     printf("%d\n",T);
     while(T--){
         n=rd()%10+1;
