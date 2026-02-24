@@ -19,10 +19,11 @@ int n,m,k;
 int a[maxn],b[maxn],p[maxn];
 int main(){
     srand(millisec_since_epoch);
-    int T=100;
+    int T=1;
     printf("%d\n",T);
     while(T--){
-        int l=rand()%1000,r=l+rand()%20;
-        printf("0 %d %d\n",l,r);
+        n=rd()%10+1;
+        iota(a+1,a+n+1,1);random_shuffle(a+1,a+n+1);
+        printf("%d\n",n);for(int i=1;i<=n;i++)printf("%d ",a[i]);puts("");
     }
 }
