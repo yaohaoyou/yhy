@@ -21,18 +21,22 @@ namespace FastMod{
 }
 using namespace FastMod;
 int n;
-int a[maxn][maxn],x[maxn];
+int a[maxn][maxn],x[maxn],y[maxn];
 bool ban[maxN];
-int f[2][maxn][maxN];  // f[i][j][s] 表示前 i 个选定，有 j 个独立集，后 n-i 个的选定状态为 s 的方案数
+int f[2][maxn][maxN],str[maxn][maxn];  // f[i][j][s] 表示前 i 个选定，有 j 个独立集，后 n-i 个的选定状态为 s 的方案数
 inline int A(int x,int y){
     if(x<y)return 0;
     int res=1;
     for(int i=x-y+1;i<=x;i++)mmul(res,i);
     return res;
 }
+void init(){
+    const int N=21;
+    str[0][0]=1;for(int i=1;i<=N;i++)for(int j=1;j<=N;j++)str[i][j]=imadd(str[i-1][j-1],immul(str[i-1][j],i-1));
+}
 int main(){
-    int c;
-    scanf("%d%d",&c,&n);
+    init();
+    scanf("%d",&n);
     for(int i=1;i<=n;i++)for(int j=1;j<=n;j++)scanf("%d",&a[i][j]);
     int T;scanf("%d",&T);
     for(int i=1;i<=n;i++)if(a[i][i]){while(T--)puts("0");return 0;}
@@ -63,10 +67,8 @@ int main(){
         }
     }
     for(int i=1;i<=n;i++)x[i]=f[n&1][i][0];
-    while(T--){
-        int k,ans=0;scanf("%d",&k);
-        for(int i=1;i<=n;i++)if(x[i])madd(ans,immul(A(k,i),x[i]));
-        mmul(ans,qpow(qpow(k,n),mod-2));
-        printf("%d\n",ans);
+    for(int i=1;i<=n;i++){
+        for(int j=0;j<=i;j++)if((i-j)&1)mdel(y[j],immul(x[i],str[i][j]));else madd(y[j],immul(x[i],str[i][j]));
     }
+    for(int i=0;i<=n;i++)   printf("%d ",y[i]);puts("");
 }
