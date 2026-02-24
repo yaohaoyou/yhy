@@ -21,8 +21,8 @@ struct BIT{
     void clear(){for(int i=0;i<=n;i++)tr[i]=0;}
 }T;
 void matt(int _cases){
-    T.clear();fill(c,c+n+1,0);
     scanf("%d",&n);
+    T.clear();fill(c,c+n+1,0);
     for(int i=1;i<=n;i++)   scanf("%d",&a[i]);
     ll s=0,s2=0,z=0,f=0;
     for(int i=1;i<=n;i++){

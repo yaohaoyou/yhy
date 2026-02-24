@@ -20,8 +20,10 @@ struct BIT{
     inline int query(int l,int r){return que(r)-que(l-1);}
     void clear(){for(int i=0;i<=n;i++)tr[i]=0;}
 }T;
-bool chk(){
+void matt(int _cases){
+    scanf("%d",&n);
     T.clear();fill(c,c+n+1,0);
+    for(int i=1;i<=n;i++)   scanf("%d",&a[i]);
     ll s=0,s2=0,z=0,f=0;
     for(int i=1;i<=n;i++){
         T.add(a[i],1);
@@ -30,16 +32,19 @@ bool chk(){
         if(a[i]-i>=0)   c[a[i]-i]++,z++;
         else f++;
     }
-    return s+s==s2;
-}
-void matt(int _cases){
-    scanf("%d",&n);
-    for(int i=1;i<=n;i++)   scanf("%d",&a[i]);
-    
     vector<int> ans;
     for(int i=0;i<n;i++){
-        if(chk())   ans.eb(i);
-        for(int j=n-1;j;j--)    swap(a[j],a[j+1]);
+        // printf("@ %d %d %d %d\n",z,f,s,s2);
+        if(s+s==s2) ans.eb(i);
+        s+=2*a[n-i]-n-1;
+        s2-=n-a[n-i];
+        if(a[n-i]==n)   z--,c[i]--;
+        else f--;
+        z-=c[i];f+=c[i];
+        // printf("! %d %d %d\n",z,f,c[i]);
+        s2+=-z+f;
+        s2+=abs(a[n-i]-1);
+        c[a[n-i]+i]++;z++;
     }
     printf("%d\n",ans.size());for(int i:ans)printf("%d%c",i," \n"[i==ans.back()]);
     if(ans.empty())puts("");
