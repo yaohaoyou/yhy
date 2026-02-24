@@ -1,0 +1,1 @@
+{"name":"Local: qoj8008 Fortune Wheel","url":"d:\\yhy\\qoj8008 Fortune Wheel.cpp","tests":[{"id":1720593617928,"input":"6 3 2\n2 4","output":"8 3"},{"id":1720593632634,"input":"5 4 1\n1","output":"1 1"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\yhy\\qoj8008 Fortune Wheel.cpp","group":"local","local":true}

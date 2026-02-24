@@ -1,0 +1,1 @@
+{"name":"Local: qi","url":"d:\\yhy\\GDFZ_yhy\\qi\\qi.cpp","tests":[{"id":1723862965368,"input":"4 3\n1 1 2\n0 1 3\n1 2 3\n","output":"2"},{"id":1723862987096,"input":"2 5\n0 1 2\n1 2 1\n0 1 2\n1 2 1\n0 1 2\n","output":"-1"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\yhy\\GDFZ_yhy\\qi\\qi.cpp","group":"local","local":true}
