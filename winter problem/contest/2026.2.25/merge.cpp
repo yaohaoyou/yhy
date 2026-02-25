@@ -24,7 +24,7 @@ int main(){
     }
     vector<int> clr,vec;
     int ans=0;
-    for(int o=1;o<=n+n;o++){
+    for(int o=0;o<=n+n;o++){
         clr.clear();
         if(!v[o].empty())   ans=o;
         while(!v[o].empty()){

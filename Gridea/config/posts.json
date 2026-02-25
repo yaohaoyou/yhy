@@ -1,0 +1,799 @@
+{
+  "posts": [
+    {
+      "content": "$\\Large{\\color{red}\\Diamond}$ 为重点转换步骤。\r\n\r\n## [AT_arc201_b [ARC201B] Binary Knapsack](https://www.luogu.com.cn/problem/AT_arc201_b)\r\n\r\n因为 $W$ 很大，所以不能是 01 背包的思路，应该想贪心。\r\n\r\n思考偏序关系，由于不同重量只有 $\\log_2W$ 种，并且两个 $2^{x-1}$ 可以直接合并成 $2^x$，所以每次贪心取当前重量价值最大的一定更优。\r\n\r\n对 $W$ 进行二进制拆位，从小到大，若当前第 $i$ 位为 $1$，则选一个重量为 $2^i$ 的一定不劣。$\\Large{\\color{red}\\Diamond}$ \r\n\r\n剩下的排序后两两合并成重量为 $2^{i+1}$ 的物品，继续递归子问题。\r\n\r\n## [AT_arc200_e popcount<=2](https://www.luogu.com.cn/problem/AT_arc200_e)\r\n\r\n将得到的 $A$ 序列全部异或 $x$ 后依旧满足情况，所以不妨将 $A$ 异或 $A_1$ 后使 $A_1=0$。直接钦定 $A_1=0$，最后将答案 $\\times 2^m$ 即可。$\\Large{\\color{red}\\Diamond}$ \r\n\r\n由于 $A_1=0$，$popcount(A_1\\oplus A_i)\\le 2$，所以 $popcount(A_i)\\le2$。接下来分情况讨论。\r\n\r\n- $popcount(A_i)\\le1$，没有其他限制了，方案数为 $(m+1)^{n-1}$。\r\n\r\n- 有且仅有一种 $popcount(A_x)=2$，方案数为 $\\binom m 2(4^{n-1}-3^{n-1})$。\r\n\r\n- 有多种 $popcount(A_{a_1},A_{a_2},..A_{a_k})=2$，且 $popcount(A_{a_1} \\And A_{a_2} \\And..\\And A_{a_k})=1,k\\ge2$，方案数为 $m((m+1)^{n-1}-2^{n-1}-(m-1)(3^{n-1}-2^{n-1}))$。\r\n\r\n- 有且仅有三种 $popcount(A_x,A_y,A_z)=2$，此时只能有这三种数和 $0$ 出现，并且两两交的 popcount 都为 $1$，如 $\\{A_x,A_y,A_z\\}=\\{3,5,6\\}$。方案数为 $\\binom m 3(4^{n-1}-3\\times 3^{n-1}+3\\times 2^{n-1}-1)$。\r\n\r\n## [P9140 THUPC 2023 初赛 背包](https://www.luogu.com.cn/problem/P9140)\r\n\r\n类似于[P2371 墨墨的等式](https://www.luogu.com.cn/problem/P2371)的思路，先取 $\\frac{c_i}{v_i}$ 最大的物品作为基准并设 $m=v_i,k=c_i$，由于若 $V'$ 可以被凑出，则 $V'\\equiv V(\\bmod m)$ 的 $V$ 可以通过加入多个 $m$ 凑出，所以将物品的总大小在 $\\bmod m$ 的剩余系上处理。$\\Large{\\color{red}\\Diamond}$ \r\n\r\n对于 $(V',C'),V\\equiv V'(\\bmod m)$ 的情况，此时的总贡献为 $C'+\\frac{V-V'}mk$，由于 $\\frac V m$ 固定，所以需要使 $C'-\\lfloor\\frac{V'}m\\rfloor k$ 最大，将这个值设为同余最长路上的距离。转移时从 $p$ 加上物品 $x$ 后转移至 $q=(p+v_x)\\bmod m$，$f_q=f_p+c_x-\\lfloor\\frac{p+v_x}m\\rfloor k$。\r\n\r\n转移过程中需要保证没有正环和 $V'>V$。\r\n\r\n- 若有正权环 $u_1\\to u_2\\to...\\to u_{siz}\\to u_1$，由于转一圈后物品总体积一定为 $m$ 的倍数，而由于选择的基准为 $\\frac{c_i}{w_i}$ 最大，所以一定不如全部选择物品 $i$，矛盾，所以不存在正权环。\r\n- 设 $\\forall i\\in[1,n], v_i\\le lim_v=10^5$。图上共有 $m$ 个点，因为没有正权环，所以每个点最多走过 $1$ 次，走过的边数最多也只有 $m-1$ 条，每条边增加的体积 $\\le lim_v$，所以 $V'\\le (lim_v)^2=10^{10}<10^{11}$，所以 $V'<V$。$\\Large{\\color{red}\\Diamond}$ \r\n\r\n由于有负边权，所以不能用 dijkstra。这个题数据水，最短路直接用 SPFA 就过了，正解应该使用转两圈的做法将复杂度做到 $O(nm)$。\r\n\r\n建边的过程实际是枚举 $i\\in[1,n],u\\in[0,m)$ 并连边 $(u,(u+v_i)\\bmod m,w)$，手玩一下（其实比较显然）可以发现对于 $i$ 会产生 $\\gcd(v_i,m)$ 个环。由于本质上是在模意义下做完全背包，所以转移顺序并不影响。并且由于每个点只会在最短路上走一次，所以最短路只要在已知的 $\\gcd(v_i,m)$ 个环上找到最小的 $dis$ 值，并用其转一圈更新这圈的其他点即可，也就是 $x\\in[0,v_i):x\\to (x+v_i)\\bmod \\to (x+2v_i)\\bmod m\\to...\\to x$。写代码时为了方便，可以不用找到 $dis$ 最小值，直接在环上转两圈更新即可，复杂度为 $O(nm)$。\r\n\r\n## [P7320 「PMOI-4」可怜的团主](https://www.luogu.com.cn/problem/p7320)\r\n\r\n首先由一个结论是一棵树至少由 $\\lceil\\frac{leaf}2\\rceil$ 条路径覆盖，构造是将叶子按 dfs 序排序后，路径为 $(lf_1,lf_{\\lceil\\frac{leaf}2\\rceil}),(lf_2,lf_{\\lceil\\frac{leaf}2\\rceil+1})\\dots$，若 $leaf$ 是奇数则最后连一条 $(1,lf_{leaf})$。$\\Large{\\color{red}\\Diamond}$\r\n\r\n必要性显然，应为一条路径最多覆盖两个叶子。充分性是这样的路径可以使相邻两条路径都有交集。若有一个点 $u$ 没有被覆盖。\r\n\r\n- 若 $u$ 有至少两个在 $u$ 儿子 dfs 序排列中相邻的 $v,w$，则必有一条经过 $v$ 子树的路径与一条经过 $w$ 子树的路径相交，所以 $u$ 一定被覆盖。\r\n\r\n- 若 $u$ 只有一个儿子，若有不在 $u$ 子树内的叶子则有一条从 $u$ 子树内到外的路径，否则从 $1\\to u$ 的路径上 $deg_f=1$，则存在从 $u$ 子树内到 $1$ 的路径。\r\n\r\n综上，至少用 $\\lceil\\frac {leaf} 2\\rceil$ 条路径一定能覆盖所有节点。\r\n\r\n由于 $\\lceil\\frac n 6\\rceil$ 和 $\\lfloor\\frac n 3\\rfloor$  的关系与 $\\lceil\\frac x 2\\rceil$ 相似，所以考虑提出 dfs 树并看叶子考虑。$\\Large{\\color{red}\\Diamond}$\r\n\r\n显然，若 $leaf\\ge \\lfloor\\frac n 3\\rfloor$，则选择第二种并将叶子节点输出即可。反之 $leaf < \\lfloor\\frac n 3\\rfloor$，则覆盖所有点的路径数 $\\lceil\\frac {leaf} 2\\rceil<\\lceil\\frac {\\lfloor\\frac n 3\\rfloor} 2\\rceil<\\lceil\\frac n 6\\rceil$，使用上述的叶子节点相互匹配的做法后，剩下的路径用 $(x,x)$ 浪费掉即可。\r\n\r\n## [AT_agc037_d Sorting a Grid](https://www.luogu.com.cn/problem/AT_agc037_d)\r\n\r\n从无序的状态转移到有序的状态可以倒着思考，从有序的状态思考能到达的状态的共同点。 \r\n\r\n由有序的状态进行每``行重排``后每行的值域集合不会变，设行重排后的矩阵为：\r\n$$\r\n\\begin{matrix}\r\nA&A&A&A&A\\\\\r\nB&B&B&B&B\\\\\r\nC&C&C&C&C\\\\\r\nD&D&D&D&D\\\\\r\nE&E&E&E&E\\\\\r\n\\end{matrix}\r\n$$\r\n$1\\le A\\le m,m+1\\le B\\le 2m \\dots$\r\n\r\n再``列重排``后矩阵的每一列都会包含 $A,B,C\\dots$ 各一个，这是操作两步的必然结论。\r\n\r\n最后一步再回到输入的乱序矩阵，则此时乱序矩阵进行``行重排``后需要满足每列都各有 $A,B,C\\dots$ 各一个的性质。$\\Large{\\color{red}\\Diamond}$\r\n\r\n进行构造时将枚举 $(i,j)$ 后将 $i \\leftrightarrow \\lceil\\frac {a_{i,j}-1} m\\rceil+nm$，由于每行有 $m$ 个数，每种字符会出现 $m$ 次，所以最终连出的是**正则二分图（每个点度数都相同的二分图）**，每次需要寻找出一组完美匹配表示当前列的状态，随后删除这组边并继续寻找二分图完美匹配。本图任选一个左部点集合都满足 $out(S)=|S|$，由于 Hall 定理，存在完美匹配，删除匹配后依旧满足 $out(S)=|S|$，所以一定可以找出 $m$ 组完美匹配。$\\Large{\\color{red}\\Diamond}$\r\n\r\n## [AT_agc061_c First Come First Serve](https://www.luogu.com.cn/problem/AT_agc061_c)\r\n\r\n设 $dp_i$ 表示 $[1,i]$ 的答案，转移为 $dp_i\\leftarrow 2dp_{i-1}-C$，$C$ 为容斥掉的方案数。设 $i$ 最终取的值为 $t_i\\in\\{a_i,b_i\\}$，则 $t_i$ 取 $a_i$ 和 $b_i$ 时结果相同当且仅当 $\\forall t_j\\notin[a_i,b_i]$，思考如何容斥掉这一部分。\r\n\r\n因为 $a_i<a_{i+1},b_i<b_{i+1}$，所以区间之间不存在包含。若使 $\\not\\exist t_j\\in[a_i,b_i]$，则对于 $L_i=\\min j(b_j>a_i),R_i=\\max j(a_j<b_i)$，当 $j\\in[L_i,i)$ 选 $t_j=a_j$，$j\\in(i,R_i]$ 选 $t_j=b_j$，可以使 $k\\in[L_i,R_i]$ 都可以选出 $t_k\\notin[a_i,b_i]$，即满足 $\\not\\exist t_j\\in[a_i,b_i]$。$\\Large{\\color{red}\\Diamond}$\r\n\r\n所以对于 $dp_{R_i}$ 需要删去 $a_i$ 和 $b_i$ 重复的贡献，由于此时 $[L_i,R_i]$ 的方案固定，所以 $dp_{R_i}\\leftarrow -dp_{L_{i-1}}$。\r\n\r\n求 $L_i$ 和 $R_i$ 直接二分或双指针即可，复杂度为 $\\mathcal O(n)/\\mathcal O(n\\log_2n)$。\r\n\r\n## [P6657 【模板】LGV 引理](https://www.luogu.com.cn/problem/P6657)\r\n\r\n感觉原本的定义还是比较复杂，尝试用比较简洁但不一定足够适用的讲述。\r\n\r\n先构造矩阵\r\n$$\r\nM=\\left[\\begin{matrix}\r\nf(sx_1,sy_1,tx_1,ty_1) & \\dots & f(sx_1,sy_1,tx_n,ty_n)\\\\\r\nf(sx_2,sy_2,tx_1,ty_1) & \\dots & f(sx_2,sy_2,tx_n,ty_n)\\\\\r\n&\\ddots\\\\\r\nf(sx_{n-1},sy_{n-1},tx_1,ty_1) & \\dots & f(sx_{n-1},sy_{n-1},tx_n,ty_n)\\\\\r\nf(sx_n,sy_n,tx_1,ty_1) & \\dots & f(sx_n,sy_n,tx_n,ty_n)\\\\\r\n\\end{matrix}\\right]\r\n$$\r\n使用 LGV 引理需要保证**存在构造**从 $(sx_i,sy_i)$ 到达 $(tx_{p_i},ty_{p_j})$ 的 $n$ 条路径之间互不相交，排列 $p$ **只能**为 $p=\\{1,2,3..,n\\}$。换言之，若 $\\exist p_i\\neq i$，则无法构造 $n$ 条互不相交的路径。LGV 引理只适用于 DAG。\r\n\r\nLGV 引理：从 $(sx_i,sy_i)$ 到达 $(tx_i,ty_i)$ 的 $n$ 条路径互不相交的方案数为 $\\det(M)$。\r\n\r\n## [AT_agc057_d Sum Avoidance](https://www.luogu.com.cn/problem/AT_agc057_d)\r\n\r\n神仙题，根本不可能想出来。\r\n\r\n首先 $|A|$ 的上界显然是 $\\lfloor\\frac {S-1} 2\\rfloor$，因为 $(1,S-1),(2,S-2)\\dots$ 不能同时存在，若 $2|S$，也不能出现 $\\frac S2$。而这个上界也可以直接构造出来，只要取最大的 $\\lfloor\\frac {S-1} 2\\rfloor$ 个数即可，因为任意两个数相加已经 $>S$。此时想要让字典序尽量小。令选择的集合包括 $A\\subseteq[1,\\lfloor\\frac {S-1} 2\\rfloor]$，$B\\subseteq [S-\\lfloor\\frac {S-1} 2\\rfloor,S-1]$。\r\n\r\n将字典序变小的过程就是将一些 $x\\in B$ 的换成 $S-x$。可以证明，直接从小到大，如果加入 $x$ 后依旧凑不出 $S$，则在答案集合加入 $x$ 一定更优。$\\Large{\\color{red}\\Diamond}$\r\n\r\n>证明：对于任意一个 $x\\in [1,\\lfloor\\frac {S-1} 2\\rfloor]$，若前面的数能凑出 $x$，则加入 $x$ 不影响凑其他数。否则前面的数无法凑出 $x$，则可以加入 $S-x$，由于后面的加入集合的数都 $>x$，所以不会导致 $S-x$ 和其他数凑出 $S$。\r\n\r\n这样就可以比较方便的 $O(S)$ 求答案，思考如何继续加速贪心过程。\r\n\r\n设加入的最小数为 $d$，由于 $d\\not\\mid S$，$lcm(1,2,...43)>10^{18}$，所以 $d\\le43$。思考两种添加方式，添加的数 $x\\le \\lfloor\\frac {S-1} 2\\rfloor$。\r\n\r\n1. $x$ 可以由 $A$ 中的数凑出。\r\n2. $x$ 不能被 $A$ 中的数凑出，但加入后也无法凑出 $S$。\r\n\r\n$1$ 的做法可以后面二分时再处理，思考 $2$ 会加入哪些数。因为 $d\\in A$，所以$2$ 加入的数在 $\\bmod d$ 意义下互不相同，否则可以用 $1$ 做出，所以 $2$ 加入的数至多 $\\mathcal O(d)$，复杂度可以接受。$\\Large{\\color{red}\\Diamond}$\r\n\r\n令 $f_i,i\\in[1,d)$ 表示 $2$ 加入的数 $\\bmod d=i$ 的最小的数，转移时枚举加入 $v$，若能加入需保证 $f_{(S-iv)\\bmod d}+iv>S$，即保证 \r\n$$\r\nv\\ge \\max_{i=1}^{d-1}(\\lfloor\\frac{S-f_{(S-iv)\\bmod d}}i\\rfloor+1)\r\n$$\r\n由于转移式中只与 $v \\bmod d$ 相关，所以枚举 $x = v_x\\bmod d$，按上面的式子跑一遍后将 $v_x$ 加到 $v_x\\equiv x(\\bmod d)$ 为止。这一步需要枚举 $x$ 和 $i$，单次复杂度为 $\\mathcal O(d^2)$。由于要从小到大进行贪心，所以对于所有的 $v_x$，每次只会选取最小的 $v_{mn}$ 更新所有的 $f$。更新 $f$ 时枚举 $i,j\\in[1,d)$。\r\n$$\r\nf_{(i+j\\times v_{mn})\\bmod d}\\leftarrow f_i + j \\times v_{mn}\r\n$$\r\n由于每个 $x\\in [0,d)$ 只会有至多一次 $x=mn$ 将 $f_x$ 更新至最小值（最终值），所以会进行 $\\mathcal O(d)$ 次上述的``单次``，复杂度为 $\\mathcal O(d^3)$。\r\n\r\n$A$ 中 $\\le x$ 的个数为 $\\sum_{i=0}^{d-1} \\max(0,\\lfloor\\frac {x-f_i} d\\rfloor+[i\\not=0])$。注意 $f_0=0$，$i=0$ 时不加一是因为无法选取 $0\\in A$。\r\n\r\n对于询问二分答案后求有多少个凑出的数 $\\le x$，对于 $\\le \\lfloor\\frac {S-1} 2\\rfloor$ 的答案直接二分答案即可，$>\\lfloor\\frac {S-1} 2\\rfloor$ 的答案先将 $k\\leftarrow k-|A|$ 后反着二分。本题最终复杂度为 $\\mathcal O(T(d^3+d\\log_2k))$。\r\n\r\n## [CF1389G Directing Edges](https://www.luogu.com.cn/problem/CF1389G)\r\n\r\nran_qwq 的讲题，感觉有点像答辩缝合怪。\r\n\r\n连通性和给无向边定向先想到使用边双缩点，因为一个边双内的点一定可以定向成强连通分量，这样一定更优。此时从无向图变成了一棵树，然后考虑关键点的限制。\r\n\r\n先随便取一个关键点做根，若一个子树内没有关键点，则将边全部定向为 $u\\rightarrow fa_u$ 一定不劣，由于这种子树的贡献固定，所以再缩起来。具体的，若一条边 $(u,fa_u)$ 满足 $u$ 子树内没有关键点，而 $fa_u$ 子树内有关键点，则 $[\\text{关键点能到达}fa_u]=[\\text{关键点能到达}u]$，此时将 $u$ 子树和 $fa_u$ 缩到一起。此时所有叶子节点都是关键点。\r\n\r\n可以开始树形 DP 了。令 $f_u$ 表示 $u$ 子树内强制选 $u$ 为饱和点的收益，$f_u=\\max(f_v-w(u,v),0)+c_u$，当让顶点 $i$ 强制选为饱和点时将 $i$ 钦定为根即可，写下换根 DP 即可。\r\n\r\n代码没写，感觉依托。\r\n\r\n## [CF1017G The Tree](https://www.luogu.com.cn/problem/CF1017G)\r\n\r\nlbw 的题感觉都很妙。\r\n\r\n考虑将修改和查询的复杂度平衡，尝试类似于线段树标记永久化的思路。先不管 2 操作，若一个操作 ``1 v`` 能影响到 $u$，则 $v\\to fa_u$ 的点一定已经被标记为黑色，手玩可以发现修改之间的顺序其实不影响，所以将修改合并，即维护 $c_u$ 表示在 $u$ 节点进行了 $c_u$ 次操作，则操作 ``1 v`` 能影响到 $u$ 当且仅当 $\\sum_\\text{i is on path(v,u)}c_i\\ge dep_u-dep_v+1$，套路地，将 $dep_u-dep_v+1$ 移到左边，分给每个 $\\text{i is on path(v,u)}$。将 $c_u$ 的初始值设为 $-1$，然后求最大后缀和（一定要包含自己）是否 $\\ge 0$ 即可。\r\n\r\n现在考虑操作 ``2 u``，首先肯定要将 $u$ 子树内的所有 $c_i$ 设为 $-1$，此外，需要让 $u$ 向上的最大后缀和变为 $-1$，所以将 $c_u\\gets c_u-query(u)-1$。\r\n\r\n直接上树剖维护，复杂度 $\\mathcal O(n\\log^2n)$。\r\n\r\n## [AT_abc230_g [ABC230G] GCD Permutation](https://www.luogu.com.cn/problem/AT_abc230_g)\r\n\r\n令 $S(p)$ 表示满足 $p$ 命题的方案数。\r\n$$\r\nans=S(\\gcd(i,j)\\ne 1\\wedge \\gcd(P_i,P_j)\\ne 1)\\\\\r\n=S(1)-S(\\gcd(i,j)=1)-S(\\gcd(P_i,P_j)=1)+S(\\gcd(i,j)=1 \\wedge \\gcd(P_i,P_j)=1)\\\\\r\n=\\frac{n(n+1)}2-2\\sum_{i=1}^n \\varphi(i)+S(\\gcd(i,j)=1\\wedge \\gcd(P_i,P_j)=1)\\\\\r\n$$\r\n只要解决 $\\beta=S(\\gcd(i,j)=1 \\wedge \\gcd(P_i,P_j)=1)=\\sum_{i=1}^n\\sum_{j=1}^n [\\gcd(i,j)=1\\wedge\\gcd(P_i,P_j)=1]$ 即可。\r\n\r\n由莫反可得\r\n$$\r\n\\beta=\\sum_{x=1}^n\\sum_{y=1}^n \\mu(x)\\mu(y)\\sum_{i=1}^n\\sum_{j=1}^n[(x|\\gcd(i,j))\\wedge (y|\\gcd(P_i,P_j))]\\\\\r\n=\\sum_{x=1}^n\\sum_{y=1}^n\\mu(x)\\mu(y)\\binom{(\\sum_{x|i,y|P_i}1)+1}2\\\\\r\n\\text{let} f(x,y)=\\sum_{i=1}^n [x|i\\wedge y|p_i]\\\\\r\n\\beta=\\sum_{x=1}^n\\sum_{y=1}^n \\mu(x)\\mu(y) \\frac{(f(x,y)+1)f(x,y)}2\r\n$$\r\n每次加入一个新的数时枚举 $x|i,y|P_i$ 并修改对 $\\beta$ 的贡献即可，复杂度为 $\\mathcal O(n\\ln n+\\sum_{i=1}^n d(i)^2)$，打表得 $N=2\\times10^5$ 时大约为 $6\\times 10^7$。\r\n\r\n## [P13997 【MX-X19-T6】「FeOI Round 4.5」はぐ](https://www.luogu.com.cn/problem/P13997)\r\n\r\n路径上求可以差分转化成四个点到根求，同时可能有 $a_i\\gets a_i\\pm dep_i$，然后就是求 $\\bigoplus_{i=0}^{dis(1,x)}(a_{p_i}+k)$，其中 $p_i$ 为 $1$ 走到 $x$ 的经过的第 $i$ 个点。每个位单独考虑，$x_k$ 表示 $x$ 二进制下的第 $k$ 位的值，拆项得\r\n$$\r\n(a_j+k)_i=(a_j)_i\\oplus k_i\\oplus[(a_j\\bmod 2^i+k\\bmod 2^i)\\ge2^i]\r\n$$\r\n$\\bigoplus(a_j)_i$ 可以直接预处理出根到 $x$ 的 $a$ 的异或和，$k$ 直接看 $dep_x$ 的奇偶性即可，最后一个考虑离线下来，将询问 $(x,k,i)$ 挂在 $x$ 上，使用 BIT 维护当前点祖先的 $a_j \\bmod 2^i$ 即可，复杂度为 $\\mathcal O(n\\log^2 n)$。\r\n\r\n\r\n\r\n## [One, Two, Three](https://qoj.ac/problem/6537)\r\n\r\n怎么出了若干次的题都还没补过。\r\n\r\n设共匹配 $A$ 组 $(1,2,3)$ 和 $B$ 组 $(3,2,1)$，求 $\\max(A+B)$。显然 $(1,2,3)$ 选定的一定是最左边的 $A$ 个 $1$ 和最右边的 $A$ 个 $3$，$(3,2,1)$ 同理。再分讨一下发现取的 $(1,2,3)$ 匹配 $(a_i,b_i,c_i)$ 满足 $a_1<a_2<\\dots<a_A$，$b_1<b_2<\\dots<b_A$，$c_1<c_2<\\dots<c_A$ 一定是不劣的，证明可以讨论 $2$ 的位置。现在就可以将匹配对应到 $A+B$ 个区间了。\r\n\r\n过程其实就类似二分图匹配，需要对 $A+B$ 个区间 $[l_i,r_i]$ 匹配所在区间内的 $2$。考虑 HALL 定理，即需要满足对于任意一个 $S\\in [A+B]$，满足 $|S|\\le cnt2(\\cup [l_i,r_i]),i\\in S$，由于区间之间有偏序关系，即 $\\forall l_i<l_j,r_i<r_j$，所以实际上 $S$ 取到一个区间是本质相同的，即 $R-L+1\\le cnt2[l_L,r_R]$。\r\n\r\n换一种说法，就是对于每一个区间 $[l,r]$，令被 $[l,r]$ 严格包含的区间数量为 $f_{l,r}$，则满足 $\\forall l\\le r,f_{l,r}\\le cnt2[l,r]$。\r\n\r\n对于每对 $(A,B)$，考虑 $f_{l,r}$ 的下界，先考虑 $(1,2,3)$ 的情况，令 $x\\gets cnt1(1,l-1),y\\gets cnt3(r+1,n)$，则 $[l,r]$ 需要包含 $\\max(0,A-x)$ 个 $1$ 和 $\\max(0,A-y)$ 个 $3$，按照匹配的顺序左右端点都单调可以发现 $[l,r]$ 的最右边 $y$ 个 $1$ 和最左边 $x$ 个 $3$ 会被外面的点匹配，所以内部就会剩下 $\\max(A-x-y,0)$ 组 $(1,3)$ 需要匹配，所以有 $\\max(A-x-y,0)\\le cnt2[l,r]$。\r\n\r\n同理考虑 $(3,2,1)$ 的情况能得到 $\\max(A-cnt1[0,l-1]-cnt3[r+1,n],0)+\\max(B-cnt3[0,l-1]-cnt1[r+1,n],0)\\le f_{l,r}\\le cnt2[l,r]$。\r\n\r\n分讨两个 $\\max$ 的取值，就能得到 $A,B,A+B$ 的范围了，构造由于 $(1,2,3)$ 和 $(3,2,1)$ 的区间内部满足左右端点都是单调的，所以在左端点加入，发现一个 $2$ 时贪心匹配最小的右端点即可。时间复杂度为 $\\mathcal O(n)$。\r\n\r\n\r\n## [AT_arc210_e [ARC210E] Subset Sum Gaps](https://www.luogu.com.cn/problem/AT_arc210_e)\r\n\r\n首先 $k$ 的种树显然只有 $\\mathcal O(\\log_{1.01}\\sum A)$，所以不用担心输出不完的情况。显然有一个暴力，每次加入 $a_i$ 时将所有的和的加上 $a_i$ 后和原来的进行归并。\r\n\r\n而正解就是基于此的优化，发现若过程中有两个相邻的和 $s_i,s_{i+1}$ 满足 $s_i\\le s_{i+1}<1.01\\times s_i$，则后面过程中 $1.01\\times s_i$ 和下一个数的差只会越来越大（同时因为 $a_i>0$，所以 $1.01\\times a_i>a_i$），不可能 $\\le 0$，所以此时 $s_i$ 就可以类似做删除处理。考虑记录若干个连续段的最左边和最右边的和以及长度，表示单个连续段内都不可能存在满足条件的和，而相邻连续段的相邻两个位置一定会满足条件，由最开始的证明，显然连续段个数也只有 $\\mathcal O(\\log_{1.01}\\sum A)$。总复杂度为 $\\mathcal O(n \\log_{1.01}\\sum A)$。\r\n\r\n## [AT_agc076_a [AGC076A] Hamming-Distant Arrays](https://www.luogu.com.cn/problem/AT_agc076_a)\r\n\r\n给求的东西取反，$f(x,y)=n-d(x,y)$，就是求有多少种 $(x_1,\\dots x_n)$ 满足存在一个 $y$ 满足 $f(x_i,y)>n$，所以显然有一个必要条件是 $n^2$ 个位置每个位置的最大相同数的和 $\\ge n^2+n$，不知道是不是充分的。\r\n\r\n写完了，过了，那就是充要的了。复杂度 $\\mathcal O(n^5)$。\r\n\r\n## [P4948 数列求和](https://www.luogu.com.cn/problem/P4948)\r\n\r\n其实是[这里](https://www.luogu.com.cn/article/4jicxaql)的题目，感觉挺牛的，本质上应该还是快速幂，所以写一下。\r\n$$\r\nf_k(n)=\\sum_{i=1}^n i^ka^i\r\n$$\r\n当 $n$ 为偶数时，令 $m\\gets \\frac n2$：$\\Large{\\color{red}\\Diamond}$\r\n$$\r\nf_k(n)=\\sum_{i=1}^{m}i^ka^i+\\sum_{i=m+1}^n i^ka^i\\\\\r\n=f_k(m)+a^m\\sum_{i=1}^m (i+m)^ka^i\\\\\r\n=f_k(m)+a^m\\sum_{i=1}^m (\\sum_{j=0}^k \\binom{k}{j}i^jm^{k-j})a^i\\\\\r\n=f_k(m)+a^m\\sum_{j=0}^k\\binom{k}{j}m^{k-j}\\sum_{i=1}^mi^ja^i\\\\\r\n=f_k(m)+a^m\\sum_{j=0}^k\\binom{k}{j}m^{k-j} f_j(m)\\\\\r\n$$\r\n当 $n$ 为奇数时：\r\n$$\r\nf_k(n)=a+\\sum_{i=2}^n i^ka^i\\\\\r\n=a+a\\sum_{i=1}^{n-1}(i+1)^ka^i\\\\\r\n=a+a\\sum_{i=1}^{n-1}\\sum_{j=0}^k\\binom kj i^ja^i\\\\\r\n=a+a\\sum_{j=0}^k \\binom kj f_j(n-1)\r\n$$\r\n现在每次就能花费 $\\mathcal O(k^2)$ 的代价将 $n\\gets \\lfloor \\frac n2 \\rfloor$，并求出 $\\forall i\\in [1,k]$ 的 $f_i(n)$，所以一共有 $\\log n$ 层，复杂度为 $\\mathcal O(k^2\\log n)$。\r\n\r\n## [P14829 [THUPC 2026 初赛] Asian Soul](https://www.luogu.com.cn/problem/P14829)\r\n\r\n感觉对树上 lca 性质还是不太熟练。\r\n\r\n将询问挂在线段树上离线，这样即使对每个区间内的所有数操作也只有 $\\mathcal O(n\\log n)$。要求一个点和多个点的分别的 lca，考虑先对每个线段树区间和插入其中的询问节点建出虚树，此时所有的 $lca(a_k,u)$ 都会在虚树上出现。$\\Large\\color{red}\\Diamond$\r\n\r\n接下来只要处理在虚树上求答案了，令 $f_u$ 表示 $u$ 子树内为线段树区间上的点的个数。思考一个点何时会作为 lca 产生贡献，即若一条虚树边 $u \\to v$ 满足 $f_u>f_v$，则说明 $v$ 子树和 （$u$ 子树/$v$ 子树内的线段树区间中的点）之间的 lca 都为 $u$，即 $v$ 子树内的询问都会获得 $u$ 的贡献。只要在 $v$ 打上标记下传即可。\r\n\r\n总复杂度为 $\\mathcal O((n+m+q)\\log^2 n)$，瓶颈在给所有区间建虚树。如果用单调栈建虚树，那一次排序可以在线段树上归并处理，复杂度少一个 $\\log$。注意要用 $\\mathcal O(1)$ lca。\r\n\r\n## [Fake Plastic Trees 2](https://qoj.ac/problem/2562)\r\n\r\n首先有个比较简单的 dp，令 $f_{u,i,j}$ 表示 $u$ 子树内删了 $i$ 条边，目前 $u$ 连通块的大小为 $j$ 是否可行。\r\n\r\n转移就类似树上背包合并，考虑如何优化 $j$ 这一维。\r\n\r\n显然 $j$ 的最大值是 $T_u-iL$，最小值是 $T_u-iR$，其中 $T_u$ 表示 $u$ 子树内的 $A$ 和，所以 $j$ 的极差 $\\le i(R-L)$。\r\n\r\n接着证明对于 $j=x,y,z(x<y<z,z-x<R-L)$ 时，状态 $y$ 可以省略掉$\\Large\\color{red}\\Diamond$，设选择了 $y$ 后最后形成的连通块大小为 $sz\\in[l,r]$，则新增了 $sz-y$，分讨后可以证明 $sz-y+x$ 和 $sz-y+z$ 至少一个会 $\\in [l,r]$，所以 $y$ 状态可以不计。此时所有记录的递增状态 $j_1,j_2\\dots j_s$ 都满足 $j_{i+2}-j_i\\ge R-L$，而又$\\mathcal O(k)$ 个。所以状态只有 $\\mathcal O(nk^2)$ 了，总复杂度为 $\\mathcal O(nk^3)$。具体为什么不是 $\\mathcal O (nk^4)$，是因为 $f_{u,i}$ 和 $f_{v,j}$ 卷的时候由于树上背包的证明是 $\\mathcal O(nk)$ 的，剩余两个卷积是 $\\mathcal O(k^2)$ 的。\r\n\r\n## [P9266 [PA 2022] Nawiasowe podziały](https://www.luogu.com.cn/problem/P9266)\r\n\r\n令 $w(l,r)$ 表示区间 $[l,r]$ 中所有子串中合法括号序列数量，可以证明 $w$ 满足四边形不等式。令 $f_{i,j}$ 表示前 $i$ 个字符分成了 $j$ 段的方案数，则 $f_{i,j}=\\min_{k<i}f_{k-1,j-1}+w(k,i)$，所以 $F(x)=f_{n,x}$ 为下凸函数。\r\n\r\n套路地，显示使用 wqs 二分，然后需要求 $g_i=\\min_{j<i}g_{j-1}+w(j,i)-mid$。因为 $w$ 满足四边形不等式，所以 $g$ 满足决策单调性，但 $w$ 不好直接求，并且 $g$ 求解过程需要在线。\r\n\r\n发现 $w(l,r)$ 在做 $l\\to l\\pm 1$ 或 $r\\to r\\pm 1$ 时可以直接 $\\mathcal O(1)$ 求解，所以可以用 cdq 分治套决策单调性分治解决，复杂度为 $\\mathcal O(n\\log^3n)$。但是可以使用**LARSCH/简化 LARSCH**（感觉像科技）算法优化至 dp 部分只要 $\\mathcal O(n)/\\mathcal O(n\\log n)$，总复杂度为 $\\mathcal O(n\\log n/n\\log^2n)$。$\\Large\\color{red}\\Diamond$\r\n\r\n简化 LARSCH 算法其实类似于 cdq 分治套决策单调性分治，令 $opt_t(x)$ 表示只考虑从 $[1,t]$ 的转移到 $x$ 的最优决策，$opt(x)=opt_{x-1}(x)$。具体过程是定义 $solve(l,r)$ 表示已知 $[1,l)$ 的 $g,opt$ 和 $opt_{l-1}(r)$，求解 $[1,r]$ 的 $g,opt$。\r\n\r\n1. 用 $i\\in [opt_{l-1},opt_{l-1,r}]$ 求出 $opt_{l-1}(mid)$，因为 $opt_{t}(x)\\le opt_{t}(y)\\le opt_{t}(z),x<y<z$。\r\n2. 调用 $solve(l,mid)$。\r\n3. 用 $opt(i),i\\in [l,mid]$ 和 $opt_{l-1}(r)$ 求出 $opt_{mid}(r)$。\r\n4. 调用 $solve(mid+1,r)$。\r\n\r\n注意 1 操作中要移动 $w1$ 的指针，3 操作中要移动 $w2$ 的指针，可以证明整个过程中 $w1$ 和 $w2$ 的指针一共只会移动 $\\mathcal O(n\\log n)$ 次，若两种操作移动同一对指针会退化到 $\\mathcal O(n^2)$ 次。\r\n\r\n## [P6782 [Ynoi2008] rplexq](https://www.luogu.com.cn/problem/P6782)\r\n\r\n考虑对于每个点的度数和儿子子树大小根号分治，对于度数 $\\le B$ 的点的询问考虑暴力枚举每个儿子，$>B$ 的点只有 $\\mathcal O(\\sqrt n)$ 个再考虑优化。$\\Large\\color{red}\\Diamond$\r\n\r\n记 $f(u,l,r)$ 表示 $u$ 子树中编号在 $[l,r]$ 的点的数量，则对于询问 $(l,r,x)$ 答案就是 $\\binom{f(x,l,r)}2-\\sum_\\text{v is son of x}\\binom{f(v,l,r)}{2}$。对于 $deg_x\\le \\sqrt n$，直接枚举 $v$ 后就会形成 $\\mathcal O(n\\sqrt n)$ 个求子树内编号在 $[l,r]$ 的数量的询问，把子树用 dfs 序拍掉就是 $\\mathcal O(n)$ 个点 $\\mathcal O(n\\sqrt n)$ 次询问二维数点，离线后就是 $\\mathcal O(n)$ 次单点加，$\\mathcal O(n\\sqrt n)$ 次区间求和，可以使用分块内记录块内和块间前缀和做到 $\\mathcal O(\\sqrt n)-\\mathcal O(1)$ 修改/查询，复杂度为 $\\mathcal O(n\\sqrt n)$。但是空间还是 $\\mathcal O(n\\sqrt n)$，因为要存下 $\\mathcal O(n\\sqrt n)$ 个询问，可以发现 $x$ 的儿子的询问区间互不相交，所以可以扫描求完最小的区间后再把下一个加入，空间就是 $\\mathcal O(n)$ 的了。\r\n\r\n剩下考虑 $deg_x >\\sqrt n$ 的怎么做。再次考虑分成两种情况，对于 $x$ 的儿子 $v$ 的子树大小 $>\\sqrt n$ 的，$x$ 只会有 $\\sqrt n$ 个这种儿子，可以理解为度数只有 $\\sqrt n$，所以直接套用上面的做法即可。$\\Large\\color{red}\\Diamond$对于 $v$ 子树大小 $\\le \\sqrt n$，直接暴力 $\\mathcal O(siz_v^2)$ 枚举出所有二元组 $(x,y),x<y$，若满足 $l\\le x< y\\le r$ 就会贡献答案，这也是一个二维偏序（数点），但是现在有 $\\mathcal O(n\\sqrt n)$ 对修改，$\\mathcal O(m)$ 个询问，使用 $\\mathcal O(1)-\\mathcal O(\\sqrt n)$ 的分块处理即可。这部分的复杂度还是 $\\mathcal O(n\\sqrt n)$ 的，修改简单处理就可以做到线性空间。\r\n\r\n总结一下就是直接对于每个点的儿子子树中前 $\\sqrt n$ 大的做 $\\mathcal O(\\sqrt n) -O(1)$ 的二维数点，对剩余的做 $\\mathcal O(1)-\\mathcal O(\\sqrt n)$ 的二维数点。\r\n\r\n## [Omniscient Artist](https://qoj.ac/problem/11109)\r\n\r\n首先将二维数点离线扫描线改成对 $a$ 做区间 $\\pm 1$，由于 $a_i\\le n$，所以 $m$ 的倍数只会有 $\\mathcal O(\\frac nm)$ 种。考虑以 $B$ 为块长做序列分块，区间加是好做的，由于初始时 $a$ 的差分数组都是 $c_i=0$，每次区间加会让 $c_l\\gets c_{l}\\pm 1,c_{r+1}\\gets c_{r+1}\\mp 1$，只会有 $\\mathcal O(n)$ 次区间加，所以 $\\sum |c_i|\\le 2n$，所以每个块内的 $\\max-\\min$ 的和是 $\\mathcal O(n)$ 级别的。询问时对每个块内枚举 $m$ 的倍数并查询出现次数即可，$m$ 的倍数一共只会有 $\\mathcal O(\\frac {\\max-\\min} m)$ 个，所以查询复杂度为 $\\mathcal O(\\frac n m)$，区间加复杂度为 $\\mathcal O(\\frac nB+B)$，平衡后整体复杂度为 $\\mathcal O(n\\sqrt n)$。注意重构的时候应该对每个块内的数删除而不是 $\\mathcal O(\\max-\\min)$ 的清空，否则复杂度会退化到 $\\mathcal O(n^2)$。\r\n\r\n## [P14836 [THUPC 2026 初赛] 能量分配](https://www.luogu.com.cn/problem/P14836)\r\n\r\n这也太困难了。\r\n\r\n$p\\gets 317$，固定 $c$ 数组后，分配宝石的方案数就是 $\\binom {n}{c_1,c_2,\\dots c_m}$，由 Lucas 定理的过程可以得到 $\\binom{n}{c_1,c_2\\dots c_n}\\not\\equiv 0(\\bmod p)$ 的必要条件是 $\\forall k,\\sum bit_k(c_i)=bit_k(n)$，其中 $bit_k(x)$ 表示 $x$ 在 $p$ 进制下的第 $k$ 位，即需要满足 $\\sum c_i$ 求和过程中不能在 $p$ 进制下进位。$\\Large\\color{red}\\Diamond$\r\n\r\n先考虑 $n<p$，此时就只有一层。考虑直接枚举排序后 $c_i$ 之间的偏序关系，即相邻的两个位置之间的关系是 ``<`` 还是 ``=``，一共只有 $\\mathcal O(2^{m-1})$ 种。然后在确定相对偏序关系后，$\\binom n {c_1,c_2\\dots c_m}$ 的贡献和 $A,B$ 造成的贡献就独立了，分别考虑。$\\Large\\color{red}\\Diamond$\r\n\r\n先考虑求出 $A,B$ 的贡献。令 $dp_{S1,S2}$ 表示已经填入了集合 $S1$ 的选手，前面的偏序关系是 $S2$ 的贡献和，转移考虑枚举一个新的极长的相等段，选手编号集合为 $S3$，然后可以提前预处理出 $w_{S1,S3}$ 造成的贡献进行转移。复杂度为 $\\mathcal O(\\sum_{i=1}^m \\binom{m}{i}\\times 2^{i-1}\\times 2^{m-i})=\\mathcal O(4^m)$。\r\n\r\n然后考虑求 $\\binom{n}{c_1,c_2\\dots c_m}$ 的贡献。由于 $c_i$ 的顺序不影响，所以这里只计算 $c$ 有序时的贡献和。令 $f_{i,j,S}$ 表示前 $i$ 个数和为 $j$，相对偏序关系为 $S$ 的总贡献，转移时讨论 $c_{i+1}$ 与 $c_i$ 的偏序关系。复杂度为 $\\mathcal O(\\sum_{i=1}^m 2^{i-1}p^2)=\\mathcal O(2^mp^2)$。\r\n\r\n拓展到 $n\\ge p$，现在一共有 $\\log_p n$ 层。类似上面的做法，将两种贡献分开计算，$A,B$ 造成的贡献直接 $\\mathcal O(4^m)$ 预处理即可。考虑如何适应层数对偏序关系的影响。从高位到低位，原本相等的一段区间可能会分裂成几个有序的区间，考虑用 dp 记录这个过程。令 $f_{i,S}$ 表示到达 $i$ 层时的偏序关系为 $S$ 的方案数（$bit_2(S)=[c_i \\ne c_{i+1}]$），考虑从 $f_{i,S}$ 转移到 $f_{i-1,S'}$（$S\\sube S'$） 的转移系数 $g_{S,S',bit_{i-1}(n)}$，实际上 $g_{S,S',i}$ 可以将这个过程分成 $S$ 的每个 0 区间（等价类）变成 $S'$ 对应区间后对 $\\sum bit_k(c)$ 维做卷积得来的。具体的，令 $h_{S,i}$ 表示相对偏序关系为 $S$，$\\sum c=i$ 的方案数，则 $(S,S')$ 的转移可以通过 $h_{S,i}$ 的第二维 $i$ 的和卷积得来。$h$ 的转移和上一段落中的类似，$g$ 的状态中有许多可以通过记忆化解决$\\Large\\color{red}\\Diamond$，比如下图中三个绿色段的相对顺序不会影响 $g$ 的值，所以可以将其排序后存入``map``进行记忆化。令``map``的大小为 $F(m)$，则预处理 $g$ 的复杂度为 $\\mathcal O(F(m)p^2)$。若没有记忆化，$F(m)=3^m$（即枚举 $S\\sube S'$），但是显然记忆化后会大幅减少状态数，实际上 $\\color{red}F(12)=17547$。对于每次询问跑 $f$ 转移后记得最后与前面算的 $A,B$ 造成的贡献 $dp$ 拼起来。总复杂度为 $\\mathcal O(4^m+F(m)p^2+q3^m\\log_p n)$。\r\n\r\n ![](能量分配 配图.png)\r\n\r\n倒闭了，写不了一点，还要卡常，下播了。upd. 改完了。\r\n\r\n## [最小乘积](https://qoj.ac/problem/12170)\r\n\r\n由于 $A,B$ 很小，所以考虑直接枚举其中一个。令 $f_{u,i}$ 表示到 $u$ 时经过的 $\\sum a=i$ 的最小的 $\\sum b$，转移不难发现由于 $a_i>0$，所以这个转移是分层图，可以从小到大枚举 $i$ 后枚举每条边转移，复杂度为 $\\mathcal O((n+m)mV)$，若没有发现分层图直接跑 dijkstra 会多一只 log 无法通过。\r\n\r\n## [CF280D k-Maximum Subsequence Sum](https://www.luogu.com.cn/problem/CF280D)\r\n\r\n由于 $k$ 和 $\\sum k$ 很小，可以考虑模拟费用流。首先有个显然的费用流模型，对每个 $i$ 连边 $(S,i,1,0),(i,i+1,1,a_i),(i,T,1,0)$，还有 $k$ 的限制所以答案就是在这个图中增广 $k$ 次的最大花费。每次增广就是找到当前的最大区间和，然后将经过的链上的边反向并将费用变成相反数 $\\Large\\color{red}\\Diamond$。这个过程可以使用线段树模拟，就是做最大子段和还有区间取相反数，复杂度为 $\\mathcal O(q\\log n+\\sum kn\\log n)$。\r\n\r\n其实也可以从反悔贪心的方面思考刚刚的过程，就是先取当前和最大的区间 $[l,r]$，然后反悔再选取 $[l',r'] \\sube [l,r]$ 并减去 $sum[l',r']$，这样区间就断成了 $[l,l')$ 和 $(r',r]$，完成了反悔操作，也就对应模拟费用流的反向弧的操作。\r\n\r\n## [Poor Students](https://qoj.ac/contest/1356/problem/7185)\r\n\r\n依旧是模拟费用流。首先这显然是一个带权二分图匹配问题，考虑建立费用流后如何优化。\r\n\r\n如果手玩这个退流和走反向弧的过程不难发现每次实际上就是在右边选出一个序列 $p_1,p_2,\\dots p_m$ 满足 $p[1,m)$ 都曾经被流满了（匹配完 $c_{p_i}$ 个左部点了），然后不断进行退流操作（即走反向弧）直到最后走到了一个没有流满的点 $p_m$ 后走到 $T$，下图红色的边就体现了退流的过程。由于 $m\\le k\\le 10$，所以考虑对右部点做一些本质的操作。$\\Large\\color{red}\\Diamond$实际上每次寻找最短路时可以看作从 $p_i$ 走到 $p_{i+1}$，距离就是 $p_i\\to x \\to p_{i+1}$ 两条边的距离之和，这个可以提前预处理出任意两个右部点的 $x$ 的集合处理，所以就是已知任意两个右部点之间的距离求一条最短路 $rs\\rightsquigarrow rt$ 且保证 $rt$ 没有流满。直接 $\\mathcal O(k^3)$ 跑 floyd 即可，由于要模拟退流，所以要记录转移点来复原路径。复杂度为 $\\mathcal O(nk^3+nk^2\\log n)$。\r\n\r\n![](Poor Students 配图.png)\r\n\r\n## [Cool Problem](https://codeforces.com/contest/2187/problem/D)\r\n\r\n题解做法简直抽象。\r\n\r\n将两个操作变得更相似，可以发现\r\n$$\r\nr_i=0:c_i-\\frac{x+y}2=c_{i-1}+\\frac{x-y}2 \\\\\r\nr_i=1:c_i-\\frac{x+y}2=-c_{i-1}-\\frac{x-y}2 \\Large\\color{red}\\Diamond\r\n$$\r\n所以任意操作后都有 $(c_i-\\frac{x+y}2)^2=(c_{i-1}+\\frac {x-y}2)^2$，拆开得到 $c_i^2-c_{i-1}^2-(x+y)c_i-(x-y)c_{i-1}+xy=0$。对于 $i \\in[1,n]$ 求和后就得到了 $c_n^2-yc_n+nxy=x\\sum(c_i+c_{i+1})$，由于 $f(r)=\\sum c-i$，所以 $f(r)=\\frac{c_n^2+(x-y)c_n+nxy}{2x}$，所以知道 $c_n$ 就能直接求出 $f(r)$ 了。由于每次操作二都会将之前的 $y$ 的系数 $\\times(-1)+1$，由归纳法可得 $y$ 的系数只会是 $0/1$，所以只会有至多 $2n$ 种 $c_n$，求解直接设 $f_{i,j\\in\\{0,1\\},k}$ 表示前 $i$ 个数 $y$ 的系数为 $j$，$x$ 的系数为 $k$ 是否可行，转移用 bitset 优化，复杂度 $\\mathcal O(\\frac{n^2}\\omega)$，要滚动数组。\r\n\r\n## [CF1098F Ж-function](https://www.luogu.com.cn/problem/CF1098F)\r\n\r\n*3500。这种题写还是算了，太恐怖了一点。$\\operatorname{Ж}(l,r)\\to f(l,r)$\r\n$$\r\nf(l,r)=\\sum_{i=l}^r|\\operatorname{lcp}(s[l,r],s[i,r])|=\\sum_{i=l}^r|\\min(\\operatorname{lcp}(s[l,n],s[i,n]),r-i+1)|\r\n$$\r\n由于 $\\operatorname{lcp}(s[i,n],s[j,n])=\\min_{k=rk_{i}+1}^{rk_{j}}ht_k$，所以考虑将 $i\\in [l,r]$ 分成 $rk_i< rk_l$ 和 $rk_i>rk_l$ 和 $i=l$，然后将询问挂在 $rk_l$ 上。后面其实就是数据结构的事了。\r\n\r\n$rk_i>rk_l$ 和 $rk_i<rk_l$ 是本质相同的，这里只讨论前者。区间最小值的拆贡献考虑离线后对 $rk$ 分治，令 $suf_i=\\min_{j=i}^{mid} ht_j$，$pre_i=\\min_{j=mid}^i ht_j$。从 $mid\\to L$ 扫描线，当遇到询问 $[l,r]$ 时，令 $mn=suf_{rk_l}$，满足$\\forall mid<i\\le p,pre_i\\ge mn$ 的 $p$ 最大，$mn$ 单调不降，$pre$ 单调不降，因此 $p$ 单调不降，考虑拆开贡献成 $\\sum_{i=mid+1}^p [sa_i\\in [l,r]]\\min(mn,r-sa_i+1)+\\sum_{i=p+1}^R[sa_i\\in [l,r]\\min(pre_i,r-sa_i+1)]$。前半部分是讨论对 $(sa_i,i)$ 的二维数点，扫 $p$ 的时候加入树状数组即可。后半部分当 $pre_i\\le r-sa_i+1$ 时还需要满足 $sa_i\\in [l,r],i\\in [p+1,R]$，所以是对 $(i,sa_i,sa_i+pre_i)$ 的三维数点，考虑优化。题解做法是将限制拆成 $mn\\le r-sa_i+1$ 加上 $pre_i\\le r-sa_i+1< mn$，因为 $pre_i< mn$。第一个限制是二维数点，乍一看第二个限制还是三维数点，但是由于对于 $i\\in (mid,p]$ 的都满足 $pre_i\\ge mn$，所以就忽略掉了对 $i\\in [p+1,R]$ 的限制也不会多算，所以就改成了二维数点。$\\Large\\color{red}\\Diamond$其他的讨论都类似就算了。\r\n\r\n复杂度为 $\\mathcal O((n+q)\\log^2n)$。\r\n\r\n## [最短路径](https://qoj.ac/problem/9903)\r\n\r\n由于每次询问只会删除一个点，所以可以考虑缺一分治。$\\Large\\color{red}\\Diamond$同时由于 $n\\le 300$，所以考虑用 floyd 做最短路。具体的令 $solve(l,r)$ 表示进入时 $[1,l)$ 和 $(r,n]$ 都已经加入图中并处理完最短路，则答案直接离线后在 $solve(p_i,p_i)$ 中求即可。每次加入一段区间 $[l,r]$ 只要将其设为 floyd 中的转移点即可，因为不是它作为转移点的在之前已经处理过了，大概过程就是 $i\\in[l,r],j\\in [1,n],k\\in [1,n] :f_{j,k}\\gets f_{j,i}+f_{j,k}$，这个过程单次复杂度为 $\\mathcal O(n^2siz)$，由于在分治过程中 $\\sum siz=\\mathcal O(n\\log n)$，所以总复杂度为 $\\mathcal O(n^3\\log n+q)$。由于 floyd 无法删除，撤销只能记录当时的最短路数组后拷贝，所以空间复杂度是 $\\mathcal O(n^3)$。\r\n\r\n## [No Rest for the Wicked](https://qoj.ac/contest/697/problem/1878)\r\n\r\n每次新到达的点 $x$ 都要满足 $t_x\\ge maxc$，所以考虑从小到大枚举 $maxc$ 并转移能到达的最大 $s$。若 $t_i<maxc$ 则现在无法被加入和到达，直接全部删除不考虑。剩余的若 $c_i\\le maxc$ 则当前点可以转移到其他点也可以被转移到，将其称为 1 类点，否则只能被其他点到达转移称为 2 类点。若一条边连接了两个 1 类点，则可以互相转移，令 $bel(x)$ 为 $x$ 所在的极大 1 类点连通块。而 1 类点连向 2 类点的边只能单向转移，并且 2 类点当前无法再向外转移，所以最后的图就是若干个 1 类连通块像菊花一样向外连若干条单向边。\r\n\r\n对于一条边 $(u,v)$ 会在 $maxc\\in [\\max(c_u,c_v),\\min(t_u,t_v)]$ 时称为 1 类边，在 $maxc\\in [c_u,\\min(t_u,c_v-1)]$ 时成为 2 类边，注意反向边也要建。考虑如何顺着这个图进行转移，由于连通块之间的信息是相同的，而且不好撤销，而一条边会在一个区间出现，所以套路地使用线段树分治，1 类连通块用可撤销并查集维护。复杂度为 $\\mathcal O(n\\log^2n)$。\r\n\r\n其实到这一步时可以求出每个时刻每个连通块的答案，但是还无法将连通块的贡献传到每个点。优化可以发现对于一条无向边 $(u,v)$，其产生的 1 类边时间一定完全晚于 2 类边时间，所以需要在线段树上倒着扫 $maxc$，否则就会导致先扫到的 2 类点在被删掉后更新 1 类连通块。\r\n\r\n## [CF997C Sky Full of Stars](https://www.luogu.com.cn/problem/CF997C)\r\n\r\n容斥一下，方案数为\r\n$$\r\nans = \\sum_{i+j>0}(-1)^{i+j-1}\\binom{n}{i}\\binom{n}{j}f(i,j)\r\n$$\r\n其中 $f(i,j)$ 表示至少有 $i$ 列同色和 $j$ 行同色的方案数，则 $f(0,i)=f(i,0)=3^{i+n(n-i)}$，$f(i,j)=3^{n^2-(i+j)n+ij+1}$。$i=0$ 和 $j=0$ 分开讨论，剩下是 $i,j>0$。\r\n$$\r\n\\sum_{i,j>0}(-1)^{i+j-1}\\binom ni\\binom nj3^{n^2-(i+j)n+ij+1} \\\\\r\n=3^{n^2+1}\\sum_{i=1}^n (-1)^{i-1}3^{-in}\\binom ni\\sum_{j=1}^n(-1)^j\\binom nj 3^{-jn+ij}\\\\\r\n=-3^{n^2+1}\\sum_{i=1}^n (-1)^{i}3^{-in}\\binom ni\\sum_{j=1}^n\\binom nj (-(3^{-n+i}))^j\r\n$$\r\n看到 $j$ 式子的很像二项式定义，考虑\r\n$$\r\n(-(3^{-n+i})+1)^n=\\sum_{j=0}^n\\binom nj(-3^{-n+i})^j \\\\\r\n\\sum_{j=1}^n\\binom nj (-(3^{-n+i}))^j=(-(3^{-n+i})+1)^n-1\r\n$$\r\n然后把式子带回去就可以 $\\mathcal O(n\\log n)$ 做完了。\r\n\r\n## [CF1716F Bags with Balls](https://www.luogu.com.cn/problem/CF1716F)\r\n\r\n$$\r\n\\begin{align}\r\n\\sum F^k &= \\sum_{i=0}^k{k\\brace i}i!\\sum \\binom{F}{i} \\\\\r\n&= \\sum_{i=0}^k{k\\brace i}i!\\binom{n}{i}\\lceil\\frac{m}2\\rceil^i m^{n-i}\r\n\\end{align}\r\n$$\r\n\r\n第二个式子是因为考虑 $\\binom Fi$ 的组合意义就是在所有的奇数编号球中选择 $i$ 个的方案数，所以可以先钦定被选择的 $i$ 个位置选奇数，然后剩下的随便选。代码实现时将 $i!\\binom ni$ 转成了 $n^{\\underline i}$ 求解，复杂度 $\\mathcal O(Tk^2)$。枚举 $i$ 时动态维护 $n^{\\underline i}$ 做到 $\\mathcal O(Tk)$。\r\n\r\n## [P12999 [GCJ 2022 #3] Mascot Maze](https://www.luogu.com.cn/problem/P12999)\r\n\r\n神秘困难图染色构造题，这个 $|S|=13$ 甚至有用。\r\n\r\n先把限制 $ans_u\\neq ans_v$ 的边 $(u,v)$ 先建出来，无向边数只有 $6n$ 条，若有自环则显然无解。考虑稀疏图的性质，由于有向边数只有 $12n$，而一共只有 $n$ 个点，由鸽巢原理得至少有一个点的度数 $\\le 12\\Large\\color{red}\\Diamond$，否则至少会有 $13n$ 条有向边，矛盾。然后删除一个点后一定还有至少一个点度数 $\\le 12$，所以可以考虑做一个拓扑排序类似的事情。取到拓扑序后倒着染色，每个点此时至多会有 $12$ 条出度，但是有 $13$ 种颜色，所以可以染上。\r\n\r\n## [P7220 [JOISC 2020] 掃除](https://www.luogu.com.cn/problem/P7220)\r\n\r\n考虑将一个在二维上的点 $(x,y)$ 转化成一维上的一段区间 $[x,n-y]$ $\\Large\\color{red}\\Diamond$，由于所有的点在直角三角形中所以一定有 $x+y\\le n$。然后发现 H 操作就是将 $r\\ge n-L,l\\gets \\max(l,n-L)$，V 操作就是将 $l\\le L,r\\gets \\min(r,L)$。考虑建立猫树（线段树）后将所有区间挂上去，下面只考虑操作 H 对于 $r\\ge x,l\\gets \\max(l,x)$。\r\n\r\n若 $x\\le mid$，则需要将所有区间按照 $l$ 排序后取一段前缀推平成 $x$，直接维护 $l$ 相同的连续段即可。\r\n\r\n若 $x>mid$，则所有当前线段树节点上的区间都会被移动到右儿子，这个过程对于每个区间显然只会出现 $\\mathcal O(\\log n)$ 次，所以直接暴力将当前节点的区间取出后全部重新插入即可。\r\n\r\n维护这个过程应该直接对每个线段树节点都使用堆和 odt 维护就可以了。总复杂度为 $\\mathcal O((n+q)\\log^2n)$，难写+难调+速度慢+空间大。\r\n\r\n## [P12962 [GCJ Farewell Round #4] Genetic Sequences](https://www.luogu.com.cn/problem/P12962)\r\n\r\n题面太臭了，其实就是要求：\r\n$$\r\nn\\gets |A|,m\\gets |B|\\\\\r\n\\max_{i=1}^P \\operatorname{LCP}(A[i,P],B[m-S+1,m]) \\\\\r\n=\\max_{i=1}^P \\min(P-i+1,\\operatorname{LCP}(A[i,n],B[m-S+1,m])) \\\\\r\n$$\r\n求两个串后缀的 LCP，套路地对串 ``A+#+B`` 做 SA$\\Large\\color{red}\\Diamond$，则答案就变成了\r\n$$\r\n\\max_{i=1}^P\\min(P-i+1,\\min_{j=rk_i+1}^{rk_{len-S+1}} ht_j)\r\n$$\r\n后面的 $\\min$ 实际上是上下界可能会相反，大概意思知道就行了。\r\n\r\n这个区间 $\\min$ 还是不太好求，考虑将 $rk_i$ 排序后建立对应的 $ht$ 的小根笛卡尔树，然后就将区间 $\\min$ 转化成求笛卡尔树上的 LCA$\\Large\\color{red}\\Diamond$。考虑枚举 $rk_{len-Q+1}$ 的 LCA 为 $u$，则对答案贡献 $\\min(P-mn_u+1,ht_u)$，其中 $mn_u$ 表示 $u$ 子树内的编号最小值。发现 $u$ 越往上 $mn_u$ 越小，$P-mn_u+1$ 越大，$ht_u$ 越小，所以可以在链上二分求解两个函数交点就是答案。复杂度 $\\mathcal O(\\sum (n+m+q)\\log (n+m))$。\r\n\r\n",
+      "data": {
+        "title": "讲题",
+        "date": "2026-01-30 15:52:29",
+        "tags": [
+          "做题记录"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "teaching-xdfz"
+    },
+    {
+      "content": "$\\Large{\\color{red}\\Diamond}$ 为重点转换步骤。\r\n\r\n## [typer](http://goj.wiki/d/Union2024/p/P1515)\r\n\r\n直接设 $f_{i,j}$ 表示前 $S[1 \\sim i]$ 匹配 $T[1\\sim j]$ 位的答案。\r\n\r\n$$\r\nf_{i,j}=\\min(f_{i-1,j}+1,f_{i,j-1}+1,f_{i-1,j-1}+[S_i\\not=T_j])\r\n$$\r\n\r\n直接做复杂度为 $\\mathcal O(|S|m|T|)$。\r\n\r\n由于 $|T|\\le 20$，并且发现 $i-j\\le f_{i,j}\\le i+j$，所以 $i+j-f_{i,j}\\le2|T|$，由于值域范围小，所以套路性的将值域放在定义维上，将原本的 $i$ 定为 dp 值。$\\Large{\\color{red}\\Diamond}$\r\n\r\n设 $g_{i,j}$ 为满足 $f_{x,i}=x+i-j$ 最小的 $x$。\r\n\r\n上面的 $f$ 的转移式中前两种方法的 $i+j-f_{i,j}$ 是不变的，所以先 $g_{i,j} \\leftarrow g_{i-1,j}$。\r\n\r\n若想让 $S_i=T_j$，$g_{i,j} \\leftarrow k(k>g_{i-1,j-2},S_k=T_j)$，否则 $g_{i,j} \\leftarrow k(k>g_{i-1,j-1},S_k\\neq T_j)$。\r\n\r\n预处理出每个位置 $nx_{i,j,0/1}$ 表示 $S_i$ 后字符为/不为 $j$ 的第一个位置。\r\n\r\n## [sum](http://goj.wiki/d/Union2024/p/P1520)\r\n\r\n本题保证了无重边自环。\r\n\r\n$k=1$ 简单。\r\n\r\n将 $\\sum f(S)^2$ 转成 $\\sum \\binom{f(S)}2$，赋予组合意义即为从 $S$ 的导出子图中任意选两条边的方案数的和，从而可以拆贡献至选取两条边进行计算。$\\Large{\\color{red}\\Diamond}$\r\n\r\n$$\r\nf(S)^2=2\\binom{f(S)}2+f(S)\r\n$$\r\n\r\n两条边的情况可能是两条无交边或有一个公用顶点，分开讨论并枚举公共点即可。\r\n\r\n$$\r\nf(S)^3=6\\binom{f(S)}3+3f(S)^2-2f(S)\r\n$$\r\n\r\n$f(S)^2$ 和 $f(S)$ 直接使用上面的即可，重点讨论 $\\binom{f(S)}3$ 如何拆开。\r\n\r\n影响结果的只有任选的三条边的点数 $x$ 和方案数 $y$，贡献为 $y2^{n-x}$。\r\n\r\n$x={3,4,5,6}$。由于总方案数为 $\\binom{m}3$，所以 $x=6$ 可以直接用总的减去其它的计算。\r\n\r\n$x=3$，即一个三元环。直接用三元环计数即可，令方案数为 $A$，复杂度为 $O(m\\sqrt m)$。\r\n\r\n$x=4$，可能是一条链或者一个菊花。\r\n\r\n- 链：枚举中间那一条边 $(u,v)$，方案数 $B=(\\sum (deg_u-1)\\times (deg_v-1))-3A$，最后减 $3A$ 是因为如果形成三元环，每条边都会被作为中间的边多算一次。\r\n- 菊花：枚举度数为 $3$ 的点 $u$，方案数 $C=\\sum \\binom{deg_u}{3}$。\r\n\r\n$x=5$，即分离的一条三元链和一条边，枚举三元链的中心 $u$，方案数 $D=(\\sum\\binom{deg_u}2(m-2))-3A-2B-3C$。\r\n\r\n$3A$ 因为三元环中三个点都会被作为链中心，$2B$ 因为插入的新边可能在链的两端，$3C$ 因为菊花的三条边都会被作为插入的新边。\r\n\r\n$x=6$，$E=\\binom m 3-A-B-C-D$。\r\n\r\n$\\binom {f(S)}3=2^{n-3}A+2^{n-4}(B+C)+2^{n-5}D+2^{n-6}E$。\r\n\r\n## [sort](http://goj.wiki/d/Union2024/p/P1523)\r\n\r\n寻找第 $k$ 小可以先转化成二分答案 + 求有多少个 $\\le mid$。$k\\leftarrow k-1$\r\n\r\n这里的字典序有些不同，可以直接用 $A_i$ 记录 $i$ 出现的次数，比较 $A$ 和 $B$ 时从 $i=1\\to n$ 比较 $A_i$ 和 $B_i$ 即可，若 $A_i<B_i$ 则 $A>B$，$A_i>B_i$ 则 $A<B$。\r\n\r\n由于增加一个数一定会使字典序变小，所以 $S[l,l]>S[l,l+1]>...>S[l,n]$ 且 $S[1,r]<S[2,r]<...S[r,r]$，于是对于左端点固定的区间具有单调性，设二分的区间是 $[L,R]$，则可以通过双指针或二分对每个 $i$ 求出 $M_i$ 使 $S[i,n]<S[i,n-1]<...<S[i,M_i]\\le S[L,R]$，进而求出 $S[L,R]$ 的排名。$\\Large{\\color{red}\\Diamond}$\r\n\r\n若 $rnk(S[L,R])\\le k$，则将 $pr_i=M_i-1$ 表示删去 $[i,M_i],[i,M_i+1]...[i,n]$，并将 $k\\leftarrow k-rnk(S[L,R])$。否则将 $pl_{i}=M_i$ 表示删去 $[i,i],[i,i+1],...[i,M_i-1]$。\r\n\r\n生成 $[L,R]$ 时在剩余的所有区间中随机一个即可，期望每次能选到字典序排名的重点左右，所以复杂度是 $O(\\log n)$ 的。\r\n\r\n双指针的过程就是有 $O(n)$ 次加入和删除一个字符，并查询桶内第一个和 $S[l,r]$ 的桶内的不同值。可以使用线段树维护 $T_i=A_i-B_i$，加入字符 $c$ 时将 $T_c\\leftarrow T_c+1$，删除时 $T_c \\leftarrow T_c-1$，查询时在线段树上二分或提前存储第一个 $T_i\\neq0$，若 $T_i>0$ 则 $A<B$，否则 $A>B$。总复杂度为 $O(n\\log^2n)$。\r\n\r\n## [countcircle](http://goj.wiki/d/dx2025/p/S1216)\r\n\r\n设 $L_{i,j},R_{i,j},U_{i,j},D_{i,j}$ 分别表示 $(i,j)$ 向左，向右，向上，向下能走到的最远的位置。\r\n\r\n原题就是求\r\n\r\n$$\r\n\\sum_{i=1}^n\\sum_{j=1}^m\\sum_{x=U_i}^{i-1}\\sum_{y=L_j}^{j-1}[D_{x,y}\\ge i\\wedge R_{x,y}\\ge j]\r\n$$\r\n\r\n明显上面的式子是四维的，无法直接做。将矩阵进行分治，选择竖着的中线 $mid$，分别对左右独立讨论经过中线的方案数再乘起来，将四维转换为三维。$\\Large{\\color{red}\\Diamond}$\r\n\r\n两边情况相似，只考虑左侧穿过中线的情况。先枚举 $u\\in[1,n],v\\in (u,n]$，计算左侧选取的 ``匚`` 的数量。\r\n\r\n![countcircle配图](D:\\yhy\\Blog\\countcircle配图.png)\r\n\r\n于是现在只要求\r\n\r\n$$\r\n\\sum_{u=L}^R\\sum_{v=u+1}^R\\sum_{x=\\max(l,L_{u,mid},L_{v,mid})}^{mid-1}[D_{u,x}\\ge v]\r\n$$\r\n\r\n枚举完 $u,v$ 后分类讨论 $\\max(l,L_{u,mid})$ 和 $\\max(l,L_{v,mid})$ 哪个更大，若前者更大，则对于所有 $u$ 询问的区间已经固定，所以只要开一个桶记录 $D_{u,x}$ 的后缀个数和。如果是后者更大，就相当于求 $\\displaystyle\\sum_{x=\\max(l,L_{v,mid})}^{mid-1}[U_{v,x}\\le u]$，处理方式和上面类似，开另一个桶记录 $U_{v,x}$ 的前缀个数和。这样就能单次 $O(1)$ 解决。\r\n\r\n设 $len=r-l+1,LEN=R-L+1$，这样单次的复杂度为 $\\mathcal O(LEN^2+len\\times LEN)$，由于分治时面积每次一定会减半，所以递归层数为 $\\mathcal O(\\log_2nm)$。若能保证 $LEN\\le len$ 则单次复杂度为 $\\mathcal O(len\\times LEN)$，此时总复杂度正确。每次递归后若 $LEN>len$ 则从 $[l,r]$ 中间取中线变为从 $[L,R]$ 中间取中线，复杂度为 $\\mathcal O(nm\\log_2nm)$。\r\n\r\n## [frame](http://goj.wiki/d/dx2025/p/P1548)\r\n\r\n多树问题和距离问题考虑点分治和点分树。\r\n\r\n点分树的性质：原树上 $u,v$ 的路径会经过点分树上的 $LCA(u,v)$，所以 $dis(x,y)=dis(x,LCA'(x,y))+dis(LCA'(x,y),y)$，$LCA'$ 表示在点分树上的 lca。$\\Large{\\color{red}\\Diamond}$\r\n\r\n考虑对第一棵树进行点分治，若当前分治中心为 $rt$，已经处理过的点集为 $S$，当前需要求 $u$ 到 $S$ 的答案。设 $i$ 以 $rt$ 为根的深度为 $a_i$，则需要求 $\\min_{v\\in S} a_u+a_v+dis_2(u,v)$，由点分治的性质可得\r\n\r\n$$\r\n\\min_{v\\in S} a_u+a_v+dis_2(u,v)=\\min_{v\\in S}a_u+a_v+dis_2(u,LCA_{2'}(u,v))+dis_2(LCA_{2'}(u,v),v) \\\\\r\n=\\min_{v\\in S,x=LCA_{2'}(u,v)}(a_u+dis_2(u,x))+(a_v+dis_2(v,x)) & \\Large{\\color{red}\\Diamond}\r\n$$\r\n\r\n$x$ 为点分树上 $u$ 和 $v$ 的祖先，所以 $x$ 只有 $\\mathcal O (\\log_2n)$ 个，当将 $v$ 加入 $S$ 时，跳过 $v$ 的每个祖先 $x$ 并将 $a_v+dis_2(v,x)$ 的贡献挂在 $x$ 上，$u$ 查询时只要将挂在所有祖先的贡献加上 $a_u+dis_2(u,x)$ 后求最大值即可，若 $u,v$ 在 $x$ 的同一颗子树内，则长度只会更大，不影响最小值更新。\r\n\r\n复杂度为 $\\mathcal O(n\\log^2n)$，瓶颈在点分治和在点分树上跳祖先。\r\n\r\n## [岁月](http://oj.daimayuan.top/contest/386/problem/3331)\r\n\r\n正难则反。先容斥一下，考虑计算有多少方案使得没有一个点能被 $1，2$ 同时到达。$\\Large{\\color{red}\\Diamond}$\r\n\r\n令 $f_S$ 表示只保留 $S$ 导出子图并给其定向，$1$ 恰好能到达 $x\\in S$ 的方案数，$g_S$ 和 $f_S$ 同理，从 $2$ 号点出发，$w(S)$ 表示 $S$ 的导出子图的边数。\r\n\r\n$$\r\nans=2^m-\\sum_{S \\cap T=\\empty}f_Sg_T2^{w(U-S-T)}\r\n$$\r\n\r\n由于 $S\\cap T=\\empty$，所以只需枚举 $T\\sube U-S$ 即可，复杂度为 $\\mathcal O(3^n)$。\r\n\r\n思考如何求 $f,g$，同样用总方案数 $2^{w(S)}$ 减去不合法的。\r\n\r\n先枚举 $T\\sub S$，计算只能到达 $T$ 的方案数。内部可达为 $f_T$，外部 $S-T$ 的导出子图随意，一条边 $(u,v),u\\in T,v\\in S-T$ 的只能定向为 $(v,u)$，所以方案数为 $2^{w(S-T)}f_T$，枚举子集复杂度也是 $\\mathcal O(3^n)$。\r\n\r\n总复杂度为 $\\mathcal O(3^n)$。\r\n\r\n## [快速傅里叶变换](https://zhengruioi.com/problem/3438?cid=2033&ui=1)\r\n\r\n其实还有 [君子兰](https://zhengruioi.com/problem/2489?cid=2036&ui=1) 和 [double](http://goj.wiki/d/Union2024/p/P1422)\r\n\r\n可以直接对差分后的数组 $c$ 进行计数。令 $c_i=a_i-a_{i-1}$，$b$ 为 $c$ 排列后的数组，则 $b,c$ 可以与 $a$ 一一映射当且仅当 $\\forall b_i>0,c_i\\le c_{i+1}$ 且 $\\sum b_i=\\sum c_i\\le m$。$\\Large{\\color{red}\\Diamond}$\r\n\r\n由于期望的线性性，最后做一次前缀和是不需要的，只要求出 $E(b_i)$ 后再做一次前缀和即可，即 $E(\\sum_{j=1}^i b_j)=\\sum_{j=1}^iE(b_j)$。对于每个位置 $i$ 单独考虑，$E(b_i)=\\sum_{j>0}(j\\times P(b_i=j))=\\sum_{j>0} P(b_i\\ge j)$，这一步就是**阶梯化贡献**。若 $b_i\\ge j$ 则 $\\forall k\\ge i,b_k\\ge j$，所以就是求出 $c$ 中有至少 $n-i+1$ 个数 $\\ge j$ 的概率，转成求方案数后使用二项式反演做容斥。钦定有 $i$ 个数 $\\ge j$ 的方案数为 $\\binom{n}{i}\\binom{m-i(j-1)}{n}$，所以恰好有 $i$ 个数 $\\ge j$ 的方案数就是 $\\sum_{k=i}^n(-1)^{k-i}\\binom{k}{i}\\binom{n}{k}\\binom{m-k(j-1)+n}{n}$。因为只有 $(-1)^{k-i}$ 中有 $i$，所以可以先预处理出 $f_i=\\sum_{j=1}^m\\binom{n}{i}\\binom{m-i(j-1)+n}{n}$，然后做容斥的时候再枚举 $k\\in [1,n]$ 求出的是恰好，最后再做一次后缀和得到至少。复杂度为 $\\mathcal O(n^2+m\\ln m)$。\r\n\r\n## [奖金](https://newoj.daimayuan.top/p/4562?tid=6964a11a54aec22695ba97ba)\r\n\r\n### 题意：\r\n\r\n给定一个长度为 $2n-1$ 的数组的所有奇数位的值，在偶数位填入数，使得``最大子段和-最大非负区间和``最大，非负区间表示一个区间内的所有数都是非负数。所有数的权值都要在 $[-k,k]$ 中。\r\n\r\n### 题解：\r\n\r\n令最大子段和区间为 $[l,r]$，最大非负区间为 $[L,R]$。若不是 $l\\le L \\le R\\le r$，则可以将 $[L,R]$ 不在 $[l,r]$ 部分的所有偶数位都填为 $-1$，可以使答案更优，所以必然满足 $l\\le L\\le R\\le r$。若填入 $0\\le x< k$，讨论 $x$ 所在位置不难发现将 $x\\gets x+1$ 一定不劣，所以偶数位只会填入 $-1/k$。$\\Large{\\color{red}\\Diamond}$\r\n\r\n若 $l>2$，则可以将 $[2,l)$ 的所有偶数位都填成 $k$，由于值域上界为 $k$，所以将 $l\\gets 1+[a_1<0]$ 时补入的区间最大后缀和 $mx$ 一定 $\\ge 0$，此时最大子段和加 $mx$，最大非负区间和至加 $mx$，所以对答案一定不劣，同理 $r\\gets n-[a_n<0]$。$\\Large{\\color{red}\\Diamond}$\r\n\r\n然后开始 dp，令 $f_{i,j}$ 表示前 $i$ 个位置填了 $j$ 个 $-1$ 时最小的 $sum[L,R]$，求答案时枚举 $j$，然后可以求出填了多少个 $k$，最大子段和就是 $sum[1+[a_1<0],n-[a_n<0]]$。\r\n$$\r\nf_{i,j}=\\min_{k=0}^{i-1}\r\n\\begin{cases}\r\n\\max(f_{k-1,j-1},sum(k+1,i) & k\\bmod 2 =0 \\\\\r\n\\max(f_{k-1,j},sum(k+1,i)) & k \\bmod 2 =1\r\n\\end{cases}\r\n(\\forall x\\in [k+1,i],a_x\\ge 0)\r\n$$\r\n现在直接做是 $\\mathcal O(n^3)$。优化考虑将 $\\max$ 拆开，由于显然 $f_{i,j}$ 对于固定的 $j$，$i$ 越大 $f_{i,j}$ 单调不减，$sum(k+1,i)$ 也是单调不增，所以可以双指针直接找到 $\\max$ 的转折点，然后就是 $\\mathcal O(n^2)$。代码实现时为了方便将 $f_{i,j}$ 两维交换了，存储在 $f_{j,i}$ 了。\r\n\r\n## [回](https://newoj.daimayuan.top/p/4579?tid=6967b0d454aec22695c021c3)\r\n\r\n感觉像脑电波题。赛时一步都想不出来。\r\n\r\n首先**观察**到单次操作后 $X_{i,j}=(A_{i-1,j}+A_{i,j-1}+A_{i+1,j}+A_{i,j+1}-4A_{i,j})/2$ 会呈现为操作点的 $X=2$，经过操作点的两条对角线上的点 $X=1$，其余都 $X=0$。$\\Large{\\color{red}\\Diamond}$\r\n\r\n然后就是比较套路了。令 $B$ 矩阵为对应点是否被选择的矩阵（即所求的矩阵），将 $B_{i,j} \\to P_{i+j}$，$B_{i,j} \\to Q_{i-j}$，即 $P$ 和 $Q$ 为主副对角线上 B 的和。不难发现 $P,Q$ 的奇偶位是独立的，并且都满足 $\\sum_{i\\bmod 2=o} P_i=\\sum_{i\\bmod2=o} Q_i(o=\\{0,1\\})$（**这里获得了两条方程**）。\r\n\r\n接下来询问形如 $P_{i+j}+Q_{i-j}=X_{i,j}$ 的等式，由于将所有的 $P_i\\gets P_i-x$，$Q_i\\gets Q_i+x$ 也不会影响所有的等式成立。所以看似有 $(n+1)^2$ 条方程，但实际上只有 $4n-4$ 条本质不同的方程，再加上上面的 $2$ 条共有 $4n-2$ 条方程，而刚好也有 $4n-2$ 个未知数，只要设参然后代入就能求出 $P,Q$。打表手玩后发现只要将含 $P_n,P_{1+n},Q_0,Q_1$ 的方程列完就刚好足够。\r\n\r\n考虑将网格图转成二分图$\\Large{\\color{red}\\Diamond}$。将 $B_{i,j}=1$ 视为 $L(i+j)\\lrarr R(i-j)$，则此时左右部点的度数序列分别就是 $P,Q$，但是这个二分图会有限制左部点只能连向一个右部点区间（只会包含）。需要构造方案就直接将左部点能到达的区间长度排序，贪心尽量当前左部点连向 $Q$ 中区间最大的点即可，需要用线段树维护，所以总复杂度为 $\\mathcal{O}((n+k)\\log n)$。\r\n\r\n## [pingpong](https://www.luogu.com.cn/problem/P12616)\r\n\r\n赛时。\r\n\r\n多次询问是假的，直接离线排序。首先 $\\sum freq\\le 10^6$ 是好做的，只要花费 $\\mathcal{O}(\\log n)$ 的时间消掉一个网即可。正解考虑优化这个过程，首先会处理左右端点有多个相同位置的网的情况，直接可以 $\\mathcal{O}(1)$ 消掉一个位置所有的网，然后每次就可以花费 $\\mathcal{O}(\\log n)$ 让 $T\\gets T-dis,dis\\gets dis+1$，所以只会有 $\\mathcal{O}(\\sqrt T)$ 种坐标，将所有完全相同的网合并后，每种网只会出现 $\\mathcal{O}(\\frac{\\sqrt{T}}{len_i})$ 次，所以总和为 $\\mathcal{O}(\\sqrt T\\ln \\sqrt T)$，复杂度是 $\\mathcal{O}((N+\\sqrt T)(\\log N+\\ln \\sqrt T)+Q\\log Q)$。\r\n\r\n## [select](https://www.luogu.com.cn/problem/P10656)\r\n\r\n赛后。感觉 $\\mathcal{O}(n^2)$ 和正解没有任何关系啊，不会分治还是太菜了。\r\n\r\n首先是即使没有观察到性质也应该想到 $\\mathcal{O}(n\\log^2n)$ 的分治做法。分治后钦定第一个区间一定要过 $mid$，离线掉一维后就只要做对于 $b$ 数组的每种选择 $[l_2,r_2]$ 找到包含 $mid$ 的极长合法段 $\\Large{\\color{red}\\Diamond}$。首先 $b_{l_2-1}$ 和 $b_{r_2+1}$ 显然只会是与当前分治区间 $a[l,r]$ 颜色相同的点或 $l_2=1/r_2=m$，否则扩展后一定更优，于是也可以将 $b$ 数组删到只剩 $r-l+1$ 个。\r\n\r\n$[l_2,r_2]$ 是二维状态，考虑对 $r_2$ 扫描线，同时数据结构在 $l_2$ 维护 $[l_2,r_2]$ 的状态。对于 $b$ 选择 $[l_2,r_2]$，维护 $[L,R](L\\le mid\\le R)$ 表示 $a[L,R]$ 是与 $b[l_2,r_2]$ 不重的极大区间，显然对于同一个 $r_2$，随着 $l_2$ 增大对应的 $L$ 单调不增，$R$ 单调不减，所以可以使用类似单调栈的思路解决。当 $r_2\\gets r_2+1$，令 $b_{r_2}=a_x$，若 $x\\le mid$，所有的 $L$ 和 $x$ 取 $\\max$。若 $x\\ge mid$，所有的 $R$ 和 $x$ 取 $\\min$，刚好对应一段后缀，单调栈维护即可，过程中需要做区间加求区间最值，总复杂度 $\\mathcal{O}(n\\log^2 n)$。\r\n\r\n考虑用性质优化，首先显然答案至少为 $\\max(\\sum x,\\sum y)$，而最后的答案为 $x[l_1,r_1]+y[l_2,r_2]$，所以一定有 $x[l_1,r_1]>\\frac{\\sum x}2$ 或 $y[l_2,r_2]>\\frac{\\sum_x}2$，否则还不如全选一个区间，所以找到最小的 $\\sum_{i=1}^px_i\\ge\\frac{\\sum x} 2$，$\\sum_{i=1}^q y_q\\ge\\frac{\\sum y}2$，则一定有 $[l_1,r_1]$ 跨过 $p$ 或 $[l_2,r_2]$ 跨过 $q$，然后就不用分治和去重了，把 $p,q$ 当作上面的 $mid$ 做即可，复杂度为 $\\mathcal{O}(n\\log n)$。\r\n\r\n## [区间](https://qoj.ac/problem/2070)\r\n\r\n赛后。这个也太抽象了，第一步都想不到。\r\n\r\n首先有个显然的性质，一次取肯定会取完一个 ``LDS``，所以可以考虑直接将 ``LDS`` 缩起来。（这个是赛时想到的）\r\n\r\n然后就是将这个思路继续拓展。实际上，由于一个``LDS``内的选取顺序一定是连续的，所以影响他们什么时候取的就只有平均数（总和）了 $\\Large{\\color{red}\\Diamond}$，所以对于相邻同侧的两个块 $(s_1,len_1)$，$(s2,len_2)$ 只要满足 $\\frac{s_1}{len_1}\\ge \\frac{s_2}{len_2}$ 就一定会取完第一个块后立刻取第二个块（因为平均值拼上会更大），所以直接将两个块合并。此刻，$k$ 左右两侧的块就会分别单调了，即平均值形成 ``\\k/`` 的样子，对于先选左边和先选右边做差后能证明先选平均值更小的一定更优，所以直接将左右的块组成的序列归并就能得到操作顺序了。\r\n\r\n现在需要一个数据结构，支持增删区间，维护排序后的带系数的全局贡献和，直接使用平衡树维护，插入删除对其他贡献系数的影响求区间和即可。也可以提前将所有的单调栈的块信息预处理后按平均值离散化后在线段树上做单点修区间求和，复杂度 $\\mathcal{O}(n\\log n)$。\r\n\r\n## [序列](https://qoj.ac/problem/964)\r\n\r\n赛后。其中 $\\mathcal{O}(n\\sqrt n\\alpha(n))$ 和 $\\mathcal{O}(n\\log n)$ 的做法都在[代码源](http://oj.daimayuan.top/contest/417/problem/3402)的题解中亦有记载，不改题导致的。\r\n\r\n首先 $\\mathcal{O}(n\\sqrt n \\log n)$ 的做法很显然，如果使用莫队尝试根号平衡。这个应该是比较套路的做法了，使用回滚莫队后，如果右端点只有向右移动，则每次就类似于初始时 $b_i=-i$，给后缀加一，求最后一个 $\\ge 0$ 的位置。考虑使用单调栈维护后缀最大值，每次增加 $[x,n]$ 就找到 $x$ 在单调栈中的前驱后继（包括 $x$），然后将前驱删除，这个过程不难用链表+并查集维护。然后考虑左端点也可能会乱动，如果暴力撤销单调栈和链表会影响复杂度均摊，所以考虑和询问平衡复杂度。\r\n\r\n考虑对值域分块，维护每个块内的后缀最大值（单调栈），后缀加 $[x,n]$ 的时候会将 $x$ 所在块分裂，只要使用上面的链表+并查集维护单调栈即可，然后剩余的块直接在 $id_x+1$ 打上差分标记即可，询问时再做前缀和。比较妙的是可以提前将 $a_l$ 的 $\\sqrt n$ 种取值也作为分块的端点，这样所有的后缀加/减都只要打差分标记了，不会因为维护单调栈而影响均摊。查询的时候先找到答案在那个块后在块中跑单调栈即可，总复杂度为 $\\mathcal{O}(n\\sqrt n\\alpha(n))$。\r\n\r\n另一种做法就是让 $x$ 从 $n$ 到 $1$，由于对于 $[l_1,r_1]\\sube [l_2,r_2],ans[l_1,r_1]\\le ans[l_2,r_2]$，所以可以在求出 $ans[l_2,r_2]$ 前忽略 $[l_1,r_1]$，这样当前的询问区间就是互不相交的，所以左右端点分别递增，可以使用线段树维护后缀加，当确定一个 $ans[l,r]=x$ 时，将 $[l,r]$ 删除，然后在线段树上二分来加入新的极长询问区间。复杂度 $\\mathcal{O}(n\\log n)$。\r\n\r\n## [染色](https://newoj.daimayuan.top/p/3388?tid=69818a06f0fd3b148a6f06b0)\r\n\r\n令 $f_T$ 表示 $g(c,S)=T$ 的方案数。\r\n$$\r\nans=\\sum_{T=g(c,S)}f_T|T|^k\\\\ =\\sum_{S}f_S\\sum_{i=1}^k\\binom{|S|}{i}i!\\left\\{{k\\atop i}\\right\\} \\\\ =\\sum_{i=1}^ki! {k \\brace i}\\sum_{S} f_S\\binom{|S|}i\r\n$$\r\n考虑 $\\binom{|S|}i$ 的意义是在 $S$ 中选 $i$ 种颜色的方案数，则可以转为枚举选出后的集合 $T\\sube S,|T|=i$，令 $g_T=\\sum_{T\\sube S} f_S$，则 $ans=\\sum_{i=1}^ki! {k \\brace i}\\sum_{|T|=i} g_T$。由于颜色集合无标号，所以可以令 $g_{S}=g_{T},|S|=|T|$，令 $h_i=g_S,|S|=i$，则 $ans=\\sum_{i=1}^ki! {k \\brace i}\\binom{m}{i}h_i$。 \r\n\r\n考虑求 $h$。$h_i$ 表示 $[1,i]\\sube g(c,S)$ 的方案数，正着不好求，考虑容斥，令 $d_i$ 表示钦定选的都是 $>i$ 的方案数，则二项式反演得 $h_i=\\sum_{j=0}^i(-1)^j\\binom{i}{j}d_j$。做 $d_i$ 可以直接简单 dp 转移。总复杂度 $\\mathcal{O}(nk+k^2)$。\r\n\r\n [原神，启动！](http://goj.wiki/d/Union2024/p/P1318)\r\n\r\n## [整数序列](https://qoj.ac/problem/7417)\r\n\r\n没想到做闵可夫斯基和。\r\n\r\n令 $f(x)$ 表示恰好分 $x$ 段的答案，显然 $f(x)$ 是一个上凸包。考虑对于一个线段树区间 $[l,r]$ 暴力维护出长度为 $r-l+1$ 的 $f$ 函数，合并的时候就是做 $(\\max,+)$ 卷积，由于两个函数都是凸的，所以直接归并差分数组即可（闵可夫斯基和）$\\Large{\\color{red}\\Diamond}$。\r\n\r\n然后每次询问就是有 $\\mathcal{O}(\\log n)$ 个凸包，求出他们合并后的第 $k$ 项。直接合并就 $\\mathcal{O}(n)$ 了，可以 wqs 二分后在每个凸包中再二分求出交点，复杂度为 $\\mathcal{O}(n\\log n+q\\log^2 n\\log V)$。\r\n\r\n实际上可以将最后一个求交点的二分离线下来做一次整体二分，复杂度优化到 $\\mathcal{O}(n\\log n+q\\log n\\log V)$。\r\n",
+      "data": {
+        "title": "比赛",
+        "date": "2026-01-30 15:50:13",
+        "tags": [
+          "做题记录"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "contest-xdfz"
+    },
+    {
+      "content": "### [题目传送器](https://www.luogu.com.cn/problem/AT_arc213_c)\r\n\r\n### [更爽的阅读体验](https://yaohaoyou.github.io/post/AT_arc213_c-solution/)\r\n\r\n搬运官方题解做法。\r\n\r\n显然 $x_1,x_2,x_3,x_4$ 满足在以 $k$ 为根的 $T$ 和 $U$ 中两两之间的 LCA 都是 $k$，这其实是一个类似于二分图匹配的问题。具体的，可以将这个问题转化成对于 $k$ 在 $T$ 上的儿子 $a_1,a_2,\\dots,a_{degT_k}$，和在 $U$ 上的儿子 $b_1,b_2,\\dots,b_{degU_{k}}$ 之间，若一个点 $x$ 在 $a_i$ 和 $b_j$ 的子树中，则连接一条 $(i,j,A_x)$ 的边，代表一对匹配。这一步转化后，现在只需要求这个二分图中找到大小为 4 的最小匹配。\r\n\r\n由于二分图两边点数的总和只有 $degT_k+degU_k$，所以可以对每个 $k$ 考虑 $\\tilde{\\mathcal O}(degT_k+degU_k)$ 解决这个问题，总复杂度就只有 $\\tilde{\\mathcal O}(\\sum n)$。首先显然重边只用保留边权最小的一条。其次事实上，只要对每个左部点保留边权前 4 小的边也不会影响答案。证明考虑若选择了第 5 小的边，则剩余的 3 组匹配一定无法完全包含前 4 小的边的右端点，所以可以将第 5 小的边调整到没选的前 4 小的边一定不劣。所以每个左部点直接保留前 4 小的边即可，总边数就缩到 $\\mathcal O(degT_k+degU_k)$ 级别了。由于流量 $flow=4$ 很小，直接用费用流跑匹配，使用 Primal-Dual 能做到 $\\mathcal O(n\\log n)$，实测直接 SSP 也能过。\r\n\r\n现在思考如何建出这个图，即考虑如何快速求出以 $k$ 为根时，在 $a_x$ 子树中前 4 小的不相同的边。考虑在 $U$ 中将 $b_i$ 的子树内的点 $v$ 在 $T$ 中染色成 $i$，则需要在 $T$ 中找 $a_x$ 的子树中 4 种颜色的点的最小值。注意到我们实际上不可能每次吧 $k$ 提出来做根跑 dfs，但是可以将 $k$ 的邻域分为 $k$ 的父亲和 $k$ 的儿子，$k$ 的父亲对应的子树直接全部染色成 0，每次换根时就只会修改一个位置了，剩下的儿子子树的染色过程可以在 $U$ 上用 dsu on tree 在 $\\mathcal O(n\\log n)$ 做完。再开一棵线段树维护当前节点对应的 $T$ 上欧拉序区间的最小的 4 种颜色和权值，在 $T$ 上做线段树区间查即可，总复杂度为 $\\mathcal O(n\\log^2 n+Flow(n))$，$Flow(n)$ 为边数为 $n$ 的费用流的复杂度。\r\n\r\n注意最短路要开 long long，虽然最后的增广最短路只会有 $2\\times 10^9$，但过程中可能需要经过的最短路会 $<-2\\times 10^9$。\r\n\r\n[code](https://atcoder.jp/contests/arc213/submissions/72825096)",
+      "data": {
+        "title": "AT_arc213_c Double X 题解",
+        "date": "2026-01-29 20:32:59",
+        "tags": [
+          "题解",
+          "线段树",
+          "网络流"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "AT_arc213_c-solution"
+    },
+    {
+      "content": "目前好像只会一些恰好选 $k$ 段的题目。\r\n\r\nwqs 二分适用于解决对于一个上凸/下凸的函数 $g$ 在 $\\mathcal O(D\\log V)$ 的复杂度内求出一个单点值 $g(x)$，其中 $D$ 为求出 $\\min/\\max(g(x)-kx)$ 的复杂度，$V$ 为相邻 $g$ 上相邻两点斜率的范围。\r\n\r\n具体的，我们需要使用一条直线 $l:y=kx+b$ 来切点 $(x,g(x))$，使得 $l$ 同时是凸包 $g(x)$ 的切线，求 $k$ 的最值，这是网络上常见的理解，我更愿意理解为找 $g'_k(x)=g(x)-kx+b$ 的最值。\r\n\r\n观察图像可知，当 $g(x)$ 为下凸包，$k$ 要求最大时，$g'_k(x)$ 会在 $[x,x+1]$ 时取到最小值，若二分 $k$ 时 $\\operatorname{argmin}(g'_k(x))\\le x$，则说明斜率过小（或刚好），将 $l=mid+1$，否则将 $r=mid-1$。$\\operatorname{argmin}(f(x))$ 表示使函数 $f(x)$ 取到最小值的 $x$。（实际上应该求 $k$ 的最小值也是一样可以的。）\r\n\r\n上凸包的情况类似，下面给几道题目。\r\n\r\n### [P4983 忘情](https://www.luogu.com.cn/problem/P4983)\r\n\r\n首先要求的那个式子其实就是 $(\\sum x_i+1)^2$。\r\n\r\n![](https://cdn.luogu.com.cn/upload/image_hosting/ift6fkrj.png)\r\n\r\n令 $f_{i,j}$ 表示前 $i$ 个数分成 $j$ 段的答案，则有转移式 $f_{i,j}=\\min_{k=0}^{j-1}(f_{k,j-1}+(s_i-s_{k}+1)^2)$，由于 $x_i>0$，可以证明 $f_n$ 是下凸的，要求 $f_{n,m}$。\r\n\r\n这和上面的类似了，考虑对函数 $g(x)=f_{n,x}$ 做 wqs 二分。先二分一个斜率 $k$，然后需要判断 $g'(x)=g(x)-kx$ 在何处取到最小值。只需要将 $-kx$ 拆到每次新开一组的时候 $-k$ 即可。转移可以斜率优化。总复杂度为 $\\mathcal O(n\\log_2nV)$。\r\n\r\n### [P6246 [IOI 2000] 邮局 加强版 加强版](https://www.luogu.com.cn/problem/P6246)\r\n\r\n令 $w(l,r)$ 表示区间 $[l,r]$ 放一个邮局的距离和，$f_{i,j}$ 表示前 $i$ 个村庄分 $j$ 段。可以发现 $w$ 满足四边形不等式，所以 $g(x)=f_{n,x}$ 为下凸函数。依旧套用 wqs 二分处理，check 时需要用决策单调性，可以使用二分队列。\r\n\r\n### [CF2183H Minimise Cost](https://www.luogu.com.cn/problem/CF2183H)\r\n\r\n先贪心。子序列实际上可以转成从小到大排序后的子区间，负数尽量全部放一组，非正数首先选出部分组成 $k-1$ 组，剩余的和负数放一组。\r\n\r\n依旧是一个类似的转移式，令 $f_{i,j}$ 表示前 $i$ 个数分为 $j$ 组，$w(l,r)=(r-l+1)(s_r-s_{l-1})$，$f_{i,j}=\\min_{k=0}^{i-1} f_{k,j-1}+w(k+1,i)$。根据上面的贪心，只有在 $i=1 \\vee a_i\\ge 0$ 的时候需要转移枚举断电，对于 $w(l,r)(l=1\\vee a_l\\ge 0,a_r\\ge0)$ 可以证明其满足四边形不等式，所以这个 $f$ 满足决策单调性，$f_n$ 是下凸的。\r\n\r\n然后就和上面的 p6246 一样了。\r\n\r\n## [P9266 [PA 2022] Nawiasowe podziały](https://www.luogu.com.cn/problem/P9266)\r\n\r\n令 $w(l,r)$ 表示区间 $[l,r]$ 中所有子串中合法括号序列数量，可以证明 $w$ 满足四边形不等式。令 $f_{i,j}$ 表示前 $i$ 个字符分成了 $j$ 段的方案数，则 $f_{i,j}=\\min_{k<i}f_{k-1,j-1}+w(k,i)$，所以 $F(x)=f_{n,x}$ 为下凸函数。\r\n\r\n套路地，显示使用 wqs 二分，然后需要求 $g_i=\\min_{j<i}g_{j-1}+w(j,i)-mid$。因为 $w$ 满足四边形不等式，所以 $g$ 满足决策单调性，但 $w$ 不好直接求，并且 $g$ 求解过程需要在线。\r\n\r\n发现 $w(l,r)$ 在做 $l\\to l\\pm 1$ 或 $r\\to r\\pm 1$ 时可以直接 $\\mathcal O(1)$ 求解，所以可以用 cdq 分治套决策单调性分治解决，复杂度为 $\\mathcal O(n\\log^3n)$。但是可以使用**LARSCH/简化 LARSCH**（感觉像科技）算法优化至 dp 部分只要 $\\mathcal O(n)/\\mathcal O(n\\log n)$，总复杂度为 $\\mathcal O(n\\log n/n\\log^2n)$。\r\n\r\n### 简化 LARSCH\r\n简化 LARSCH 算法其实类似于 cdq 分治套决策单调性分治，令 $opt_t(x)$ 表示只考虑从 $[1,t]$ 的转移到 $x$ 的最优决策，$opt(x)=opt_{x-1}(x)$。具体过程是定义 $solve(l,r)$ 表示已知 $[1,l)$ 的 $g,opt$ 和 $opt_{l-1}(r)$，求解 $[1,r]$ 的 $g,opt$。\r\n\r\n1. 用 $i\\in [opt_{l-1},opt_{l-1,r}]$ 求出 $opt_{l-1}(mid)$，因为 $opt_{t}(x)\\le opt_{t}(y)\\le opt_{t}(z),x<y<z$。\r\n2. 调用 $solve(l,mid)$。\r\n3. 用 $opt(i),i\\in [l,mid]$ 和 $opt_{l-1}(r)$ 求出 $opt_{mid}(r)$。\r\n4. 调用 $solve(mid+1,r)$。\r\n\r\n注意 1 操作中要移动 $w1$ 的指针，3 操作中要移动 $w2$ 的指针，可以证明整个过程中 $w1$ 和 $w2$ 的指针一共只会移动 $\\mathcal O(n\\log n)$ 次，若两种操作移动同一对指针会退化到 $\\mathcal O(n^2)$ 次。",
+      "data": {
+        "title": "wqs 二分学习笔记",
+        "date": "2026-01-12 21:55:00",
+        "tags": [
+          "算法"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "wqs-binary-search"
+    },
+    {
+      "content": "我说 GDKOI 复活不是我复活。\r\n\r\n## Day 1\r\n\r\n日常赛前没睡好。为什么是中大大学城校区，我要住酒店！\r\n\r\n8:10 进考场，这电脑是开网的？\r\n\r\n开 T1，不知道过了多久才拼了 72pts，感觉不质因数分解 $M$ 个数还是不太会做，但是拼分 IOI 好评，中途比赛时间还加了不少。跳了。\r\n\r\nT2 写完暴力后想了特殊性质的 $\\mathcal O(n^\\frac 53)$，写了下尽然不卡常直接过了，拿了 50pts。到目前为止还认为这场是 NOIP2025+，然后就是继续跳题。\r\n\r\n最后就是尝试把希望寄托在 T4 的乱搞上。写了 SA 又卡了 inf 时间，最后卡到了 49pts。当时还以为自己赢完了，结果。。。\r\n\r\nT3 最后 30pts 只写了 15pts。\r\n\r\n然后就是 T1,T2 被切穿了，难道 T2 的性质做法比正解还困难？\r\n\r\n饭不太好吃，差评。回学校也不知道在干嘛，下播了。\r\n\r\n## Day 2\r\n\r\nOI 生涯第一场 ACM 正式赛，多半也是最后一场了。只能说没忘本，看无敌坦克手的最后一舞吧。\r\n\r\n以上是赛前的话。\r\n\r\n---\r\n\r\n我是罪人，后面忘了。这下这下了。\r\n\r\n对不住 IsaacX 和 mskqwq 了，又被卡题葬送比赛了。/ll",
+      "data": {
+        "title": "GDKOI2025复活赛",
+        "date": "2025-12-27 20:40:00",
+        "tags": [
+          "游记"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "gdkoi2025"
+    },
+    {
+      "content": "省流：自己看完。\r\n\r\n好像几个``you'ji``都用完了，所以直接叫 NOIP2025 了。\r\n\r\n考号竟然是按照 csp-s 高中排名排的，所以是考号最前的一次（只因为是高一了），侥幸拿下 s 同分 mskqwq，拿下精品豹子号。\r\n\r\n## Day 0\r\n\r\n下午还能有体锻？人最多的一次，甚至凑齐了 5v5，还有 sana 返场。最后被 sana 绝杀了，不爽。\r\n\r\n## Day 1\r\n\r\n晚上没睡好，但是早上感觉还可以，早餐依旧汉堡+菊花茶，但是机房为什么没网？在“学长”电脑上看了写文章，看到了范德蒙德卷积（伏笔）。\r\n\r\n总结了前几场失败可能包括了过 T1T2 就上厕所，导致不太能充分思考 T3/T4 的多方面做法。所以这次想过了 T1T2 后想完 T3 一会再上厕所（伏笔）。\r\n\r\n进考场了，10min 过 T1。这个 T2 看上去就很不善，至少比去年要难不少吧，一眼看不出啥，推了一下好像会了，写着写着发现是 $\\mathcal O(n^3)$，而且没过大样例， 调调调，过不了一点。十分红温，然后写了份暴力。调调调调调调调调调调调调调调调调调调调调调调调调调调调调调调\r\n\r\n调到了 2h，实在忍不住了，想去上厕所，结果被说要排队，然后继续调，等了 30min 才排到队？上完厕所回来不久就挑出来了，应该能拿 $[72,92]$。\r\n\r\n我本应该在这里说我看出来了这就是我赛前看到的范德蒙德卷积，但没有人会反转组合数，我也不是没有人，然后就寄了。\r\n\r\n还剩 1.5h，那咋办。开 T3，一看就不可做。T4，2022T4 比赛？有点意思，看了一会儿写了暴力（我赛时还以为能过 2,3）和 AB 性质。然后想了想，去写 T3 暴力，写完就差不多结束了。\r\n\r\n估分：$100+[72,92]+8+40=[210,240]$。\r\n\r\n好像很多人都不太会 T2？T4 还挺多人会 $\\mathcal O(nq\\log n)$？T3 的 $poly(n)$ 好像也该想到。感觉最菜的不是因为 T2 不会做，而是 T2 做了这么久。\r\n\r\nsana whk 一年 280+？这下这下了。\r\n\r\n## Day ?\r\n\r\n出分日\r\n\r\n瓜飞了，不太想说了。\r\n\r\n$90+84+8+35=217$。这下要退役了。\r\n\r\nT2 这要预处理组合数就有 $92$ 了，这也太笨了。\r\n\r\ndieselhuang 都坠了，祝好。",
+      "data": {
+        "title": "NOIP2025",
+        "date": "2025-12-07 22:36:00",
+        "tags": [
+          "游记"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "noip2025"
+    },
+    {
+      "content": "### [题目传送器](https://www.luogu.com.cn/problem/P4299)\r\n\r\n### [更爽的阅读体验](https://yaohaoyou.github.io/post/p4299-solution)\r\n\r\n## 前言\r\n\r\n怎么清一色 LCT 做法，还有一个看上去很麻烦的树剖+线段树合并，下面给一种好写好想的树上倍增双 $\\log$ 做法。\r\n\r\n## 题意\r\n\r\n动态加边维护树的重心。\r\n\r\n## 做法\r\n\r\n根据经典结论，合并两棵树后新的重心会在原本两棵树的重心的路径上，所以可以考虑使用倍增或二分求出新的重心。具体地，将询问离线下来把树建出来，每次连接一条新边 $(u,v)\\mid dep_u\\le dep_v$ 时就是将 $v$ 的树以 $v$ 为根并到 $u$ 上，这里令当前 $u$ 所在的树的根为 $rt$，首先动态维护 $siz$，直接做是链加单点查，但是经典方法是将其差分后改为用树状数组维护单点加子树查。\r\n\r\n接下来令 $u$ 所在树原本的重心为 $wc_u$，$v$ 的为 $wc_v$，$lca\\gets \\operatorname{LCA}(wc_u,wc_v)$，首先特判掉 $wc_u=lca \\vee wc_v=lca$ 的情况，然后令 $tu$ 为 $lca$ 在 $wc_u$ 方向上的儿子，$tv$ 同理，易得 $siz_{tu}+siz_{tv}+1=siz_{rt}$，所以 $\\min(siz_{tu},siz_{tv})<\\frac{siz_u}{2}$，而又有重心的判定 $siz_{wc}\\ge \\frac{siz_u}2$，所以可以直接判断出新的重心在 $tu$ 的子树内还是 $tv$ 的子树内，并可以判断出在哪一条链上，若 $wc_u=lca\\vee wc_v =lca$ 就肯定在 $wc_u\\leadsto wc_t$ 的路径上。\r\n\r\n知道了新的重心在哪一条路径上就可以直接倍增了，找到深度最大的满足 $2siz_u\\ge siz_{rt}$ 的 $u$ 即为重心，注意特判两个重心的情况，即若 $2siz_u=siz_{rt}$ 则 $u$ 的父亲也是重心。两种询问使用并查集在修改时维护即可。\r\n\r\n时间复杂度为 $\\mathcal O(n\\log n+m\\log^2n)$，瓶颈在倍增时的树状数组查询，空间树上倍增数组需要 $\\mathcal O(n\\log n)$。\r\n\r\n[Code](https://www.luogu.com.cn/paste/c1xbjf7g)",
+      "data": {
+        "title": "P4299 首都 题解",
+        "date": "2025-11-19 07:39:45",
+        "tags": [
+          "题解",
+          "树上问题"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "p4299-solution"
+    },
+    {
+      "content": "省流：自己看完。\r\n\r\n## Day 0\r\n\r\n甚至要到了体锻，但是不出所料，上高一后就很少人踢球了，爽但不太爽。\r\n\r\n听到学弟问要不要背快读模板，感觉根本背不下来，而且大概也没用吧（伏笔\r\n\r\n## Day 1\r\n\r\n终于不用早起了，但是还是睡到 8:00 就不想睡了。早上在复习板子，被教练看见了，于是就有了：\r\n\r\n![](https://cdn.luogu.com.cn/upload/image_hosting/lh4dd4bm.png)\r\n\r\n![](https://cdn.luogu.com.cn/upload/image_hosting/bucqjz9q.png)\r\n\r\n伏笔）\r\n\r\n中午看了 J 的题目，为什么我不参加就这么简单，学长 AK 后玩 Ukraine 方块被抓包了？\r\n\r\n中午直接睡到 14:10 才起来（为什么我的闹钟没响？）。问监考能不能带水杯进去，他说：《喝一口就行》，所以是怕我带炸药进考场？？？\r\n\r\n密码输的最快的一次，开 T1，然后回了，但怎么有点像反悔贪心？写写写，本地跑 1s+？为什么 $5\\times10^5$ 个整数不给快读？把堆改成排序就更快了，现在是真怕 T1/T2 被卡常。\r\n\r\n开 T2，直接保留最小生成树做就行了，先写了 $\\mathcal O(n2^k\\log n\\alpha(n))$，要跑 1.6s。为什么 $3\\times 10^6,1s$ 都不下发快读？？？CCF 不会默认大家都会 fread 吧。再看一下归并可以少一只 log，写写写，为什么少一只 log 还要跑 1s？丢了。\r\n\r\n开 T3，感觉不太会做，推了一下性质发现只要会快速做两个有多少个 $x_i\\in A,y_i\\in B$ 即可，但这很明显不能快速做吧。然后就开始乱想了，中途甚至会根号分治做 $\\mathcal O(L\\sqrt n)$，但是为什么这和 $\\mathcal O(Ln)$ 一个分？？？计算后发现 $\\mathcal O(n\\sqrt L)$ 可以过，然后就磕了一场的根号，然后就寄了。AB 性质一共打了 7kb+，考场直接被调红温了。\r\n\r\nT4 提前看了，排列计数一看就不会做，最后 15min 极限拿下 24pts。虚拟机过编后都来不及测大样例就结束了。（为什么 14:30 发的密码监考员说 14：27 就开始了，一定要 18:27 结束，CCF 是差 3min 赶晚高峰吗？？？）\r\n\r\n赛后遇见 yhm 问 zlt 2h 有没有 AK，直接自闭了。mlk 觉得自己好帅，然后就 AK 了。\r\n\r\n估分：$100+100+70+24=294$。\r\n\r\n## Day 5\r\n\r\nT3 没判 $|t_1|\\ne |t_2|$，自闭了。\r\n\r\n申诉查分？？？\r\n\r\n$100+100+50+24=274$。\r\n\r\n## Day 6\r\n\r\nT3 $|t_1|\\ne |t_2|$ 没被卡，但是 $\\operatorname{maxl}$ 开成 $\\operatorname{maxn}$ 了，坠。\r\n\r\n原来 T3 放到两棵 Trie 上就从 $x_i \\in A,y_i \\in B$ 变成 $x_i\\in [l_1,r_1],y_i\\in [l_2,r_2]$，就可以二维数点了，这么笨可以滚了。\r\n\r\n无敌坦克手贝塔获得成就：$\\max(\\text{CSP-S 2025})-\\min(\\text{CSP-S 2025})=3$。\r\n\r\n### replace 题解：\r\n\r\n手玩一下可以证明，将 $(s_{i,1},s_{i,2})$ 定义成 $(a_i,b_i,b'_i,c_i)$，其中 $a_i$ 为 $LCP(s_{i,1},s_{i,2})$，$c_i$ 为 $LCS(s_{i,1},s_{i,2})$，$a_i+b_i+c_i=s_{i,1},a_i+b'_i+c_i=s_{i,2}$，同理将 $(t_{i,1},t_{i,2})$ 定义成 $(A_i,B_i,B'_i,C_i)$，则能将 $t_{j,1}$ 通过 $(s_{i,1},s_{i,2})$ 替换成 $t_{j,2}$ 当且仅当 $a_i$ 为 $A_j$ 的后缀，$b_i=B_j,b'_i=B'_j$，$c_i$ 为 $C_j$ 的前缀。\r\n\r\n$b_i=B_j,b'_i=B'_j$ 的限制好做，直接将所有 $(b_i,b'_i)$ 哈希后存在一起，查询时找到对应的集合即可。剩下两个限制不能直接做，前缀后缀可以考虑建出两棵 Trie 树，限制就变为了求有多少个位置在第一棵 Trie 上一个子树内，在第二棵 Trie 上为当前点的祖先，然后使用 dfs 序即可转成二维数点，在第二棵 Trie 上 dfs，用树状数组记录第一棵的区间点数。时间复杂度为 $\\mathcal O(L1+L2+(n+q)\\log n)$，空间 $\\mathcal O((L1+L2)|\\sum|)$.\r\n\r\n### employ 题解：\r\n\r\n对排列计数肯定不能直接做，先记录 $f_{i,j}$ 表示面试了 $i$ 个人有 $j$ 个人没有录用的方案数，则目前的人可以分成 $c_i\\le j$ 和 $c_i>j$ 的人，尝试直接记录在状态内。重设状态 $f_{i,j,k}$ 表示面试了 $i$ 个人有 $j$ 个没有录用，$c_p>j$ 的共有 $k$ 个人的方案数（$c_p>j$ 的无需记录位置和具体取的值，即延后钦定，这里后面会解释）。\r\n\r\n若 $s_{i+1}=0$，此时的 $j\\gets j+1$，$k$ 会减去前面选中的 $c=j+1$ 的个数，这里考虑直接枚举 $l$ 表示前面的人中有 $l$ 个 $c_p=j+1$。这里就解释了为什么要延后钦定，因为如果直接在加入时就选择他的位置和值，现在就会算重和算错。这里需要给 $l$ 个人钦定位置和值，所以乘上 $\\binom{cnt_{j+1}}{l}\\binom{k}{l}l!$ 的系数，转移如下：\r\n$$\r\n\\begin{cases}\r\nf_{i+1,j+1,k-l+1}\\gets f_{i,j,k}\\binom{cnt_{j+1}}{l}\\binom{k}{l}l! & \\text{当前 }i+1\\text{ 选择 } c>j+1\\\\\r\nf_{i+1,j+1,k-l} \\gets f_{i,j,k}\\binom{cnt_{j+1}}{l}\\binom{k}{l}l!(pre_{j+1}-i+k-l) & \\text{当前 }i+1\\text{ 选择 }c\\le j+1\r\n\\end{cases}\r\n$$\r\n然后 $s_{i+1}=1$ 的就类似了，注意若选择的 $c>j'$ 时不用记录当前选数的方案数。\r\n$$\r\n\\begin{cases}\r\nf_{i+1,j,k+1} \\gets f_{i,j,k} & \\text{当前 } i+1 \\text{ 选择 } c>j \\\\\r\nf_{i+1,j,k+1} \\gets f_{i,j,k}\\binom{cnt_{j+1}}{l}\\binom{k}{l}l!(pre_j-i+k) & \\text{当前 } i+1 \\text{ 选择 } c\\le j\r\n\\end{cases}\r\n$$\r\n最后记得求答案时需要给剩余的选定位置和值：\r\n$$\r\nans=\\sum_{i=0}^{n-m}f_{n,i,n-pre_i}(n-pre_i)!\r\n$$",
+      "data": {
+        "title": "CSP2025 油机",
+        "date": "2025-11-18 21:07:44",
+        "tags": [
+          "游记"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "CSP2025"
+    },
+    {
+      "content": "### [题目传送器](https://www.luogu.com.cn/problem/P3688)\r\n\r\n### [更爽的阅读体验](https://yaohaoyou.github.io/post/p3688-solution)\r\n\r\n## 做法 \r\n\r\n不一样的 cdq 分治做法。\r\n\r\n记 $sum[l,r]=(\\sum_{i=l}^r a_i)\\bmod 2$\r\n\r\n对树状数组熟悉的应该可以看出错误代码求解的是 $\\begin{cases}\r\n    sum[l-1,r-1] & l\\not=1 \\\\\r\n    sum[r,n] & l=1\r\n\\end{cases}$。\r\n\r\n若询问的 $l\\not=1$，则答案为 $a_{l-1}=a_r$ 的概率，若 $l=1$，则答案为 $a_r\\oplus sum[1,n] = 0$ 的概率。其中 $sum[1,n]$ 就是在这次询问之前的操作的次数，直接记录即可。处理 $l=1$ 时开一个 $a_0=0$，由于 $a_0$ 永远不变，所以 $a_r=[a_r= a_0]$，思考如何维护 $a_x =a_y$ 的概率，令 $p_{x,y}$ 为 $a_x=a_y$ 的概率。\r\n\r\n对于一次修改 $[l,r]$，分讨对 $p$ 的影响，令 $P=\\frac 1 {r-l+1}$。不难得出\r\n- 对于 $x\\in[0,l),y\\in[l,r]$，$p_{x,y}=p_{x,y}(1-P)+(1-p_{x,y})P$。\r\n- 对于 $x\\in[l,r],y\\in[l,r]$，$p_{x,y}=p_{x,y}(1-2P)+(1-p_{x,y})2P$。\r\n- 对于 $x\\in[l,r],y\\in(r,n]$，$p_{x,y}=p_{x,y}(1-P)+(1-p_{x,y})P$。\r\n\r\n显然是对矩阵进行操作，先定义运算 $a\\odot b=ab+(1-a)(1-b)$，思考 $\\odot$ 运算的性质。\r\n\r\n手玩一下可以发现 $\\odot$ 满足交换律和结合律，所一可以使用线段树维护。下面的维护方式就五花八门了，这里给出一种和其他题解不同的 cdq 分治做法。\r\n\r\n由于原题是矩阵操作，若想改成三维偏序就需要进行差分。解一下方程发现 $\\odot$ 存在类似逆元，所以可以进行差分。具体的，$b \\odot \\frac b{2b-1}=1$（这里可能存在 $b=\\frac 1 2$ 的情况，但后面再解决），所以对于不在所需矩阵内的可以通过多 $\\odot \\frac{b}{2b-1}$ 来取消贡献。\r\n\r\n然后就将类似 $[l,r][L,R]$ 的操作差分成了四个 $[0,x][0,y]$ 形式的操作了，对于第 $i$ 个询问 $(a,b)$，会影响其答案的就是第 $j$ 次操作 $[0,x][0,y]$ 满足 $j<i \\wedge a\\le x \\wedge b\\le y$，于是转化成了三维偏序问题，由于 $\\odot$ 满足结合律和交换律，所以 cdq 内使用线段树维护即可。\r\n\r\n现在处理 $b=\\frac 1 2$ 的情况，此时不存在逆元，即无法差分。但带回原式子发现只有满足 $r=l+1$ 或 $r=l+3$ 时会出现这种情况。对于 $r=l+1$，可以暴力 $O(r-l+1)$ 将操作记录，离线后再扫一遍解决。对于 $r=l+3$，只要 $O((r-l+1)^2)$ 暴力操作会影响的 $p_{x,y}$。\r\n\r\n总复杂度为 $\\mathcal O(n\\log n+q\\log n^2)$，无需卡常和卡空间，个人认为还是比较自然和好写的。\r\n\r\n[AC Code](https://www.luogu.com.cn/paste/7noi0w4w)",
+      "data": {
+        "title": "P3688 [ZJOI2017] 树状数组 题解",
+        "date": "2025-09-04 21:11:08",
+        "tags": [
+          "题解",
+          "线段树"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "p3688-solution"
+    },
+    {
+      "content": "$\\Large{\\color{red}\\Diamond}$ 为重点转换步骤。\r\n\r\n## [AT_arc201_b [ARC201B] Binary Knapsack](https://www.luogu.com.cn/problem/AT_arc201_b)\r\n\r\n因为 $W$ 很大，所以不能是 01 背包的思路，应该想贪心。\r\n\r\n思考偏序关系，由于不同重量只有 $\\log_2W$ 种，并且两个 $2^{x-1}$ 可以直接合并成 $2^x$，所以每次贪心取当前重量价值最大的一定更优。\r\n\r\n对 $W$ 进行二进制拆位，从小到大，若当前第 $i$ 位为 $1$，则选一个重量为 $2^i$ 的一定不劣。$\\Large{\\color{red}\\Diamond}$ \r\n\r\n剩下的排序后两两合并成重量为 $2^{i+1}$ 的物品，继续递归子问题。\r\n\r\n## [AT_arc200_e popcount<=2](https://www.luogu.com.cn/problem/AT_arc200_e)\r\n\r\n将得到的 $A$ 序列全部异或 $x$ 后依旧满足情况，所以不妨将 $A$ 异或 $A_1$ 后使 $A_1=0$。直接钦定 $A_1=0$，最后将答案 $\\times 2^m$ 即可。$\\Large{\\color{red}\\Diamond}$ \r\n\r\n由于 $A_1=0$，$popcount(A_1\\oplus A_i)\\le 2$，所以 $popcount(A_i)\\le2$。接下来分情况讨论。\r\n\r\n- $popcount(A_i)\\le1$，没有其他限制了，方案数为 $(m+1)^{n-1}$。\r\n\r\n- 有且仅有一种 $popcount(A_x)=2$，方案数为 $\\binom m 2(4^{n-1}-3^{n-1})$。\r\n\r\n- 有多种 $popcount(A_{a_1},A_{a_2},..A_{a_k})=2$，且 $popcount(A_{a_1} \\And A_{a_2} \\And..\\And A_{a_k})=1,k\\ge2$，方案数为 $m((m+1)^{n-1}-2^{n-1}-(m-1)(3^{n-1}-2^{n-1}))$。\r\n\r\n- 有且仅有三种 $popcount(A_x,A_y,A_z)=2$，此时只能有这三种数和 $0$ 出现，并且两两交的 popcount 都为 $1$，如 $\\{A_x,A_y,A_z\\}=\\{3,5,6\\}$。方案数为 $\\binom m 3(4^{n-1}-3\\times 3^{n-1}+3\\times 2^{n-1}-1)$。\r\n\r\n## [P9140 THUPC 2023 初赛 背包](https://www.luogu.com.cn/problem/P9140)\r\n\r\n类似于[P2371 墨墨的等式](https://www.luogu.com.cn/problem/P2371)的思路，先取 $\\frac{c_i}{v_i}$ 最大的物品作为基准并设 $m=v_i,k=c_i$，由于若 $V'$ 可以被凑出，则 $V'\\equiv V(\\bmod m)$ 的 $V$ 可以通过加入多个 $m$ 凑出，所以将物品的总大小在 $\\bmod m$ 的剩余系上处理。$\\Large{\\color{red}\\Diamond}$ \r\n\r\n对于 $(V',C'),V\\equiv V'(\\bmod m)$ 的情况，此时的总贡献为 $C'+\\frac{V-V'}mk$，由于 $\\frac V m$ 固定，所以需要使 $C'-\\lfloor\\frac{V'}m\\rfloor k$ 最大，将这个值设为同余最长路上的距离。转移时从 $p$ 加上物品 $x$ 后转移至 $q=(p+v_x)\\bmod m$，$f_q=f_p+c_x-\\lfloor\\frac{p+v_x}m\\rfloor k$。\r\n\r\n转移过程中需要保证没有正环和 $V'>V$。\r\n\r\n- 若有正权环 $u_1\\to u_2\\to...\\to u_{siz}\\to u_1$，由于转一圈后物品总体积一定为 $m$ 的倍数，而由于选择的基准为 $\\frac{c_i}{w_i}$ 最大，所以一定不如全部选择物品 $i$，矛盾，所以不存在正权环。\r\n- 设 $\\forall i\\in[1,n], v_i\\le lim_v=10^5$。图上共有 $m$ 个点，因为没有正权环，所以每个点最多走过 $1$ 次，走过的边数最多也只有 $m-1$ 条，每条边增加的体积 $\\le lim_v$，所以 $V'\\le (lim_v)^2=10^{10}<10^{11}$，所以 $V'<V$。$\\Large{\\color{red}\\Diamond}$ \r\n\r\n由于有负边权，所以不能用 dijkstra。这个题数据水，最短路直接用 SPFA 就过了，正解应该使用转两圈的做法将复杂度做到 $O(nm)$。\r\n\r\n建边的过程实际是枚举 $i\\in[1,n],u\\in[0,m)$ 并连边 $(u,(u+v_i)\\bmod m,w)$，手玩一下（其实比较显然）可以发现对于 $i$ 会产生 $\\gcd(v_i,m)$ 个环。由于本质上是在模意义下做完全背包，所以转移顺序并不影响。并且由于每个点只会在最短路上走一次，所以最短路只要在已知的 $\\gcd(v_i,m)$ 个环上找到最小的 $dis$ 值，并用其转一圈更新这圈的其他点即可，也就是 $x\\in[0,v_i):x\\to (x+v_i)\\bmod \\to (x+2v_i)\\bmod m\\to...\\to x$。写代码时为了方便，可以不用找到 $dis$ 最小值，直接在环上转两圈更新即可，复杂度为 $O(nm)$。\r\n\r\n## [P7320 「PMOI-4」可怜的团主](https://www.luogu.com.cn/problem/p7320)\r\n\r\n首先由一个结论是一棵树至少由 $\\lceil\\frac{leaf}2\\rceil$ 条路径覆盖，构造是将叶子按 dfs 序排序后，路径为 $(lf_1,lf_{\\lceil\\frac{leaf}2\\rceil}),(lf_2,lf_{\\lceil\\frac{leaf}2\\rceil+1})\\dots$，若 $leaf$ 是奇数则最后连一条 $(1,lf_{leaf})$。$\\Large{\\color{red}\\Diamond}$\r\n\r\n必要性显然，应为一条路径最多覆盖两个叶子。充分性是这样的路径可以使相邻两条路径都有交集。若有一个点 $u$ 没有被覆盖。\r\n\r\n- 若 $u$ 有至少两个在 $u$ 儿子 dfs 序排列中相邻的 $v,w$，则必有一条经过 $v$ 子树的路径与一条经过 $w$ 子树的路径相交，所以 $u$ 一定被覆盖。\r\n\r\n- 若 $u$ 只有一个儿子，若有不在 $u$ 子树内的叶子则有一条从 $u$ 子树内到外的路径，否则从 $1\\to u$ 的路径上 $deg_f=1$，则存在从 $u$ 子树内到 $1$ 的路径。\r\n\r\n综上，至少用 $\\lceil\\frac {leaf} 2\\rceil$ 条路径一定能覆盖所有节点。\r\n\r\n由于 $\\lceil\\frac n 6\\rceil$ 和 $\\lfloor\\frac n 3\\rfloor$  的关系与 $\\lceil\\frac x 2\\rceil$ 相似，所以考虑提出 dfs 树并看叶子考虑。$\\Large{\\color{red}\\Diamond}$\r\n\r\n显然，若 $leaf\\ge \\lfloor\\frac n 3\\rfloor$，则选择第二种并将叶子节点输出即可。反之 $leaf < \\lfloor\\frac n 3\\rfloor$，则覆盖所有点的路径数 $\\lceil\\frac {leaf} 2\\rceil<\\lceil\\frac {\\lfloor\\frac n 3\\rfloor} 2\\rceil<\\lceil\\frac n 6\\rceil$，使用上述的叶子节点相互匹配的做法后，剩下的路径用 $(x,x)$ 浪费掉即可。\r\n\r\n## [AT_agc037_d Sorting a Grid](https://www.luogu.com.cn/problem/AT_agc037_d)\r\n\r\n从无序的状态转移到有序的状态可以倒着思考，从有序的状态思考能到达的状态的共同点。 \r\n\r\n由有序的状态进行每``行重排``后每行的值域集合不会变，设行重排后的矩阵为：\r\n$$\r\n\\begin{matrix}\r\nA&A&A&A&A\\\\\r\nB&B&B&B&B\\\\\r\nC&C&C&C&C\\\\\r\nD&D&D&D&D\\\\\r\nE&E&E&E&E\\\\\r\n\\end{matrix}\r\n$$\r\n$1\\le A\\le m,m+1\\le B\\le 2m \\dots$\r\n\r\n再``列重排``后矩阵的每一列都会包含 $A,B,C\\dots$ 各一个，这是操作两步的必然结论。\r\n\r\n最后一步再回到输入的乱序矩阵，则此时乱序矩阵进行``行重排``后需要满足每列都各有 $A,B,C\\dots$ 各一个的性质。$\\Large{\\color{red}\\Diamond}$\r\n\r\n进行构造时将枚举 $(i,j)$ 后将 $i \\leftrightarrow \\lceil\\frac {a_{i,j}-1} m\\rceil+nm$，由于每行有 $m$ 个数，每种字符会出现 $m$ 次，所以最终连出的是**正则二分图（每个点度数都相同的二分图）**，每次需要寻找出一组完美匹配表示当前列的状态，随后删除这组边并继续寻找二分图完美匹配。本图任选一个左部点集合都满足 $out(S)=|S|$，由于 Hall 定理，存在完美匹配，删除匹配后依旧满足 $out(S)=|S|$，所以一定可以找出 $m$ 组完美匹配。$\\Large{\\color{red}\\Diamond}$\r\n\r\n## [AT_agc061_c First Come First Serve](https://www.luogu.com.cn/problem/AT_agc061_c)\r\n\r\n设 $dp_i$ 表示 $[1,i]$ 的答案，转移为 $dp_i\\leftarrow 2dp_{i-1}-C$，$C$ 为容斥掉的方案数。设 $i$ 最终取的值为 $t_i\\in\\{a_i,b_i\\}$，则 $t_i$ 取 $a_i$ 和 $b_i$ 时结果相同当且仅当 $\\forall t_j\\notin[a_i,b_i]$，思考如何容斥掉这一部分。\r\n\r\n因为 $a_i<a_{i+1},b_i<b_{i+1}$，所以区间之间不存在包含。若使 $\\not\\exist t_j\\in[a_i,b_i]$，则对于 $L_i=\\min j(b_j>a_i),R_i=\\max j(a_j<b_i)$，当 $j\\in[L_i,i)$ 选 $t_j=a_j$，$j\\in(i,R_i]$ 选 $t_j=b_j$，可以使 $k\\in[L_i,R_i]$ 都可以选出 $t_k\\notin[a_i,b_i]$，即满足 $\\not\\exist t_j\\in[a_i,b_i]$。$\\Large{\\color{red}\\Diamond}$\r\n\r\n所以对于 $dp_{R_i}$ 需要删去 $a_i$ 和 $b_i$ 重复的贡献，由于此时 $[L_i,R_i]$ 的方案固定，所以 $dp_{R_i}\\leftarrow -dp_{L_{i-1}}$。\r\n\r\n求 $L_i$ 和 $R_i$ 直接二分或双指针即可，复杂度为 $\\mathcal O(n)/\\mathcal O(n\\log_2n)$。\r\n\r\n## [P6657 【模板】LGV 引理](https://www.luogu.com.cn/problem/P6657)\r\n\r\n感觉原本的定义还是比较复杂，尝试用比较简洁但不一定足够适用的讲述。\r\n\r\n先构造矩阵\r\n$$\r\nM=\\left[\\begin{matrix}\r\nf(sx_1,sy_1,tx_1,ty_1) & \\dots & f(sx_1,sy_1,tx_n,ty_n)\\\\\r\nf(sx_2,sy_2,tx_1,ty_1) & \\dots & f(sx_2,sy_2,tx_n,ty_n)\\\\\r\n&\\ddots\\\\\r\nf(sx_{n-1},sy_{n-1},tx_1,ty_1) & \\dots & f(sx_{n-1},sy_{n-1},tx_n,ty_n)\\\\\r\nf(sx_n,sy_n,tx_1,ty_1) & \\dots & f(sx_n,sy_n,tx_n,ty_n)\\\\\r\n\\end{matrix}\\right]\r\n$$\r\n使用 LGV 引理需要保证**存在构造**从 $(sx_i,sy_i)$ 到达 $(tx_{p_i},ty_{p_j})$ 的 $n$ 条路径之间互不相交，排列 $p$ **只能**为 $p=\\{1,2,3..,n\\}$。换言之，若 $\\exist p_i\\neq i$，则无法构造 $n$ 条互不相交的路径。LGV 引理只适用于 DAG。\r\n\r\nLGV 引理：从 $(sx_i,sy_i)$ 到达 $(tx_i,ty_i)$ 的 $n$ 条路径互不相交的方案数为 $\\det(M)$。\r\n\r\n## [AT_agc057_d Sum Avoidance](https://www.luogu.com.cn/problem/AT_agc057_d)\r\n\r\n神仙题，根本不可能想出来。\r\n\r\n首先 $|A|$ 的上界显然是 $\\lfloor\\frac {S-1} 2\\rfloor$，因为 $(1,S-1),(2,S-2)\\dots$ 不能同时存在，若 $2|S$，也不能出现 $\\frac S2$。而这个上界也可以直接构造出来，只要取最大的 $\\lfloor\\frac {S-1} 2\\rfloor$ 个数即可，因为任意两个数相加已经 $>S$。此时想要让字典序尽量小。令选择的集合包括 $A\\subseteq[1,\\lfloor\\frac {S-1} 2\\rfloor]$，$B\\subseteq [S-\\lfloor\\frac {S-1} 2\\rfloor,S-1]$。\r\n\r\n将字典序变小的过程就是将一些 $x\\in B$ 的换成 $S-x$。可以证明，直接从小到大，如果加入 $x$ 后依旧凑不出 $S$，则在答案集合加入 $x$ 一定更优。$\\Large{\\color{red}\\Diamond}$\r\n\r\n>证明：对于任意一个 $x\\in [1,\\lfloor\\frac {S-1} 2\\rfloor]$，若前面的数能凑出 $x$，则加入 $x$ 不影响凑其他数。否则前面的数无法凑出 $x$，则可以加入 $S-x$，由于后面的加入集合的数都 $>x$，所以不会导致 $S-x$ 和其他数凑出 $S$。\r\n\r\n这样就可以比较方便的 $O(S)$ 求答案，思考如何继续加速贪心过程。\r\n\r\n设加入的最小数为 $d$，由于 $d\\not\\mid S$，$lcm(1,2,...43)>10^{18}$，所以 $d\\le43$。思考两种添加方式，添加的数 $x\\le \\lfloor\\frac {S-1} 2\\rfloor$。\r\n\r\n1. $x$ 可以由 $A$ 中的数凑出。\r\n2. $x$ 不能被 $A$ 中的数凑出，但加入后也无法凑出 $S$。\r\n\r\n$1$ 的做法可以后面二分时再处理，思考 $2$ 会加入哪些数。因为 $d\\in A$，所以$2$ 加入的数在 $\\bmod d$ 意义下互不相同，否则可以用 $1$ 做出，所以 $2$ 加入的数至多 $\\mathcal O(d)$，复杂度可以接受。$\\Large{\\color{red}\\Diamond}$\r\n\r\n令 $f_i,i\\in[1,d)$ 表示 $2$ 加入的数 $\\bmod d=i$ 的最小的数，转移时枚举加入 $v$，若能加入需保证 $f_{(S-iv)\\bmod d}+iv>S$，即保证 \r\n$$\r\nv\\ge \\max_{i=1}^{d-1}(\\lfloor\\frac{S-f_{(S-iv)\\bmod d}}i\\rfloor+1)\r\n$$\r\n由于转移式中只与 $v \\bmod d$ 相关，所以枚举 $x = v_x\\bmod d$，按上面的式子跑一遍后将 $v_x$ 加到 $v_x\\equiv x(\\bmod d)$ 为止。这一步需要枚举 $x$ 和 $i$，单次复杂度为 $\\mathcal O(d^2)$。由于要从小到大进行贪心，所以对于所有的 $v_x$，每次只会选取最小的 $v_{mn}$ 更新所有的 $f$。更新 $f$ 时枚举 $i,j\\in[1,d)$。\r\n$$\r\nf_{(i+j\\times v_{mn})\\bmod d}\\leftarrow f_i + j \\times v_{mn}\r\n$$\r\n由于每个 $x\\in [0,d)$ 只会有至多一次 $x=mn$ 将 $f_x$ 更新至最小值（最终值），所以会进行 $\\mathcal O(d)$ 次上述的``单次``，复杂度为 $\\mathcal O(d^3)$。\r\n\r\n$A$ 中 $\\le x$ 的个数为 $\\sum_{i=0}^{d-1} \\max(0,\\lfloor\\frac {x-f_i} d\\rfloor+[i\\not=0])$。注意 $f_0=0$，$i=0$ 时不加一是因为无法选取 $0\\in A$。\r\n\r\n对于询问二分答案后求有多少个凑出的数 $\\le x$，对于 $\\le \\lfloor\\frac {S-1} 2\\rfloor$ 的答案直接二分答案即可，$>\\lfloor\\frac {S-1} 2\\rfloor$ 的答案先将 $k\\leftarrow k-|A|$ 后反着二分。本题最终复杂度为 $\\mathcal O(T(d^3+d\\log_2k))$。\r\n\r\n## [CF1389G Directing Edges](https://www.luogu.com.cn/problem/CF1389G)\r\n\r\nran_qwq 的讲题，感觉有点像答辩缝合怪。\r\n\r\n连通性和给无向边定向先想到使用边双缩点，因为一个边双内的点一定可以定向成强连通分量，这样一定更优。此时从无向图变成了一棵树，然后考虑关键点的限制。\r\n\r\n先随便取一个关键点做根，若一个子树内没有关键点，则将边全部定向为 $u\\rightarrow fa_u$ 一定不劣，由于这种子树的贡献固定，所以再缩起来。具体的，若一条边 $(u,fa_u)$ 满足 $u$ 子树内没有关键点，而 $fa_u$ 子树内有关键点，则 $[\\text{关键点能到达}fa_u]=[\\text{关键点能到达}u]$，此时将 $u$ 子树和 $fa_u$ 缩到一起。此时所有叶子节点都是关键点。\r\n\r\n可以开始树形 DP 了。令 $f_u$ 表示 $u$ 子树内强制选 $u$ 为饱和点的收益，$f_u=\\max(f_v-w(u,v),0)+c_u$，当让顶点 $i$ 强制选为饱和点时将 $i$ 钦定为根即可，写下换根 DP 即可。\r\n\r\n代码没写，感觉依托。\r\n\r\n## [CF1017G The Tree](https://www.luogu.com.cn/problem/CF1017G)\r\n\r\nlbw 的题感觉都很妙。\r\n\r\n考虑将修改和查询的复杂度平衡，尝试类似于线段树标记永久化的思路。先不管 2 操作，若一个操作 ``1 v`` 能影响到 $u$，则 $v\\to fa_u$ 的点一定已经被标记为黑色，手玩可以发现修改之间的顺序其实不影响，所以将修改合并，即维护 $c_u$ 表示在 $u$ 节点进行了 $c_u$ 次操作，则操作 ``1 v`` 能影响到 $u$ 当且仅当 $\\sum_\\text{i is on path(v,u)}c_i\\ge dep_u-dep_v+1$，套路地，将 $dep_u-dep_v+1$ 移到左边，分给每个 $\\text{i is on path(v,u)}$。将 $c_u$ 的初始值设为 $-1$，然后求最大后缀和（一定要包含自己）是否 $\\ge 0$ 即可。\r\n\r\n现在考虑操作 ``2 u``，首先肯定要将 $u$ 子树内的所有 $c_i$ 设为 $-1$，此外，需要让 $u$ 向上的最大后缀和变为 $-1$，所以将 $c_u\\gets c_u-query(u)-1$。\r\n\r\n直接上树剖维护，复杂度 $\\mathcal O(n\\log^2n)$。\r\n\r\n## [AT_abc230_g [ABC230G] GCD Permutation](https://www.luogu.com.cn/problem/AT_abc230_g)\r\n\r\n令 $S(p)$ 表示满足 $p$ 命题的方案数。\r\n$$\r\nans=S(\\gcd(i,j)\\ne 1\\wedge \\gcd(P_i,P_j)\\ne 1)\\\\\r\n=S(1)-S(\\gcd(i,j)=1)-S(\\gcd(P_i,P_j)=1)+S(\\gcd(i,j)=1 \\wedge \\gcd(P_i,P_j)=1)\\\\\r\n=\\frac{n(n+1)}2-2\\sum_{i=1}^n \\varphi(i)+S(\\gcd(i,j)=1\\wedge \\gcd(P_i,P_j)=1)\\\\\r\n$$\r\n只要解决 $\\beta=S(\\gcd(i,j)=1 \\wedge \\gcd(P_i,P_j)=1)=\\sum_{i=1}^n\\sum_{j=1}^n [\\gcd(i,j)=1\\wedge\\gcd(P_i,P_j)=1]$ 即可。\r\n\r\n由莫反可得\r\n$$\r\n\\beta=\\sum_{x=1}^n\\sum_{y=1}^n \\mu(x)\\mu(y)\\sum_{i=1}^n\\sum_{j=1}^n[(x|\\gcd(i,j))\\wedge (y|\\gcd(P_i,P_j))]\\\\\r\n=\\sum_{x=1}^n\\sum_{y=1}^n\\mu(x)\\mu(y)\\binom{(\\sum_{x|i,y|P_i}1)+1}2\\\\\r\n\\text{let} f(x,y)=\\sum_{i=1}^n [x|i\\wedge y|p_i]\\\\\r\n\\beta=\\sum_{x=1}^n\\sum_{y=1}^n \\mu(x)\\mu(y) \\frac{(f(x,y)+1)f(x,y)}2\r\n$$\r\n每次加入一个新的数时枚举 $x|i,y|P_i$ 并修改对 $\\beta$ 的贡献即可，复杂度为 $\\mathcal O(n\\ln n+\\sum_{i=1}^n d(i)^2)$，打表得 $N=2\\times10^5$ 时大约为 $6\\times 10^7$。\r\n\r\n## [P13997 【MX-X19-T6】「FeOI Round 4.5」はぐ](https://www.luogu.com.cn/problem/P13997)\r\n\r\n路径上求可以差分转化成四个点到根求，同时可能有 $a_i\\gets a_i\\pm dep_i$，然后就是求 $\\bigoplus_{i=0}^{dis(1,x)}(a_{p_i}+k)$，其中 $p_i$ 为 $1$ 走到 $x$ 的经过的第 $i$ 个点。每个位单独考虑，$x_k$ 表示 $x$ 二进制下的第 $k$ 位的值，拆项得\r\n$$\r\n(a_j+k)_i=(a_j)_i\\oplus k_i\\oplus[(a_j\\bmod 2^i+k\\bmod 2^i)\\ge2^i]\r\n$$\r\n$\\bigoplus(a_j)_i$ 可以直接预处理出根到 $x$ 的 $a$ 的异或和，$k$ 直接看 $dep_x$ 的奇偶性即可，最后一个考虑离线下来，将询问 $(x,k,i)$ 挂在 $x$ 上，使用 BIT 维护当前点祖先的 $a_j \\bmod 2^i$ 即可，复杂度为 $\\mathcal O(n\\log^2 n)$。\r\n\r\n\r\n\r\n## [One, Two, Three](https://qoj.ac/problem/6537)\r\n\r\n怎么出了若干次的题都还没补过。\r\n\r\n设共匹配 $A$ 组 $(1,2,3)$ 和 $B$ 组 $(3,2,1)$，求 $\\max(A+B)$。显然 $(1,2,3)$ 选定的一定是最左边的 $A$ 个 $1$ 和最右边的 $A$ 个 $3$，$(3,2,1)$ 同理。再分讨一下发现取的 $(1,2,3)$ 匹配 $(a_i,b_i,c_i)$ 满足 $a_1<a_2<\\dots<a_A$，$b_1<b_2<\\dots<b_A$，$c_1<c_2<\\dots<c_A$ 一定是不劣的，证明可以讨论 $2$ 的位置。现在就可以将匹配对应到 $A+B$ 个区间了。\r\n\r\n过程其实就类似二分图匹配，需要对 $A+B$ 个区间 $[l_i,r_i]$ 匹配所在区间内的 $2$。考虑 HALL 定理，即需要满足对于任意一个 $S\\in [A+B]$，满足 $|S|\\le cnt2(\\cup [l_i,r_i]),i\\in S$，由于区间之间有偏序关系，即 $\\forall l_i<l_j,r_i<r_j$，所以实际上 $S$ 取到一个区间是本质相同的，即 $R-L+1\\le cnt2[l_L,r_R]$。\r\n\r\n换一种说法，就是对于每一个区间 $[l,r]$，令被 $[l,r]$ 严格包含的区间数量为 $f_{l,r}$，则满足 $\\forall l\\le r,f_{l,r}\\le cnt2[l,r]$。\r\n\r\n对于每对 $(A,B)$，考虑 $f_{l,r}$ 的下界，先考虑 $(1,2,3)$ 的情况，令 $x\\gets cnt1(1,l-1),y\\gets cnt3(r+1,n)$，则 $[l,r]$ 需要包含 $\\max(0,A-x)$ 个 $1$ 和 $\\max(0,A-y)$ 个 $3$，按照匹配的顺序左右端点都单调可以发现 $[l,r]$ 的最右边 $y$ 个 $1$ 和最左边 $x$ 个 $3$ 会被外面的点匹配，所以内部就会剩下 $\\max(A-x-y,0)$ 组 $(1,3)$ 需要匹配，所以有 $\\max(A-x-y,0)\\le cnt2[l,r]$。\r\n\r\n同理考虑 $(3,2,1)$ 的情况能得到 $\\max(A-cnt1[0,l-1]-cnt3[r+1,n],0)+\\max(B-cnt3[0,l-1]-cnt1[r+1,n],0)\\le f_{l,r}\\le cnt2[l,r]$。\r\n\r\n分讨两个 $\\max$ 的取值，就能得到 $A,B,A+B$ 的范围了，构造由于 $(1,2,3)$ 和 $(3,2,1)$ 的区间内部满足左右端点都是单调的，所以在左端点加入，发现一个 $2$ 时贪心匹配最小的右端点即可。时间复杂度为 $\\mathcal O(n)$。",
+      "data": {
+        "title": "暑假讲题",
+        "date": "2025-07-31 11:53:01",
+        "tags": [
+          "题解",
+          "做题记录"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "summer-solution"
+    },
+    {
+      "content": "$\\Large{\\color{red}\\Diamond}$ 为重点转换步骤。\r\n\r\n## [typer](http://goj.wiki/d/Union2024/p/P1515)\r\n\r\n直接设 $f_{i,j}$ 表示前 $S[1 \\sim i]$ 匹配 $T[1\\sim j]$ 位的答案。\r\n\r\n$$\r\nf_{i,j}=\\min(f_{i-1,j}+1,f_{i,j-1}+1,f_{i-1,j-1}+[S_i\\not=T_j])\r\n$$\r\n\r\n直接做复杂度为 $\\mathcal O(|S|m|T|)$。\r\n\r\n由于 $|T|\\le 20$，并且发现 $i-j\\le f_{i,j}\\le i+j$，所以 $i+j-f_{i,j}\\le2|T|$，由于值域范围小，所以套路性的将值域放在定义维上，将原本的 $i$ 定为 dp 值。$\\Large{\\color{red}\\Diamond}$\r\n\r\n设 $g_{i,j}$ 为满足 $f_{x,i}=x+i-j$ 最小的 $x$。\r\n\r\n上面的 $f$ 的转移式中前两种方法的 $i+j-f_{i,j}$ 是不变的，所以先 $g_{i,j} \\leftarrow g_{i-1,j}$。\r\n\r\n若想让 $S_i=T_j$，$g_{i,j} \\leftarrow k(k>g_{i-1,j-2},S_k=T_j)$，否则 $g_{i,j} \\leftarrow k(k>g_{i-1,j-1},S_k\\neq T_j)$。\r\n\r\n预处理出每个位置 $nx_{i,j,0/1}$ 表示 $S_i$ 后字符为/不为 $j$ 的第一个位置。\r\n\r\n## [sum](http://goj.wiki/d/Union2024/p/P1520)\r\n\r\n本题保证了无重边自环。\r\n\r\n$k=1$ 简单。\r\n\r\n将 $\\sum f(S)^2$ 转成 $\\sum \\binom{f(S)}2$，赋予组合意义即为从 $S$ 的导出子图中任意选两条边的方案数的和，从而可以拆贡献至选取两条边进行计算。$\\Large{\\color{red}\\Diamond}$\r\n\r\n$$\r\nf(S)^2=2\\binom{f(S)}2+f(S)\r\n$$\r\n\r\n两条边的情况可能是两条无交边或有一个公用顶点，分开讨论并枚举公共点即可。\r\n\r\n$$\r\nf(S)^3=6\\binom{f(S)}3+3f(S)^2-2f(S)\r\n$$\r\n\r\n$f(S)^2$ 和 $f(S)$ 直接使用上面的即可，重点讨论 $\\binom{f(S)}3$ 如何拆开。\r\n\r\n影响结果的只有任选的三条边的点数 $x$ 和方案数 $y$，贡献为 $y2^{n-x}$。\r\n\r\n$x={3,4,5,6}$。由于总方案数为 $\\binom{m}3$，所以 $x=6$ 可以直接用总的减去其它的计算。\r\n\r\n$x=3$，即一个三元环。直接用三元环计数即可，令方案数为 $A$，复杂度为 $O(m\\sqrt m)$。\r\n\r\n$x=4$，可能是一条链或者一个菊花。\r\n\r\n- 链：枚举中间那一条边 $(u,v)$，方案数 $B=(\\sum (deg_u-1)\\times (deg_v-1))-3A$，最后减 $3A$ 是因为如果形成三元环，每条边都会被作为中间的边多算一次。\r\n- 菊花：枚举度数为 $3$ 的点 $u$，方案数 $C=\\sum \\binom{deg_u}{3}$。\r\n\r\n$x=5$，即分离的一条三元链和一条边，枚举三元链的中心 $u$，方案数 $D=(\\sum\\binom{deg_u}2(m-2))-3A-2B-3C$。\r\n\r\n$3A$ 因为三元环中三个点都会被作为链中心，$2B$ 因为插入的新边可能在链的两端，$3C$ 因为菊花的三条边都会被作为插入的新边。\r\n\r\n$x=6$，$E=\\binom m 3-A-B-C-D$。\r\n\r\n$\\binom {f(S)}3=2^{n-3}A+2^{n-4}(B+C)+2^{n-5}D+2^{n-6}E$。\r\n\r\n## [sort](http://goj.wiki/d/Union2024/p/P1523)\r\n\r\n寻找第 $k$ 小可以先转化成二分答案 + 求有多少个 $\\le mid$。$k\\leftarrow k-1$\r\n\r\n这里的字典序有些不同，可以直接用 $A_i$ 记录 $i$ 出现的次数，比较 $A$ 和 $B$ 时从 $i=1\\to n$ 比较 $A_i$ 和 $B_i$ 即可，若 $A_i<B_i$ 则 $A>B$，$A_i>B_i$ 则 $A<B$。\r\n\r\n由于增加一个数一定会使字典序变小，所以 $S[l,l]>S[l,l+1]>...>S[l,n]$ 且 $S[1,r]<S[2,r]<...S[r,r]$，于是对于左端点固定的区间具有单调性，设二分的区间是 $[L,R]$，则可以通过双指针或二分对每个 $i$ 求出 $M_i$ 使 $S[i,n]<S[i,n-1]<...<S[i,M_i]\\le S[L,R]$，进而求出 $S[L,R]$ 的排名。$\\Large{\\color{red}\\Diamond}$\r\n\r\n若 $rnk(S[L,R])\\le k$，则将 $pr_i=M_i-1$ 表示删去 $[i,M_i],[i,M_i+1]...[i,n]$，并将 $k\\leftarrow k-rnk(S[L,R])$。否则将 $pl_{i}=M_i$ 表示删去 $[i,i],[i,i+1],...[i,M_i-1]$。\r\n\r\n生成 $[L,R]$ 时在剩余的所有区间中随机一个即可，期望每次能选到字典序排名的重点左右，所以复杂度是 $O(\\log n)$ 的。\r\n\r\n双指针的过程就是有 $O(n)$ 次加入和删除一个字符，并查询桶内第一个和 $S[l,r]$ 的桶内的不同值。可以使用线段树维护 $T_i=A_i-B_i$，加入字符 $c$ 时将 $T_c\\leftarrow T_c+1$，删除时 $T_c \\leftarrow T_c-1$，查询时在线段树上二分或提前存储第一个 $T_i\\neq0$，若 $T_i>0$ 则 $A<B$，否则 $A>B$。总复杂度为 $O(n\\log^2n)$。\r\n\r\n## [countcircle](http://goj.wiki/d/dx2025/p/S1216)\r\n\r\n设 $L_{i,j},R_{i,j},U_{i,j},D_{i,j}$ 分别表示 $(i,j)$ 向左，向右，向上，向下能走到的最远的位置。\r\n\r\n原题就是求\r\n\r\n$$\r\n\\sum_{i=1}^n\\sum_{j=1}^m\\sum_{x=U_i}^{i-1}\\sum_{y=L_j}^{j-1}[D_{x,y}\\ge i\\wedge R_{x,y}\\ge j]\r\n$$\r\n\r\n明显上面的式子是四维的，无法直接做。将矩阵进行分治，选择竖着的中线 $mid$，分别对左右独立讨论经过中线的方案数再乘起来，将四维转换为三维。$\\Large{\\color{red}\\Diamond}$\r\n\r\n两边情况相似，只考虑左侧穿过中线的情况。先枚举 $u\\in[1,n],v\\in (u,n]$，计算左侧选取的 ``匚`` 的数量。\r\n\r\n![countcircle配图](D:\\yhy\\Blog\\countcircle配图.png)\r\n\r\n于是现在只要求\r\n\r\n$$\r\n\\sum_{u=L}^R\\sum_{v=u+1}^R\\sum_{x=\\max(l,L_{u,mid},L_{v,mid})}^{mid-1}[D_{u,x}\\ge v]\r\n$$\r\n\r\n枚举完 $u,v$ 后分类讨论 $\\max(l,L_{u,mid})$ 和 $\\max(l,L_{v,mid})$ 哪个更大，若前者更大，则对于所有 $u$ 询问的区间已经固定，所以只要开一个桶记录 $D_{u,x}$ 的后缀个数和。如果是后者更大，就相当于求 $\\displaystyle\\sum_{x=\\max(l,L_{v,mid})}^{mid-1}[U_{v,x}\\le u]$，处理方式和上面类似，开另一个桶记录 $U_{v,x}$ 的前缀个数和。这样就能单次 $O(1)$ 解决。\r\n\r\n设 $len=r-l+1,LEN=R-L+1$，这样单次的复杂度为 $\\mathcal O(LEN^2+len\\times LEN)$，由于分治时面积每次一定会减半，所以递归层数为 $\\mathcal O(\\log_2nm)$。若能保证 $LEN\\le len$ 则单次复杂度为 $\\mathcal O(len\\times LEN)$，此时总复杂度正确。每次递归后若 $LEN>len$ 则从 $[l,r]$ 中间取中线变为从 $[L,R]$ 中间取中线，复杂度为 $\\mathcal O(nm\\log_2nm)$。\r\n\r\n## [frame](http://goj.wiki/d/dx2025/p/P1548)\r\n\r\n多树问题和距离问题考虑点分治和点分树。\r\n\r\n点分树的性质：原树上 $u,v$ 的路径会经过点分树上的 $LCA(u,v)$，所以 $dis(x,y)=dis(x,LCA'(x,y))+dis(LCA'(x,y),y)$，$LCA'$ 表示在点分树上的 lca。$\\Large{\\color{red}\\Diamond}$\r\n\r\n考虑对第一棵树进行点分治，若当前分治中心为 $rt$，已经处理过的点集为 $S$，当前需要求 $u$ 到 $S$ 的答案。设 $i$ 以 $rt$ 为根的深度为 $a_i$，则需要求 $\\min_{v\\in S} a_u+a_v+dis_2(u,v)$，由点分治的性质可得\r\n\r\n$$\r\n\\min_{v\\in S} a_u+a_v+dis_2(u,v)=\\min_{v\\in S}a_u+a_v+dis_2(u,LCA_{2'}(u,v))+dis_2(LCA_{2'}(u,v),v) \\\\\r\n=\\min_{v\\in S,x=LCA_{2'}(u,v)}(a_u+dis_2(u,x))+(a_v+dis_2(v,x)) & \\Large{\\color{red}\\Diamond}\r\n$$\r\n\r\n$x$ 为点分树上 $u$ 和 $v$ 的祖先，所以 $x$ 只有 $\\mathcal O (\\log_2n)$ 个，当将 $v$ 加入 $S$ 时，跳过 $v$ 的每个祖先 $x$ 并将 $a_v+dis_2(v,x)$ 的贡献挂在 $x$ 上，$u$ 查询时只要将挂在所有祖先的贡献加上 $a_u+dis_2(u,x)$ 后求最大值即可，若 $u,v$ 在 $x$ 的同一颗子树内，则长度只会更大，不影响最小值更新。\r\n\r\n复杂度为 $\\mathcal O(n\\log^2n)$，瓶颈在点分治和在点分树上跳祖先。\r\n\r\n## [岁月](http://oj.daimayuan.top/contest/386/problem/3331)\r\n\r\n正难则反。先容斥一下，考虑计算有多少方案使得没有一个点能被 $1，2$ 同时到达。$\\Large{\\color{red}\\Diamond}$\r\n\r\n令 $f_S$ 表示只保留 $S$ 导出子图并给其定向，$1$ 恰好能到达 $x\\in S$ 的方案数，$g_S$ 和 $f_S$ 同理，从 $2$ 号点出发，$w(S)$ 表示 $S$ 的导出子图的边数。\r\n\r\n$$\r\nans=2^m-\\sum_{S \\cap T=\\empty}f_Sg_T2^{w(U-S-T)}\r\n$$\r\n\r\n由于 $S\\cap T=\\empty$，所以只需枚举 $T\\sube U-S$ 即可，复杂度为 $\\mathcal O(3^n)$。\r\n\r\n思考如何求 $f,g$，同样用总方案数 $2^{w(S)}$ 减去不合法的。\r\n\r\n先枚举 $T\\sub S$，计算只能到达 $T$ 的方案数。内部可达为 $f_T$，外部 $S-T$ 的导出子图随意，一条边 $(u,v),u\\in T,v\\in S-T$ 的只能定向为 $(v,u)$，所以方案数为 $2^{w(S-T)}f_T$，枚举子集复杂度也是 $\\mathcal O(3^n)$。\r\n\r\n总复杂度为 $\\mathcal O(3^n)$。",
+      "data": {
+        "title": "比赛题解",
+        "date": "2025-07-10 17:14:28",
+        "tags": [
+          "题解",
+          "做题记录"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "contest-solution"
+    },
+    {
+      "content": "## Day 0\r\n\r\n坐半天高铁到绍兴了，感谢黄连赞助的 adofai，结果他自己没得玩。\r\n\r\n结果酒店没预定，等了 10+min 后换酒店了。见到了 pyb ~~和《我这里不是网吧》~~。话说为什么酒店公共网络什么都能上，但就是上不了 qiu。\r\n\r\n和 log 住一间。外卖都没有什么好点的，最后点了推荐的，量挺多，但还挺贵。\r\n\r\nqiu 自摸四暗刻极限翻盘，加大分，赛前溢满 rp++\r\n\r\n## Day 1\r\n\r\n早上起床后参加开幕式，好像没什么，直到。。。\r\n\r\n有请 GDFZ wxp 教练（choi 此时上台领奖）。\r\n\r\n然后结束就飞奔去抢饭了，吃完学长都没打完，人多的比较逆天。\r\n\r\n12：20 考场竟然不在学校里，去试机的路上发现 THU 好像都还在打，有点爽啊。\r\n\r\n13：00 开题，才发现原来一共只有 4h。\r\n\r\n14:00 只会 $a=2$ 和 $a>b+1$，暴力好像什么都跑不出来，要完蛋了。先开 T2。\r\n\r\n14:30 T2 只会 24pts，本以为很妙，结果好像就是暴力，不展开了。继续回去看 T1。\r\n\r\n15:30 继续手玩 T1，暴力加上一点点优化后没想到快了超多，拿到了 $a,b\\le 4$。打表出来，好像原来手推的答案都错了，随便输出一组构造，结果发现直接将 $a+b$ 个电池平均分成 $a-1$ 组，抽屉原理得至少一组有至少 $2$ 个好电池，直接每组暴力做就过了。前面全部想偏了，现在还不知道怎么证，但觉得非常不合常理。\r\n\r\n严厉批斗 $O(T)$ 的题目数据范围是 $T,a,b\\le 1000$。\r\n\r\n看 T2，好像会 $L=1$，结果假了。看 T3，好像会 AB 性质。写写写。写了 40min+，过了样例，交，0pts。\r\n\r\nT3 的 A 性质把 **DAG** 看成**树**了，白打了，唐！已经没什么时间了，好像暴力还不好打。T2 T3 反复横跳。\r\n\r\n最后 10min，直接摆了，受不了一点。结果发现竟然有 Sublime Text，Day 2  可以用。\r\n\r\n$100+24+0=124$。\r\n\r\n---\r\n\r\n出来了，ljq 161，lgg & lbs 124。被 yyx 和本伟薄纱了。好像又垫底了。。。\r\n\r\nljq 母亲带我们去吃饭了，为什么绍兴菜都是辣、甜、咸啊。\r\n\r\n晚上好无聊啊，qiu 都没什么意思了。\r\n\r\n等 Day 2 翻盘？\r\n\r\n## Day 2\r\n\r\n上午听讲座讲 AI。\r\n\r\n吃完饭，休息一下。\r\n\r\n提前 10min 到考场配 sublime。\r\n\r\n开题，T1 交互，T2 疑似 DP，T3 小清新。\r\n\r\n2h30min 还没拿分，感觉要爆了。T1 胡了几个做法都错了（2 次 ``in`` 是什么鬼？），T2 的暴力怎么写都拿不了分，先开 T3。\r\n\r\nT3 写了暴力 24，结果不太会 $B\\le 4$，应该可以暴力分讨，但是先去写前面吧。\r\n\r\nT2 写了 $c=1$。\r\n\r\n怎么不会 T1，不切 T1 你切什么题，不切题你打什么比赛。\r\n\r\n但是这次是真不会。过一会发现原来早就会写 $n^3$，直接写了。\r\n\r\n只剩 30min，心态要爆了，T1 好像没有一点非暴力做法。\r\n\r\n结束了。\r\n\r\n$16+11+24=51$。\r\n\r\n---\r\n\r\n好多拿过约的都在磕 T1。lgg 会 $3n$，ljq 会 $4n$，好像又是垫底，烦！\r\n\r\nlog 和我又是一个分。\r\n\r\nTHU 那边好像好一点，mlk 终于金牌了，/bx/bx/bx。",
+      "data": {
+        "title": "PKUWC 2025",
+        "date": "2025-03-25 15:31:18",
+        "tags": [
+          "游记"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "pkuwc2025"
+    },
+    {
+      "content": "[更爽的阅读体验](https://yaohaoyou.github.io/post/GDOI2025)\r\n\r\n## 前言\r\n\r\n> 马上回归综合了，所以就早点写了吧。。。\r\n\r\n[前情提要](https://yaohaoyou.github.io/post/noip2024)\r\n\r\nNOIP 排名都去到 200+ 了，省选可能就走过场吧。。。\r\n\r\n## Day -1\r\n\r\n晚上没要到体锻不爽。（原来 NOIP 前也没要到）。\r\n\r\n## Day 0\r\n\r\n早上 10 点出发去佛山，酒店有点偏，好像附近只有 M 吃。中午发现一群疑似旅游的大爷大妈来吃饭，场景还是太壮观了。\r\n\r\n试机发现竟然有 vs+cph 和 cp editor，从没打过这么富裕的仗，终于可以不用 sublime 了。\r\n\r\n## Day 1\r\n\r\n酒店早餐爆吃，所以比较早就去考场了。\r\n\r\n开 T1，还比较可做，应该分情况讨论一下直接两次二分求区间就行了，感觉刚开始思路比较绕，所以写了 $\\mathcal O(nV)$ 的，后面改了好久才写完 $\\mathcal O(n \\log_2V)$。这唐题也是给我写了 2h，有点急。\r\n\r\nT2 $n\\le 10^5$ 2GB+6s，一看就是 bitset 题，感觉比较能写。看了一会写了跑不满的 $\\mathcal O(\\frac {n^2} {\\omega}+nq)$ 当暴力，$6 \\times 10^4$ 要跑 9s 左右，不知道能不能骗到分。\r\n\r\n又看了一下，发现 B 性质可以用 DS 做 $\\mathcal O(\\frac {n^2\\log_2n} \\omega)$，因为空间要用树状数组，$\\log n$ 常数比较小，先写了，跑 $8\\times 10^4$ 卡满都只要 3s，非常爽。\r\n\r\nT3 暴力，看了半天还是不会树。\r\n\r\n后面又回来看 T2，会了 AC，和 B 其实差不多，复杂度一样，但常数更大，先开写，此时只剩下 15min。\r\n\r\n最后 5min 发现写错了一点，遂放弃，感觉比较可惜，但还是只能检查代码了。\r\n\r\n$100+36+8=144$。\r\n\r\nmlk 会 T3 52pts 还是太恐怖了，其他人好像都差不多，yinhee（~~sana~~) 切 T2 了，这也太有实力了。\r\n\r\ncyz 怎么像 generals 一样丢代码了？祝好。\r\n\r\n又有聚餐。\r\n\r\n回酒店时思考为什么 T2 没有想过根号？？？\r\n\r\n下午好像都在晃晃晃。。。\r\n\r\n## Day 2\r\n\r\n开 T1，部分分给的这么多，好像还比较可做。手玩一下发现直接按 $t_i$ 从小到大做不劣，剩下直接 ds 模拟整个过程就行了。想起来 AT_abc371_f 的线段树维护 $a_i-i$ 的 trick，剩下就上个线段树上二分就行了。一开始写错二分，但又把大样例过完了，改成单 log 发现了，也是 rp++ 了。写完又花了差不多 2h，吸取 Day1 经验，先不开拍了。\r\n\r\n后面两题计数，只会暴力，撤了。\r\n\r\n$100+12+8=120$。\r\n\r\n还是聚餐，但是可以直接回家了。\r\n\r\n## Day 3\r\n\r\n竟然还有周一放假！\r\n\r\n晚上回学校写了这篇游记。\r\n\r\n---\r\n\r\n终于写完了。下雨了，比较伤感，NOIP 后机房也少了许多面孔，特别是机位旁边的 jx 哥，感觉竞赛还是充满着遗憾。也不知道退役离我有多远，也许离开早已是命运。初中也快结束了，可能不甘和遗憾才是青春吧。\r\n\r\n但是还是舍不得大家啊。\r\n\r\n> 希望大家一直记得我。\r\n>\r\n> “希望大家永远忘了我。”\r\n\r\n## Day ¿\r\n云斗没挂，但也没反向挂，也挺好的。\r\n\r\n为什么 D1T2 乱搞可以拿巨量分数啊！",
+      "data": {
+        "title": "GDOI2025 又记",
+        "date": "2025-03-03 15:25:02",
+        "tags": [
+          "游记"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "GDOI2025"
+    },
+    {
+      "content": "### [题目传送器](https://www.luogu.com.cn/problem/P10716)\r\n\r\n### [更爽的阅读体验](https://yaohaoyou.github.io/post/p10716-solution/)\r\n\r\n## 做法 \r\n\r\n前面的部分都和其他题解一样，先建出失配树，将问题转化成寻找有多少个点 $u(u>0)$ 满足在 $u$ 的子树中编号跳 $k-1$ 次后到达的节点 $p$ 满足 $p\\le i$。\r\n\r\n先使用启发式合并动态维护 $u$ 子树内的每个节点构成的集合，然后在这个集合中暴力跳，并储存 $dp_{u,i}$ 表示 $u$ 跳 $i$ 步后到达的节点。因为每次会从 $p$ 跳到至少为 $p+u$ 的节点，所以复杂度为 $\\mathcal O(n+\\frac n2+\\frac n3+\\dots)=\\mathcal O(n\\times \\ln n)$。\r\n\r\n接下来的处理询问。对于询问 $(x,k)$ 即求有多少个 $x$ 的祖先 $u$ 满足 $dp_{u,k-1}\\le x$。\r\n\r\n将询问离线下来，跑 dfs 的时候模拟栈就能直接记录从当前点到跟的路径上的信息，开 $n$ 个数据结构，第 $i$ 个维护当前链上的节点跳 $i$ 步后到达的节点的集合，需要支持增删，求排名。这里使用平衡树，应该也可以使用主席树。\r\n\r\n总复杂度为 $O((n+q)\\times \\ln n \\times \\log_2n)$。\r\n\r\n[AC Code](https://www.luogu.com.cn/paste/hkdq4nl6)",
+      "data": {
+        "title": "P10716 【MX-X1-T4】「KDOI-05」简单的字符串问题 题解",
+        "date": "2025-02-08 16:52:00",
+        "tags": [
+          "题解",
+          "字符串"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "p10716-solution"
+    },
+    {
+      "content": "[更爽的阅读体验](https://yaohaoyou.github.io/post/noip2024)\r\n\r\n## 前言\r\n\r\n> 出分后再写邮寄是好习惯。\r\n\r\n[前情提要](https://yaohaoyou.github.io/post/csp2024)\r\n\r\n这篇游记是在 Day7 写的，可能比较暴躁，讲究看吧。\r\n\r\n不要恶评，看到就删。\r\n\r\n## Day 0\r\n\r\n晚上没要到体锻不爽。\r\n\r\n## Day 1\r\n\r\n6 点多就起了，7：00出发去考场。要用 Sublime，不爽。\r\n\r\n开 T1，好答辩（满脑子循环播放：你不切 T1 你切什么题，你不切题你打什么比赛）。应该直接贪心是对的，但是也不确定。矛盾后终于开写了，1h 左右一遍过大样例了，爽，上个厕所压压惊。\r\n\r\nT2 应该不用矩阵快速幂，直接算就行了。30min 写完，一遍过大样例，爽（伏笔\r\n\r\n才 1.5h，放松许多。开始拼暴力，T3 是什么鬼，跳了。T4 应该是 DS，想想想。\r\n\r\n不会一点，直接拼部分分。T3 完全看不懂是在干什么，只会暴力，$k=1$ 都不会，rlfl。\r\n\r\n感觉后面一直在坐牢，连拍子都没上，部分分也不太会打（伏笔\r\n\r\n估分：$100+100+12+36=248$。\r\n\r\n出来了。不出意外，部分分打得太少了，T3 好像很多都应该要会，真要学计数了。\r\n\r\n## Day 7\r\n\r\n早上信息会考。\r\n\r\n下午知道分了，洛谷上没挂分，爽！（伏笔\r\n\r\n1h later......\r\n\r\n好像 T2 挂了 30pts。真的服了，多写了一个 ``=``。依照惯例，下面放个代码。\r\n\r\n```cpp\r\nsort(a+1,a+n+1);\r\nfor(int i=1;i<=n;i++)\r\n\tif(a[i].fi==a[i+1].fi&&a[i].se!=a[i+1].se)\treturn puts(\"0\"),void();\r\nn=unique(a+1,a+n+1)-a-1;\r\n```\r\n\r\n解释一下，因为有多测，而 ``for`` 循环中访问到了 $a_{n+1}$，所以有可能在上组多测中 $a_{n+1.fi}=$ 当前多测的 $a_{n.fi}$，然后就多判了 $0$。但是这概率不应该超级小吗，$T\\le10$ 能给我挂 6 个点，我#@!\\$!Y\\$*!(\\$&(!&)\\$!@&\\$^&*@!\\$。但是为什么 \\__log__ 的如果 $ans=0$ 不为 T 组询问中的后缀就会错都能通过，CCF 负众望。。。\r\n\r\n烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦烦\r\n\r\n听说 misaka S 组也有这个问题，但是 CCF 数据没挂。\r\n\r\n等正式分吧。\r\n\r\nupd：\r\n\r\n被骗了，只挂了 $15$。\r\n\r\n$100+85+16+32=233$。",
+      "data": {
+        "title": "NOIP 犹记",
+        "date": "2024-12-06 15:21:55",
+        "tags": [
+          "游记"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "noip2024"
+    },
+    {
+      "content": "### [题目传送器](https://www.luogu.com.cn/problem/AT_arc187_d)\r\n\r\n### [更爽的阅读体验](https://yaohaoyou.github.io/post/AT_arc187_d-solution/)\r\n\r\n## 前言\r\n\r\n怎么没有人写官方做法，``set`` 应该比线段树好写吧。\r\n\r\n## 题意\r\n\r\n给定长为 $n$ 的序列 $a,b$，对 $k\\in[1,n]$ 求 $\\min\\{\\max_{i=1}^kc_i-\\min_{i=1}^kc_i,c_i=a_i \\vee c_i=b_i\\}$。\r\n\r\n## 做法\r\n\r\n开始也没什么信息，所以可以先钦定 $c_1=a_1\\vee c_1=b_1$。当 $c_1$ 固定后，可以分析出一些结论了。设 $a_i\\le b_i$，若不是就交换一下，则变成在区间上取两个端点之一。对于 $a_i\\le b_i\\le c_1$，显然 $c_i=b_i$ 是不劣的，同理，$c_1\\le a_i\\le b_i$，选择 $c_i=a_i$ 是不劣的。当固定这些 $c_i$ 后，又可以固定更多的 $c_j$。形式化的，设 $L$ 为当前固定的 $c_i$ 中的最小值，$R$ 为最大值，则满足剩下的 $a_i< L\\le R< b_i$。\r\n\r\n接着考虑剩下的区间，若存在 $a_i\\le a_j \\le b_j\\le b_i$，即存在包含关系时，$i$ 所形成的极差一定不会比 $j$ 的更小，所以 $j$ 必然不会贡献答案，可以删除 $j$。\r\n\r\n将最后剩下的区间设为 $l_1\\le\\dots\\le l_m\\le L\\le R\\le r_1\\le\\dots\\le r_m$，则答案为 $\\min\\{\\min_{i=1}^{m-1}(r_i-l_{i+1}),L-l_1,r_m-R\\}$。\r\n\r\n开一个 ``set`` 维护 $[l_i,r_i]$ 和一个 ``multiset`` 维护 $(r_i-l_{i+1})$。每次插入一个区间 $[a_i,b_i]$ 时先检查 ``set`` 中是否存在 $[l_j,r_j]$ 包含了 $[a_i,b_i]$，若有则不用修改，否则再将所有被 $[a_i,b_i]$ 包含的 $[l_j,r_j]$ 从 ``set`` 中删除，最后类似于链表的插入，将 $[a_i,b_i]$ 插入到 ``set`` 中，同时删除和插入时需要同步更新 ``multiset`` 中的答案集合。\r\n\r\n由于每个区间只会插入和删除一次，所以时间复杂度为 $\\mathcal{O}(n\\times \\log_2n)$。实际上要跑 1s 左右，STL 常数较大，但比较好写。\r\n\r\n### [Submission](https://atcoder.jp/contests/arc187/submissions/60015816)",
+      "data": {
+        "title": "AT_arc187_d Many Easy Optimizations 题解",
+        "date": "2024-11-22 19:41:34",
+        "tags": [
+          "题解",
+          "AtCoder"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "AT_arc187_d-solution"
+    },
+    {
+      "content": "## [CF1368E Ski Accidents](https://www.luogu.com.cn/problem/CF1368E)\r\n\r\n比较神的构造，被对手 10min 秒了。\r\n\r\n看到 $\\frac47$ 和 $out_i\\le2$，然后就应该想到 $\\frac47=\\frac{2^2}{2^0+2^1+2^2}$，尝试将 $n$ 划分为 $3$ 个集合。感觉比较结论，所以直接说了。将 $n$ 划分成 $3$ 个无交且并为全集的集合 $A,B,C$，满足\r\n$$\r\n\\forall a\\in A,\\{\\forall u \\rarr a,u\\in C\\}\r\n$$\r\n$$\r\n\\forall b\\in B,\\{\\exist u \\rarr b,u\\in A\\},\\{\\not\\exist u\\rarr b,u\\in B\\}\r\n$$\r\n$$\r\n\\forall c\\in C,\\{\\exist u \\rarr c,u\\in B\\}\r\n$$\r\n分类讨论一下，不难发现 $A,B,C$ 交且并为全集。由于 $\\forall b\\in B,\\exist a \\rarr b$，$|B|\\le2|A|$，同理，$|B|\\le2|C|$，即 $4|A|\\ge2|B|\\ge|C|$，$|C|\\le\\frac47n$。删除 $C$ 中的所有点后 $A$ 的入度都是 $0$，$B$ 的出度都是 $0$，故最多只有 $a\\rarr b$ 的边，满足条件。\r\n\r\n因为是 DAG，分集合时可以做拓扑排序。复杂度线性。\r\n\r\n",
+      "data": {
+        "title": "CP duels记录",
+        "date": "2024-11-19 16:22:23",
+        "tags": [
+          "Codeforces",
+          "做题记录"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": true
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "cp-duels"
+    },
+    {
+      "content": "### [题目传送器](https://www.luogu.com.cn/problem/P10743)\r\n\r\n### [更爽的阅读体验](https://yaohaoyou.github.io/post/P10743-solution/)\r\n\r\n## 前言\r\n\r\n赛时想出的做法，结果过了一周才过，非常难写，常数还大，本文其实可以认为是做法的补充，只用到了一个性质。\r\n\r\n## 做法\r\n\r\n先分析一些性质。\r\n\r\n1. 对于询问的区间 $[l,r]$，将区间排序后，显然结果是一个前缀 $a_1,a_2...a_k$ 的或和等于后缀 $a_{k+1},a_{k+2}...a_n$ 的与和，因为或和的最小值为 $a_k$，与和的最大值为 $a_{k+1}$，$a_k\\le a_{k+1}$，所以两个部分一定可以不交，即形成一个前缀和后缀。\r\n2. 设与和 $=$ 或和 $=x$。按位考虑，若 $x$ 的第 $i$ 位为 $0$，则分界点 $k$ 满足 $[l,k]$ 的第 $i$ 位都是 $0$，且 $[k+1,r]$ 中至少有一个 $0$。若 $x$ 的第 $i$ 位为 $1$，则 $k$ 满足 $[k+1,r]$ 的第 $i$ 位都是 $1$，$[l,k]$ 至少有一个 $1$。\r\n\r\n第二条性质本质上就是说明，若第 $i$ 位为 $0$，设第 $i$ 位的一个极长前缀 $[1,L]$ 满足 2，则 $k\\in[1,L]$，若第 $i$ 为为 $1$，设第 $i$ 位的一个极长后缀 $[R+1,n]$ 满足 2，则 $k\\in[R+1,n]$。\r\n\r\n具体实现就是建一棵主席树，在主席树上二分得到满足以上要求的极长前缀和后缀，则最终的分界点 $k$ 必然满足在每一位都在 $[1,L_i]$ 或 $[R_i+1,n]$ 区间中，即若满足 $\\exist k,k\\in[1,L_i]\\cup[R_i+1,n]$，则答案为``YES``，否则为``NO``。本质上就是对每个区间求交集。\r\n\r\n分析时间复杂度，对每一位做主席树上二分为 $\\mathcal{O}((q+n)\\times \\log_2V\\times \\log_2n)$，求交集可以将每个区间先取反，再求并集是否为全集即可 $\\mathcal{O}(q\\times \\log_2V\\times \\log_2\\log_2V)$。\r\n\r\n具体实现时，可以将询问离线，对每个位先求出 $q$ 个询问的极长前后缀，最后求交集，这样可以将空间复杂度将为 $\\mathcal{O}(n\\times\\log_2n)$，时间常数减小，再添加一些小剪枝就通过了。\r\n\r\n[Code](https://www.luogu.com.cn/paste/nt5wlfg1)",
+      "data": {
+        "title": "P10743 AND = OR 题解",
+        "date": "2024-11-15 19:01:59",
+        "tags": [
+          "题解",
+          "线段树"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "P10743-solution"
+    },
+    {
+      "content": "### [题目传送器](https://www.luogu.com.cn/problem/CF198E)\r\n\r\n### [更爽的阅读体验](https://yaohaoyou.github.io/post/CF198E-solution/)\r\n\r\n### CF 2400\r\n\r\n## 前言\r\n\r\n好题啊，但是为什么题解区没有单 log 做法。\r\n\r\n[双倍经验](https://www.luogu.com.cn/problem/P10590)\r\n\r\n## 做法\r\n\r\n首先不难想出 $O(n^2)$ 的 bfs 做法。\r\n\r\n思考一个机械臂能抓住哪些新的机械臂，即 $dis(i)\\le r \\land m_i \\le p$ 的所有 $i$，这是一个较为明显的二维偏序，应该可以直接使用线段树套线段树优化建图解决（不知道会不会 MLE）。\r\n\r\n回顾[弹跳](https://www.luogu.com.cn/problem/P5471)的 Trick，对于一个点向一个坐标轴中的左下角矩阵连边，可以先使用排序后离线一维，再使用数据结构维护剩下一维。\r\n\r\n具体的，对每个机械臂按照 $m_i$ 排序，将 $dis(i)$ 离散化后挂在线段树上。线段树上每个节点记录一个``queue``表示 $dis_i$ 在当前区间的 $i$ 集合，由于提前按照 $m_i$ 排序了，所以当前队列中的 $m_i$ 是单调不减的。利用这一条性质就可以类似于双指针，每次队首加入 bfs 后退队，如果当前队首不满足 $m_i \\le p$ 则后面的必然也不满足。\r\n\r\n实现时``queue``的空间常数非常大，会直接 MLE，可以使用``vector``并记录队头的位置。每个机械臂会在线段树中被加入 $O(\\log_2n)$ 次，也只会被删除 $O(\\log_2n)$ 次，所以时空复杂度都是 $O(n\\times \\log_2n)$。\r\n\r\n[AC Code](https://codeforces.com/contest/198/submission/291406094)",
+      "data": {
+        "title": "CF198E Gripping Story题解",
+        "date": "2024-11-14 18:14:43",
+        "tags": [
+          "题解",
+          "线段树"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "CF198E-solution"
+    },
+    {
+      "content": "[更爽的阅读体验](https://yaohaoyou.github.io/post/csp2024)\r\n## 前言\r\n\r\n> 出分后再写邮寄是好习惯。\r\n\r\n## Day  0\r\n\r\n连续三天飞盘，爽完了。\r\n\r\n## Day 1\r\n\r\n上午打 J，应该是最后一场了，弥补去年挂分的遗憾。初赛竟然 AK 了，直接尝试双 AK（初赛+复赛）。\r\n\r\nT1 会。T2 会。T3 会，上拍。\r\n\r\nT4 不会。。我怎么不会？！#！@#！#！*&@#%……@#\r\n\r\n$r$ 怎么这么小，不会有是分层图吧（怎么连续两年 T4 放分层图）。会了，写写写。写完，跑大样例，2s+。本地机子怎么这么慢！卡常，卡常。\r\n\r\n然后就卡了 1.5h，比赛结束前 15 min 卡过了，爽。\r\n\r\n出考场，lbw 强完了，提前两小时 AK，/bx/bx/bx。\r\n\r\n菇粉：$100+100+100+100=400=\\text{small joker}$。\r\n\r\n---\r\n\r\n下午打 S。\r\n\r\n早起拜锦鲤，rp++！\r\n\r\n开 T1，会了！嗯？T1 被秒了？CCF 真是越来越会出题了。。。（伏笔）\r\n\r\n开 T2，给一堆式子，这题充满单调性，第一问会了，上二分后求最少有多少个点被所有区间覆盖。这。。。思考一下很可做，AcSaber 应该打过，但我都是贺的（后悔ing...）。\r\n\r\n然后就会了。写写写。卡卡卡。过大样例了，爽！\r\n\r\n稳一波，先写后面暴力，50+28 拿下。\r\n\r\n这时还有 1.5h 左右，然后就迎来了全场最迷惑的操作。莫名其妙开始猜一波，T3 超级困难，然后为了防止挂大分，然后就开始检查代码了？\r\n\r\n测大样例，丢虚拟机。测大样例，丢虚拟机。测大样例，丢虚拟机。测大样例，丢虚拟机。测大样例，丢虚拟机。测大样例，丢虚拟机。测大样例，丢虚拟机。测大样例，丢虚拟机。测大样例，丢虚拟机。测大样例，丢虚拟机。测大样例，丢虚拟机。测大样例，丢虚拟机。测大样例，丢虚拟机。测大样例，丢虚拟机。测大样例，丢虚拟机。\r\n\r\n然后还剩 40min，继续无视 T3 的存在，开始拍 T2。写写写，拍拍拍。\r\n\r\n然后比赛结束都没拍问题，比较爽了。\r\n\r\n出考场，lbw 薄纱我，T3 怎么被切爆了？？？（CCF 真是越来越会出题了，呼应）\r\n\r\n简单提一嘴我就会了，我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。我是唐龙。\r\n\r\n菇粉：$100+100+50+28=278=\\text{big joker}$。\r\n\r\n## Day ¿\r\n\r\n神秘途径获得 J 组的民间分数，怎么 T4 挂了第 2 个点，布什个门，CCF 球球了。\r\n\r\nS 组好像没有挂分。\r\n\r\n## Day ¿¿\r\n\r\n出分日。\r\n\r\n省流：13:00 -> 16:00 -> 17:30，CCF 不愧是你。\r\n\r\nJ：$100+100+100+100=400=\\text{small joker}$。双 AK，双倍满足。\r\n\r\nS：$100+100+50+28=278=\\text{big joker}$。\r\n\r\n挂分了，但是 CCF 又挂回来了（不愧是你）。\r\n\r\n最后放一下 S 组 T3 的部分代码，多亏 CCF 神机，要不然就挂 15pts 了，我写的是 $O(n^2)$，下面代码是 $O(n \\times maxn)$ 的，不能写 memset，要 for 循环清空。\r\n\r\n```c\r\nconst int maxn=2e5+10;\r\nll dp[2][maxn];\r\nfor(int i=1;i<=n;i++){\r\n    mems(dp[i&1],0);\r\n    // DP转移\r\n}\r\n```\r\n\r\n在线讨一手七级勾。",
+      "data": {
+        "title": "CSP2024 煤济",
+        "date": "2024-11-04 20:13:59",
+        "tags": [
+          "游记"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "csp2024"
+    },
+    {
+      "content": "### [题目传送器](https://www.luogu.com.cn/problem/P8180)\r\n\r\n### [更爽的阅读体验](https://yaohaoyou.github.io/post/P8180-solution/)\r\n\r\n## 前言\r\n\r\n赛时会了，结果预处理忘优化了，大样例跑得飞快，$O(n^2)$ 假完~~甲烷~~了，喜提暴力分。\r\n\r\n## 题意\r\n\r\n自己看题面。\r\n\r\n## 做法\r\n\r\n先大眼暴力，观察结论（我也不会证明，但把表打出来后还比较明显）：\r\n\r\n1. $r$ 数组无用\r\n2. 顺序正确的 $l$ 数组唯一\r\n3. 先从大到小排序，对于当前值 $i$，放入第一个 $l_j=0$ 的位置，$j>i$。形成最后的 $l$。\r\n\r\n对于第 $3$ 点的观察，可以自己参考别的题解的做法，反正能确定 $l$ 数组即可。\r\n\r\n现在已经得到了 $l$ 数组了，$r$ 数组已经固定，有保证有解，所以算出多少个排列 $p$ 满足 $l$ 的限制即可。\r\n\r\n其实做到这一步，就完全是[这题](https://www.luogu.com.cn/problem/AT_arc186_b)了，接下来讲一讲具体的做法。\r\n\r\n对于当前数组能推出的信息很少，所以先从局部推结论。不难发现在当前 $l$ 数组中 $p$ 最小的位置一定是当前最后一个 $l_i=0$ 的 $i$，证明可以设 $a_k=\\min_{i=1}^na_i$，因为是最小值，所以前面不会再有 $p_k<p_i$，故 $l_k$ 一定是 $0$，最后一个 $l_k=0$ 一定会满足前面的 $\\forall l_j=0,p_k<p_j$。\r\n\r\n推出当前序列的最小值后，序列就又分成了两个独立的区间，因为保证有解，所以 $\\forall j>k,p_j\\ge k$，将 $i \\in [k+1,n]$ 的 $l_i \\gets l_i-k$ 后，后面的部分就与前面独立了。接下来就类似于分治的做法，将当前区间分成两段，递归求解。设当前区间为 $[L,R]$，这个区间的最小值已经确定，从剩下的 $R-L$ 个数中选取 $k-L$ 个数作为左边区间，剩下就是右边区间，所以要再乘上 $\\binom{R-L}{k-L}$。形式化的，设 $f(L,R)$ 为区间 $[L,R]$ 的分配方案数（数的集合已经固定，相当于离散化后的方案数）。\r\n$$\r\nf(L,R)=\\begin{cases}\r\n1 & L>R \\\\\r\nf(L,k-1)\\times f(k+1,R) \\times \\binom{R-L}{k-L} & L<=R\r\n\\end{cases}\r\n$$\r\n想到这里就完成了，实现并不难。注意 $l_k$ 是区间最小值，但并不一定是 $mid$，所以直接做不是 $O(n\\times\\log_2n)$ 的，而是卡不满的 $O(n^2)$。可以使用 st 表或线段树做 rmq。本题空间要求线性，于是只能使用线段树，复杂度为 $O(n\\times \\log_2n)$。\r\n\r\n## Code\r\n\r\n递归求 $f$ 的主要代码如下：\r\n\r\n```c\r\nvoid dfs(int l,int r){\r\n    if(l>r)    return;\r\n    int x=-query(all,l,r).se;  // 区间最小值的位置\r\n    mmul(ans,C(r-l,x-l));\r\n    dfs(l,x-1);\r\n    dfs(x+1,r);\r\n}\r\n```\r\n\r\n[完整代码](https://www.luogu.com.cn/paste/nea3m78u)",
+      "data": {
+        "title": "P8180 「EZEC-11」Unmemorable 题解",
+        "date": "2024-11-01 16:30:39",
+        "tags": [
+          "题解",
+          "洛谷月赛",
+          "线段树"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "P8180-solution"
+    },
+    {
+      "content": "$$\r\n\\def\\OO{\\mathcal O}\r\n\\def\\opn#1{\\operatorname{#1}}\r\n\\def\\dia{\\Large\\color{red}\\Diamond}\r\n$$\r\n\r\n## AtCoder Regular Contest 186\r\n\r\n### [A  mod M Game 2](https://www.luogu.com.cn/problem/AT_arc185_a)\r\n\r\n**Difficulty：1042**\r\n\r\n> 唐完了，不会做\r\n\r\n打表（~~大便~~）题，$1 \\le\\frac{n\\times(n-1)}2 \\mod m \\le n$ 时 Bob，否则 Alice。\r\n\r\n### [B  +1 and -1](https://www.luogu.com.cn/problem/AT_arc185_b)\r\n\r\n**Difficulty：1332**\r\n\r\n> 我都能场\r\n\r\n最后数列的状态固定，从前往后模拟，前面有多的就留个 tag。\r\n\r\n### [E  Adjacent GCD](https://www.luogu.com.cn/problem/AT_arc185_e)\r\n\r\n**Difficulty：2185**\r\n\r\n> 欧拉函数，数论\r\n\r\n欧拉函数反演\r\n$$\r\nn=\\sum_{d|n} \\varphi(d) \\\\\r\n\\gcd(a,b)=\\sum_{d|\\gcd(a,b)} \\varphi(d) = \\sum_{d|a \\wedge d|b} \\varphi(d)\r\n$$\r\n对于本题，每次加入一个 $a_i$ 后，新增 $ans+\\sum_{j=1}^{i-1} \\gcd(a_j,a_i)\\times2^{j-1}$ 的贡献。\r\n\r\n由于 $\\gcd$ 的其中一项确定，则可以枚举 $a_i$ 的因数 $d$，添加 $sum_d \\times \\varphi(d)$ 的贡献。最后对于每个因数 $d$，$sum_d +=2^{i-1}$ 即可。\r\n\r\n### [D Random Walk on Tree](https://www.luogu.com.cn/problem/AT_arc185_d)\r\n\r\n**Difficulty：2649**\r\n\r\n> 推式子，期望\r\n\r\n就是走完 $n$ 条长度为 $m$ 的链。走完一条链的充要条件是走到叶子节点，钦定 $dep_0=0$。定义有效点为之前没别走过的点。\r\n\r\n$f_i$ 表示从深度为 $i$ 的有效点走到 $i+1$ 的有效点期望步数。\r\n$$\r\nf_{i}=\\frac12+\\frac{1+f_{i-1}+f_{i}}2 \\\\\r\nf_i=2+f_{i-1}\r\n$$\r\n即有 $\\frac12$ 的概率直接走到，和先往 $i-1$ 走再走回来，再到 $i+1$ 的步数期望。\r\n\r\n初始化 $f_0$ 与当前有多少条已经走完的链相关，并且如果走到了无效点还要走回来。设可以走到的有效点数为 $k$，$p_i$ 表示从深度为 $i$ 的点走到 $i-1$ 的步数期望。\r\n\r\n$p$ 实际上在链上走的情况和 $f$ 相同，故 $p_i=2+p_{i+1}$，初始化 $p_m=1$。\r\n$$\r\nf_0=\\frac{k}{n}+(1-\\frac{k}{n})\\times(1+p_1+f_0)  \\\\\r\nf_0=\\frac{n+(n-k)\\times p_1}i\r\n$$\r\n\r\n\r\n先计算从 $n-1$ 个叶子回到 $0$ 号点的贡献，即为 $(n-1)\\times\\sum_{i=1}^mp_i$。\r\n\r\n再计算从 $0$ 号点到 $dep=1$ 的有效点后再到叶子节点的贡献和，即为 $\\sum_{i=1}^n\\sum_{j=1}^mf_j$，时间复杂度为 $O(n^2)$（注：每次 $f_j$ 都需要重新计算，因为 $f_0$ 的值会变）。\r\n\r\n观察到 $f_i=2+f_{i-1}$ 的式子非常简单，甚至是等差数列，可以得到通项公式 $f_i=f_0+2\\times(i-1)$，故\r\n$$\r\n\\sum_{i=1}^m f_i=\\sum_{i=1}^m(f_0+2\\times(i-1))=m\\times f_0 +m \\times (m-1)\r\n$$\r\n优化后就可以 $O(1)$ 求出 $f_0$ 和 $\\sum f_i$ 了，复杂度为 $O(n \\log_2n)$，使用预处理逆元做到 $O(n)$~~，但是我懒了~~。\r\n\r\n### Code\r\n\r\n```cpp\r\np[m]=1;\r\nfor(int i=m-1;i;i--)  p[i]=imadd(p[i+1],2);\r\nint invn=qpow(n,mod-2);\r\nint ans=0,sum=0;\r\nfor(int i=1;i<=m;i++)   madd(ans,p[i]);\r\nmmul(ans,n-1);\r\nfor(int i=1;i<=n;i++){\r\n    int f0=immul(imadd(n,immul(n-i,p[1])),qpow(i,mod-2));\r\n    madd(ans,immul(m,f0));\r\n    madd(ans,immul(m,m-1));\r\n}\r\n```\r\n\r\n## AtCoder Regular Contest 186\r\n\r\n### [B  Typical Permutation Descriptor](https://www.luogu.com.cn/problem/AT_arc186_b)\r\n\r\n**Difficulty：1677**\r\n\r\n> 赛时差一点写完的计数，唐\r\n\r\n不难得出当前序列中 $p$ 最小的数的位置，然后从这一点断开后形成两个新区间，两个区间相互独立，只要 $\\times \\binom{r-l}{p-l}$ 将数划分到两个区间即可。\r\n\r\n### [C  Ball and Box](https://www.luogu.com.cn/problem/AT_arc186_c)\r\n\r\n**Difficulty：2451**\r\n\r\n> 贪心，博弈\r\n\r\n按容量从小到大排序，相同容量花费从大到小。\r\n\r\n最后的状态一定形如 $V_i$ 最大的 $m-1$ 个会只获得 $1$ 的贡献，剩余获得 $V_i$ 的贡献，即 $s=\\sum_{i=1}^{k-m+1}V_i+m-1-\\sum_{i=1}^kP_i$。\r\n\r\n对后缀用大根堆维护最小的 $m-1$ 个 $V_i$ 作为所选的数中最大的 $m-1$ 个，剩余的选取所有 $[1,i-1]$ 中 $(V_i-P_i)$ 为正的，求和即可。\r\n\r\n### [A  Underclued](https://www.luogu.com.cn/problem/AT_arc186_a)\r\n\r\n**Difficulty：2511**\r\n\r\n> 性质，转化\r\n\r\n好困难。\r\n\r\n看到 01 矩阵，尝试给二分图定向。当 $a_{i,j}=0$ 时，$L_i \\leftrightarrow R_j$，当 $a_{i,j}=1$ 时，$R_i \\leftrightarrow L_j$，则两个矩阵相似即为对于每个点在两个图中的出入度相同。\r\n\r\n原矩阵上 $(i,j)$ 是不动点，当且仅当在二分图中改变图的形态但出入度不变时，上面连的边不变。考虑变一条边的方向后，会继续影响别的点，知道绕回原点，即形成一个简单环后才会结束，则不动点即为二分图上不在简单环上的边。\r\n\r\n转化后就不困难了，设 $dp_{i,j,k}$ 表示左部点前 $i$ 个点和右部点前 $j$ 个点，形成的环能否覆盖恰好 $k$ 条边。枚举左部点新加 $u$ 个点，右部点新加 $v$ 个点，且这些点形成一个强连通分量。新覆盖成了 $u\\times v$ 条边，即 $u$ 个左部点都会和 $v$ 个右部点的连边一一被覆盖。因为是可行性 dp，转移可以用 bitset，时间复杂度降为 $\\mathcal O(\\frac{n^6}\\omega)$，但不用也能过。\r\n\r\n## AtCoder Regular Contest 187\r\n\r\n### [D Many Easy Optimizations](https://www.luogu.com.cn/problem/AT_arc187_d)\r\n\r\n**Difficulty：2880**\r\n\r\n[here](https://yaohaoyou.github.io/post/AT_arc187_d-solution/)\r\n\r\n## AtCoder Regular Contest 197\r\n\r\n### [D Ancestor Relation](https://atcoder.jp/contests/arc197/tasks/arc197_d)\r\n\r\n**Difficulty：2062**\r\n\r\n> 性质\r\n\r\n$1$ 作为根，将 $A_{i,1}$ 取出后剩下的 $A$ 会被分成几个相同的集合，对于$A_{a_1}=A_{a_2}=...=A_{a_k}$  的集合，使答案 $\\times k!$，因为这 $k$ 个点形成一条链，可以随意排列。每次由 $u$ 跑出在祖先-孙子关系图上的可达点作为集合递归，若该集合 $S$ 有几个点 $rt$ 满足 $rt$ 直接到达 $S$ 的所有点则为根，否则无解。\r\n\r\n## AtCoder Regular Contest 198\r\n\r\n### [D Many Palindromes on Tree](https://www.luogu.com.cn/problem/AT_arc198_d)\r\n\r\n**Difficulty：2299**\r\n\r\n> 构造\r\n\r\n按照给定的矩阵构造出一个满足的带边权树再算答案即可。\r\n\r\n暴力做就是若 $A_{u,v}=1$，预处理 $nx_{u,v}$ 表示从 $u$ 走到 $v$ 的下一步到达的点，暴力从 $u$ 走到 $v$，将相等的两个位置在并查集合并，复杂度为 $O(N^3\\alpha(N))$。\r\n\r\n思考到中途会重复走过很多路，所以考虑标记 $(u,v)$ 对是否走过。若当前的点 $(x,y)$ 标记过，就可以直接``break``，由于状态数只有 $O(N^2)$，所以复杂度也是 $O(N^2)$。\r\n\r\n最后求答案可以将所有二元组按之间的距离从小到大排序，$ans_{u,v}=ans_{nx_{u,v},nx_{v,u}}\\vee(find(u)=find(v))$，复杂度为 $O(N^2\\alpha(N))$。\r\n\r\n## AtCoder Regular Contest 200\r\n\r\n[E popcount<=2](https://www.luogu.com.cn/problem/AT_arc200_e)\r\n\r\n**Difficulty：2299**\r\n\r\n> 分类讨论\r\n\r\n将得到的 $A$ 序列全部异或 $x$ 后依旧满足情况，所以不妨将 $A$ 异或 $A_1$ 后使 $A_1=0$。直接钦定 $A_1=0$，最后将答案 $\\times 2^m$ 即可。$\\Large{\\color{red}\\Diamond}$ \r\n\r\n由于 $A_1=0$，$popcount(A_1\\oplus A_i)\\le 2$，所以 $popcount(A_i)\\le2$。接下来分情况讨论。\r\n\r\n- $popcount(A_i)\\le1$，没有其他限制了，方案数为 $(m+1)^{n-1}$。\r\n\r\n- 有且仅有一种 $popcount(A_x)=2$，方案数为 $\\binom m 2(4^{n-1}-3^{n-1})$。\r\n\r\n- 有多种 $popcount(A_{a_1},A_{a_2},..A_{a_k})=2$，且 $popcount(A_{a_1} \\And A_{a_2} \\And..\\And A_{a_k})=1,k\\ge2$，方案数为 $m((m+1)^{n-1}-2^{n-1}-(m-1)(3^{n-1}-2^{n-1}))$。\r\n\r\n- 有且仅有三种 $popcount(A_x,A_y,A_z)=2$，此时只能有这三种数和 $0$ 出现，并且两两交的 popcount 都为 $1$，如 $\\{A_x,A_y,A_z\\}=\\{3,5,6\\}$。方案数为 $\\binom m 3(4^{n-1}-3\\times 3^{n-1}+3\\times 2^{n-1}-1)$。\r\n\r\n## AtCoder Regular Contest 201\r\n\r\n[B Binary Knapsack](https://www.luogu.com.cn/problem/AT_arc201_b)\r\n\r\n**Difficulty:1808**\r\n\r\n> 贪心\r\n\r\n因为 $W$ 很大，所以不能是 01 背包的思路，应该想贪心。\r\n\r\n思考偏序关系，由于不同重量只有 $\\log_2W$ 种，并且两个 $2^{x-1}$ 可以直接合并成 $2^x$，所以每次贪心取当前重量价值最大的一定更优。\r\n\r\n对 $W$ 进行二进制拆位，从小到大，若当前第 $i$ 位为 $1$，则选一个重量为 $2^i$ 的一定不劣。$\\Large{\\color{red}\\Diamond}$ \r\n\r\n剩下的排序后两两合并成重量为 $2^{i+1}$ 的物品，继续递归子问题。\r\n\r\n## AtCoder Grand Contest 073\r\n\r\n#### [A Chords and Checkered](https://atcoder.jp/contests/agc073/tasks/agc073_a)\r\n\r\n**Difficulty:2219**\r\n\r\n> 数学\r\n\r\n由于 $2K<L$，所以每条弦围出的图形一定都不会包含圆心，所以初始一定为黑色，而当有一条新的弦交到这条弦时，会将这块图形分成新的两个部分，所以令与当前弦相交的弦的条数为 $x$，则会贡献 $\\lceil\\frac{x+1}{2}\\rceil$。使用双指针求出能与当前弦的相交的弦的条数为 $m$，则这条弦的贡献为\r\n$$\r\n2^{n-m}\\sum_{i=0}^m \\binom{m}{i}\\lceil\\frac {i+1} 2\\rceil\\\\\r\n\\sum_{i=0}^m \\binom mi\\lceil\\frac i 2\\rceil=\\sum_{i=0}^m \\binom mi\\frac{i+2-i\\bmod 2}2\\\\\r\n=\\frac 12(\\sum_{i=0}^m \\binom mi i+2\\sum_{i=0}^m \\binom mi+\\sum_{i=0}^m \\binom mi(i\\bmod 2))\\\\\r\n\\sum_{i=0}^m \\binom mii=\\sum_{i=1}^m\\frac{m!}{i!(m-i)!}i=m\\sum_{i=1}^m \\frac{(m-1)!}{(i-1)!(m-i)!}=m\\sum_{i=1}^m \\binom{m-1}{i-1}=m2^{m-1}\\\\\r\n2\\sum_{i=0}^m \\binom mi=2^{m+1}\r\n$$\r\n$\\sum_{i=0}^m \\binom mi(i\\bmod 2)$ 的意义为大小为奇数的集合的个数，前 $m-1$ 个选不选都可以，最后一个数要满足集合大小为奇数的限制，所以方案数为 $2^{m-1}$。\r\n\r\n综上，一条弦的贡献为 $2^{n-m-1}\\times((m+3)2^{m-2})$，$m=0/1$ 时特判一下即可。总复杂度为 $\\mathcal O(n)$。\r\n\r\n## AtCoder Regular Contest 213 (Div. 1)\r\n\r\n#### [C Double X](https://atcoder.jp/contests/arc213/tasks/arc213_c)\r\n\r\n**Difficulty:3241**\r\n\r\n> 图论，数据结构\r\n\r\n没想到我还会更新这个 md。\r\n\r\n显然 $x_1,x_2,x_3,x_4$ 满足在以 $k$ 为根的 $T$ 和 $U$ 中两两之间的 LCA 都是 $k$，这其实是一个类似于二分图匹配的问题。具体的，可以将这个问题转化成对于 $k$ 在 $T$ 上的儿子 $a_1,a_2,\\dots,a_{degT_k}$，和在 $U$ 上的儿子 $b_1,b_2,\\dots,b_{degU_{k}}$ 之间，若一个点 $x$ 在 $a_i$ 和 $b_j$ 的子树中，则连接一条 $(i,j,A_x)$ 的边，代表一对匹配$\\dia$。这一步转化后，现在只需要求这个二分图中找到大小为 4 的最小匹配。\r\n\r\n由于二分图两边点数的总和只有 $degT_k+degU_k$，所以可以对每个 $k$ 考虑 $\\tilde\\OO(degT_k+degU_k)$ 解决这个问题，总复杂度就只有 $\\tilde\\OO(\\sum n)$。首先显然重边只用保留边权最小的一条。其次事实上，只要对每个左部点保留边权前 4 小的边也不会影响答案。证明考虑若选择了第 5 小的边，则剩余的 3 组匹配一定无法完全包含前 4 小的边的右端点，所以可以将第 5 小的边调整到没选的前 4 小的边一定不劣。所以每个左部点直接保留前 4 小的边即可，总边数就缩到 $\\OO(degT_k+degU_k)$ 级别了。由于流量 $flow=4$ 很小，直接用费用流跑匹配，使用 Primal-Dual 能做到 $\\OO(n\\log n)$，实测直接 SSP 也能过。\r\n\r\n现在思考如何建出这个图，即考虑如何快速求出以 $k$ 为根时，在 $a_x$ 子树中前 4 小的不相同的边。考虑在 $U$ 中将 $b_i$ 的子树内的点 $v$ 在 $T$ 中染色成 $i$，则需要在 $T$ 中找 $a_x$ 的子树中 4 种颜色的点的最小值。注意到我们实际上不可能每次吧 $k$ 提出来做根跑 dfs，但是可以将 $k$ 的邻域分为 $k$ 的父亲和 $k$ 的儿子，$k$ 的父亲对应的子树直接全部染色成 0，每次换根时就只会修改一个位置了，剩下的儿子子树的染色过程可以在 $U$ 上用 dsu on tree 在 $\\OO(n\\log n)$ 做完。再开一棵线段树维护当前节点对应的 $T$ 上欧拉序区间的最小的 4 种颜色和权值，在 $T$ 上做线段树区间查即可，总复杂度为 $\\OO(n\\log^2 n+Flow(n))$，$Flow(n)$ 为边数为 $n$ 的费用流的复杂度。\r\n\r\n注意最短路要开 long long，虽然最后的增广最短路只会有 $2\\times 10^9$，但过程中可能需要经过的最短路会 $<-2\\times 10^9$。\r\n\r\n[code](https://atcoder.jp/contests/arc213/submissions/72825096)\r\n\r\n",
+      "data": {
+        "title": "AtCoder 做题记录",
+        "date": "2024-10-31 21:38:33",
+        "tags": [
+          "做题记录"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": true
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "atcoder-solution"
+    },
+    {
+      "content": "多次询问 $a^x \\bmod p$。\r\n\r\n选定一个数 $B$，预处理出 $a^i\\bmod p,i\\in [0,B)$ 和 $a^{i\\times B} \\bmod p,i\\in[1,\\frac{(p-1)}B)$，询问时 $a^x \\bmod p=a^{\\lfloor \\frac x B \\rfloor} \\times a^{x \\bmod B} \\bmod p$，取 $B=\\sqrt p$ 时可以做到 $O(\\sqrt p) - O(1)$ 快速幂。\r\n\r\n然而 $O(\\sqrt p)$ 可能还是太慢了，实际上可以做到取一个 $B$，复杂度为 $O(\\log_Bp \\times B) - O(\\log_Bp)$，后面的 $\\log_Bp$ 基本就只是常数了，可以按需求平衡复杂度，其实不太好理解，下面放一份 $B=32$ 的代码，这应该是比较优的块长了，常数较小。\r\n\r\n```c\r\ninline void init(int x){\r\n        Pow[0][0]=Pow[1][0]=Pow[2][0]=Pow[3][0]=Pow[4][0]=Pow[5][0]=1;\r\n        for(int i=1;i<S;i++)   Pow[0][i]=Pow[0][i-1]*x%mod;\r\n        int b=immul(Pow[0][S-1],x);\r\n        for(int i=1;i<S;i++)    Pow[1][i]=Pow[1][i-1]*b%mod;\r\n        b=immul(Pow[1][S-1],b);\r\n        for(int i=1;i<S;i++)    Pow[2][i]=Pow[2][i-1]*b%mod;\r\n        b=immul(Pow[2][S-1],b);\r\n        for(int i=1;i<S;i++)    Pow[3][i]=Pow[3][i-1]*b%mod;\r\n        b=immul(Pow[3][S-1],b);\r\n        for(int i=1;i<S;i++)    Pow[4][i]=Pow[4][i-1]*b%mod;\r\n        b=immul(Pow[4][S-1],b);\r\n        for(int i=1;i<S;i++)    Pow[5][i]=Pow[5][i-1]*b%mod;\r\n    }\r\n    inline int qpow(int y){return Pow[5][(y>>25)]*Pow[4][(y>>20)&(S-1)]%mod*Pow[3][(y>>15)&(S-1)]%mod*Pow[2][(y>>10)&(S-1)]%mod*Pow[1][(y>>5)&(S-1)]%mod*Pow[0][y&(S-1)]%mod;}\r\n}POW;\r\n```\r\n\r\n实测尽量添加 ``#pragma unroll(4)`` 实现并行，``Pow`` 可以开 ``long long`` 避免多次 ``int`` 强转。\r\n\r\n[完整代码](http://goj.wiki/d/Union2024/record/6720c6c62a3076890aff827e)",
+      "data": {
+        "title": "光速幂学习笔记",
+        "date": "2024-10-30 09:09:31",
+        "tags": [
+          "算法"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "FastPow"
+    },
+    {
+      "content": "### [题目传送器](https://www.luogu.com.cn/problem/CF1995D)\r\n\r\n### [更爽的阅读体验](https://yaohaoyou.github.io/post/CF1995D-solution/)\r\n\r\n### CF 2300\r\n\r\n## 前言\r\n\r\n我菜了，不会 SOSDP，是学习其他题解的做法。\r\n\r\n## 题意\r\n\r\n自己去看翻译。\r\n\r\n## 做法\r\n\r\nSOSDP 好题。\r\n\r\n因为每个子串长度不超过 $k$，所以每 $k$ 个位就会有至少一个位是子串的末尾，共有 $n-k+1$ 个这样的区间，所以**充要条件**就是末尾字符构成的集合与 $n-k-1$ 个区间构成的集合都有交。\r\n\r\n形象化来说，$S_i=\\{c|c \\in s[i,i+k-1]\\}$，$T$ 为每个子串末尾字符组成的集合，$\\forall S_i,S_i \\cap T \\not=\\empty$，求 $|T|_{\\min}$。\r\n\r\n考虑 SOSDP，先预处理出每个 $S_i$，再使用子集 DP 转移。由于要记录当前状态是否与 $S_i$ 有交，时间和空间复杂度均为为 $O(2^c\\times n)$，即使用 bitset 优化，空间依旧开不下，所以考虑正难则反。\r\n\r\n上述方法空间较大的主要原因是难以维护当前状态与哪些 $S_i$ 有交，因为这个状态就已经是 $O(n)$ 的。考虑维护当前状态**是否与任意一个** $S_i$ 都无交，对于每个状态就只要 $O(1)$ 的空间了，对于和每个 $S_i$ 都不是无交的状态，即和每个 $S_i$ 都有交的状态，就可以成为 $T$。\r\n\r\n具体实现就是预处理出 $sta_i=\\{c|c\\notin[s,i,i+k-1\\}$，则 $sta_i$ 的任意一个子集都与 $s_i$ 无交，暴力枚举子集需要 $O(3^c)$，使用 SOSDP 转移将复杂度将为 $O(c\\times 2^c)$，到最后 dp 值为 $0$ 的状态就代表与任意 $s_i$ 都有交，可以成为 $|T|$，更新答案即可。\r\n\r\n[AC Code](https://codeforces.com/contest/1995/submission/282786245)",
+      "data": {
+        "title": "CF1995D Cases 题解",
+        "date": "2024-09-25 08:08:33",
+        "tags": [
+          "题解",
+          "Codeforces",
+          "DP"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "CF1995D-solution"
+    },
+    {
+      "content": "### [题目传送器](https://www.luogu.com.cn/problem/P4593)\r\n\r\n### [更爽的阅读体验](https://yaohaoyou.github.io/post/p4593-solution/)\r\n\r\n## 前言\r\n\r\n太笨了，不会拆贡献，所以复杂度比较劣。\r\n\r\n## 题意\r\n\r\n给定操作 A 和操作 B。\r\n\r\n定义**操作 A **是将 $x_i \\gets x_i-1(x_i>0)$ 并获得 $\\sum x_i^k$ 分数，$x_i$ 是第 $i$ 个怪物扣血前的血量，$k$ 是**总操作 B **次数。如果一次操作后会有新的 $x_i=0$，则继续进行**操作 A**。\r\n\r\n定义**操作 B** 是当此时没有新的 $x_i=0$，进行一次**操作 A**。\r\n\r\n给定集合 $S=\\{x\\in[1,n] \\wedge x \\notin a \\}$ 表示怪物血量所构成的集合，求最后的总分数。\r\n\r\n## 做法\r\n\r\n$k$ 是好算的。\r\n\r\n将 $S$ 拆成一段段连续的区间分别考虑，一段连续的区间必定是在同一次操作 B 中扣为 $0$。\r\n\r\n设当前处理的血量区间为 $[l_i,r_i]$，对于 $j\\ge i$ 的区间**当前**血量为 $[l_j,r_j]$，则当前的贡献 $\\sum_{j=i}^{m+1}\\sum_{x=l_j}^{r_j}\\sum_{y=x-l_i+1}^{x} y^k$。\r\n\r\n直接计算是 $O(Tm^2n^2)$，[这里放一份代码](https://www.luogu.com.cn/record/173524637)。\r\n\r\n思考如何优化计算 $\\sum_{x=l_j}^{r_j}\\sum_{y=x-l_i+1}^{x} y^k$，设 $f(x)=\\sum_{i=1}^x i^x,g(x,len)=\\sum_{i=1}^x(f(i)-f(i-len))$，则 $ans=\\sum_{i=1}^{m+1}\\sum_{j=i}^{m+1}g(r_j,l_i)-g(l_j-1,l_i)$。\r\n\r\n可以先使用一次拉格朗日插值 $O(m)$ 算出 $f(x)$，进而再使用一次拉格朗日插值 $O(m^2)$ 算出 $g(x)$。\r\n\r\n总时间复杂度为 $O(T\\times m^4)$，需要轻微卡常。\r\n\r\n[AC Code](https://loj.ac/s/2138254)\r\n\r\n",
+      "data": {
+        "title": "P4593 [TJOI2018] 教科书般的亵渎 题解",
+        "date": "2024-08-19 11:49:38",
+        "tags": [
+          "题解",
+          "数学",
+          "拉格朗日插值"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "p4593-solution"
+    },
+    {
+      "content": "## T1\r\n\r\n原题：[$\\color{#ffffff}\\text{CF1399E2 Weights Division (hard version) }$](https://www.luogu.com.cn/problem/CF1399E2)\r\n\r\n[$\\color{#ffffff}\\text{CF 2200}$](http://codeforces.com/problemset/problem/1399/E2)\r\n\r\n### 题意\r\n\r\n给你一棵以 $1$ 为根的香蕉树，每条边有边权 $w_i$ 和花费 $c_i$。\r\n\r\n每个叶子节点都有一只 liangbowen，他们都想去 $1$ 节点吃香蕉。\r\n\r\n但是 liangbowen 们急着去杀戮，所以需要保证 $\\sum_\\text{u is liangbowen}w(1,u)\\le lim$，$\\text{u is liangbowen}$ 当且仅当 $u$ 是叶子节点，$w(x,y)$ 表示 $x$ 到 $y$ 的树上距离。\r\n\r\nlubenwei 可以开挂，将 $w_i \\gets \\lfloor\\dfrac{w_i}{2}\\rfloor$，吸引网管 $c_i$ 点注意。\r\n\r\nlubenwei 不希望开挂太多导致被网管封号，所以请最小化网管的注意使得 liangbowen 们可以准时杀戮，保证有解。\r\n\r\n$n\\le 10^5,c_i\\in \\{1,2\\},1\\le w_i\\le 10^6,1\\le lim \\le10^{16}$。\r\n\r\n$\\tiny\\text{形式化题意：}$\r\n\r\n给出一个结点数量为 $n$ 的边带权的有根树，树的根结点为 $1$。你可以进行以下操作。\r\n\r\n选定任意一条权值为 $w_i$ 的边，使 $w_i \\gets \\lfloor \\frac{w_i}{2} \\rfloor$，花费为 $c_i$ 且 $c_i \\in \\{1, 2\\}$。\r\n\r\n你需要回答最小的花费，使得 $\\sum\\limits_{v\\in leaves}w(1,v)\\leq S$。\r\n\r\nEasy Version：$c_i=1$。\r\n\r\n### 题解\r\n\r\n先考虑 Easy Version，由于保证 $c_i=1$，所以直接贪心即可。\r\n\r\n首先可以用**树形 DP** 求出删掉当前边的贡献，设 $dp_i$ 表示 $i$ 的子树中有多少个叶子节点，不难得出\r\n$dp_u = \\begin{cases}\\sum dp_{son} & u \\ne leaf \\\\ 1 & u=leaf \\end{cases}$。\r\n\r\n设一条边的贡献为 $s_i$，儿子为 $v$，则 $s_i=dp_v \\times (w_i-\\lfloor \\frac{w_i}{2} \\rfloor)$。将 $s_i$ 丢进大根堆，每次取出 $s_i$ 最大的边模拟进行操作即可。\r\n\r\n再回到 Hard Version。\r\n\r\n[错的做法](https://www.luogu.com.cn/article/1ds75fbw)\r\n\r\n此时还想贪心就变得非常困难，所以可以思考将答案划分成选择边权花费为 $1$ 的答案 $+$ 选择边权花费为 $2$ 的答案。当只选择边权花费为 $1$ 的答案时，可以确定操作的顺序（即 Easy Version），同理，只选择边权花费为 $2$ 的答案也可以提前处理操作顺序。\r\n\r\n然后只要枚举要操作花费为 $1$ 的次数，并计算花费为 $2$ 的次数即可。此时的时间复杂度为 $O(n^2\\times \\log_2 n)$，无法通过此题。\r\n\r\n观察性质，发现操作花费为 $1$ 的次数越多，操作花费为 $2$ 的次数就越少。所以可以将计算花费为 $2$ 的次数用双指针优化掉，时间复杂度为 $O(n \\times \\log_2 n)$，记得处理操作全是花费为 $1$ 和 $2$ 的答案。\r\n\r\n[$\\color{white}code$](https://codeforces.com/contest/1399/submission/239459263)\r\n\r\n## T2\r\n\r\n原题：[$\\color{#ffffff}\\text{CF1059E Split the Tree}$](https://www.luogu.com.cn/problem/CF1059E)\r\n\r\n[$\\color{#ffffff}\\text{CF 2400}$](https://codeforces.com/problemset/problem/1059/E)\r\n\r\n### 题意\r\n\r\nlbw 和 Mathew 正在宿舍打 21 点，但是他把牌摆成了一棵树的形状。\r\n\r\n规则就是在树上找一条深度依次递增的链，使得链上扑克牌的点数和 $\\le 21$。同时还有一种规则叫做**五龙**，就是当你取得 $5$ 张牌时，游戏就结束了。\r\n\r\n但是 lbw 想要练习出千，于是把 21 点变成 $L$ 点，把 $5$ 龙变成 $S$ 龙，把扑克牌点数的集合变成自然数集。\r\n\r\nlbw 有透视眼，可以提前看到每个节点的牌的点。lbw 用最短的时间秒杀 Mathew，所以希望总局数最少。\r\n\r\n请求 lbw 最少选出多少条链可以使得每张牌刚好被拿走一次，且牌数 $\\le L$，点数和 $\\le S$，需要判无解。\r\n\r\n$n\\le 10^5,L\\le10^5,S\\le 10^{18}$。\r\n\r\n$\\tiny\\text{形式化题意：}$\r\n\r\n给一棵带点权的树，每次选一条深度依次递增的链，链长 $\\le L$，链上点权和 $\\le S$。想让每个点当且仅当被覆盖一次，求链数最小值，需要判无解。\r\n\r\n### 题解\r\n\r\n显然，当有一个点的点权 $>S$ 时就无解，否则有解。\r\n\r\n![](https://cdn.luogu.com.cn/upload/image_hosting/1fmyi7sy.png)\r\n\r\n考虑一个贪心结论，对于 $u$ 和 $u$ 的儿子 $v$，**显然从 $u$ 往上能到达的点会比 $v$ 往上到达的点更高或相同**，所以节点 $u$ 一定会选择剩余步数最多的儿子节点进行转移。\r\n\r\n可以先使用树上倍增求出每个节点 $u$ 能到达的最高祖先，计 $up_u$ 表示从 $u$ 节点最多再往上跳 $up_u$ 步。\r\n\r\n考虑**树形DP**。\r\n\r\n设 $f_u$ 表示将 $u$ 的子树覆盖完的链的最少条数，$g_u$ 表示 $u$ 的子树内剩余的最大步数。\r\n$$\r\ng_u=\\max_\\text{v is son of u}(g_v-1) \\\\\r\nf_u=\\sum_\\text{v is son of u}f_v\r\n$$\r\n若此时 $g_u=0$，说明无法从子树内已有的链往上延申，所以需要开一条新链，即 $f_u++,g_u=up_u$。\r\n\r\n否则不需要进行修改。\r\n\r\n钦定树的根为 $1$，则答案为 $f_1$。\r\n\r\n[$\\color{white}code$](https://codeforces.com/problemset/status?my=on)",
+      "data": {
+        "title": "2024.8.12 树专题分享",
+        "date": "2024-08-08 21:12:57",
+        "tags": [
+          "树上问题",
+          "DP",
+          "Codeforces"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "2024.8.11 trees"
+    },
+    {
+      "content": "## 狄利克雷卷积 Dirichlet\r\n\r\n### 定义：\r\n\r\n其本质是一种运算，可以用 $*$  表示。\r\n$$\r\nh(x)=f(x)*g(x)=\\sum_{d|x}f(d)g(\\frac{x}{d})=\\sum_{ab=x}f(a)g(b)\r\n$$\r\n\r\n\r\n积性函数 $f(x)$ 满足 $\\forall (a,b)=1,f(ab)=f(a)f(b)$。\r\n\r\n完全积性函数 $f(x)$ 满足 $f(ab)=f(a)f(b)$。\r\n\r\n可以使用线性筛算出积性函数。\r\n\r\n### 性质：\r\n\r\n交换律：$f*g=g*f$。\r\n\r\n结合律：$(f*g)*h=f*(g*h)$。\r\n\r\n**分配律**：$(f+g)*h=f*h+g*h$。\r\n\r\n若 $f$ 和 $g$ 是积性函数，则 $f*g$ 也是积性函数。\r\n\r\n若 $f$ 是积性函数，则 $f$ 的逆元也是积性函数。\r\n\r\n### 逆元：\r\n\r\n单位函数 $\\varepsilon$，$f*\\varepsilon =f$。\r\n\r\n若 $g$ 满足 $f*g=\\varepsilon$，则称 $g(x)$ 是 $f(x)$ 的逆元。逆元唯一。\r\n\r\nps：目前还不太懂这是什么，但好像可以理解为 $\\varepsilon(n)=\\begin{cases}1&n=1\\\\0&n\\not=1\\end{cases}$。\r\n$$\r\ng(x)=\r\n\\dfrac{\\varepsilon(x)-\\sum_{d|x,d\\not=1} f(d)f(\\dfrac{x}{d})}{1}\r\n$$\r\n\r\n## 莫比乌斯函数 Möbius\r\n\r\n### 定义式：\r\n\r\n$$\r\nn=p_1^{a_1}p_2^{a_2}...p_k^{a_k}\\\\\r\n\\mu(n)=\\begin{cases}\r\n1 &n=1 \\\\\r\n0 & \\exist i \\le k,a_i>1 \\\\\r\n(-1)^k& else\r\n\\end{cases}\r\n$$\r\n\r\n### 性质：\r\n\r\n$\\mu(x)$ 是积性函数。\r\n$$\r\n\\sum_{d|n}\\mu(d)=\\begin{cases}1&n=1\\\\0&n\\not=1\\end{cases}\r\n$$\r\n即 $\\sum_{d|n}\\mu(d)=\\varepsilon(n),\\mu*1=\\varepsilon$。在狄利克雷卷积中，莫比乌斯函数是常数函数 $1$ 的逆元。\r\n\r\n#### 证明\r\n\r\n$$\r\nn=p_1^{a_1}p_2^{a_2}...p_k^{a_k},n'=p_1p_2...p_k\\\\\r\n\\because \\mu(k \\times a^2)=0 \\\\\r\n\\therefore \\sum_{d|n}\\mu(d)=\\sum_{d|n'}\\mu(d)\r\n$$\r\n\r\n则现在就是尝试在 $k$ 个互异质数中选择一个集合，若集合大小为奇数，答案 -1，否则答案 +1。$k>1$ 时，$\\sum_{d|n'}\\mu(d)=\\sum_{i=0}^k\\binom{k}{i}\\times(-1)^i$。二项式定理是 $(a+b)^n=\\sum_{i=0}^n\\binom{n}{i}a^ib^{n-i}$，将 $a=-1,b=1$ 带入则是 $(1+(-1))^n=\\sum_{i=0}^n\\binom{n}{i}\\times(-1)^i=0$。故 $k>1$ 时，$\\sum_{d|n}\\mu(d)=0$。剩下情况不难自证。\r\n\r\nps：以上证明只是本人在初学时的结论，不保证正确，等待未来的我修改或确认。\r\n\r\n### 反演结论：\r\n\r\n$$\r\n[\\gcd(i,j)=1]=\\sum_{d|\\gcd(i,j)}\\mu(d)\r\n$$\r\n\r\n还不会用。。。\r\n\r\n##  阶\r\n\r\n### 定义\r\n\r\n由欧拉定理可知，$(a,m)=1$，$a^{\\varphi(m)} \\equiv 1(\\bmod m)$。故存在最小正整数满足 $a^n \\equiv 1(\\bmod m)$，称 $n$ 为 $a$ 模 $m$ 的阶，记作 $\\operatorname{ord}_m(a)$。\r\n\r\n### 性质\r\n\r\n$a,a^2...a^{\\operatorname{ord}_m(a)}$ 模 $m$ 两两不同余。\r\n\r\n若 $a^p \\equiv a^q(\\bmod m)$，则 $p\\equiv q(\\bmod \\operatorname{ord}_m(a))$。\r\n$$\r\n(a,m)=(b,m)=1 \\\\\r\n\\operatorname{ord}_m(ab)=\\operatorname{ord}_m(a)\\operatorname{ord}_m(b) \\Leftrightarrow gcd(\\operatorname{ord}_m(a),\\operatorname{ord}_m(b))=1\r\n$$\r\n\r\n## 原根 primitive-root\r\n\r\n### 定义\r\n\r\n若 $(g,m)=1$，且 $\\operatorname{ord}_m(g)=\\varphi(m)$，则称 $g$ 为模 $m$ 的原根。\r\n\r\n### 性质\r\n\r\n对于 $m \\ge 3,(g,m)=1$，则 $g$ 是模 $m$ 的原根 $\\Leftrightarrow$ 对于 $\\varphi(m)$ 的每个质因子 $p$，都有 $g^{\\frac{\\varphi(m)}{p}} \\not\\equiv 1(\\bmod m)$。\r\n\r\n若 $m$ 有原根，则原根个数为 $\\varphi(\\varphi(m))$。\r\n\r\n原根存在定理：一个数 $m$ 存在原根当且仅当 $m=2,4,p^a,2p^a$，$p$ 为奇质数。\r\n\r\n$a$ 的最小原根大约在 $a^{\\frac{1}{4}}$。",
+      "data": {
+        "title": "数学学习笔记",
+        "date": "2024-07-10 21:53:28",
+        "tags": [
+          "算法"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "maths"
+    },
+    {
+      "content": "### [题目传送器](https://www.luogu.com.cn/problem/P10637)\r\n\r\n### [更爽的阅读体验](https://yaohaoyou.github.io/post/p10637-solution/)\r\n\r\n## 前言\r\n\r\n我什么也不会，不知道为什么 \\_maojun\\_ 要感谢我。但是我要感谢 [\\_maojun\\_](https://www.luogu.com.cn/user/350297) 提供思路。\r\n\r\n## 题意\r\n\r\n给出**随机的**数列 $a$，求 $\\sum_{l \\in [l_1,r_1]} \\sum_{r \\in [l_2,r_2]} (\\max_{i \\in [l,r]} a_i-\\min_{i\\in [l,r]} a_i)$。\r\n\r\n## 做法\r\n\r\n做法肯定和[这篇题解](https://www.luogu.com.cn/article/3wka43ys)一样，但我尝试说的更详细一点。\r\n\r\n### conclusion 1\r\n\r\n我会盯式子！\r\n\r\n因为 $\\max -a_i = -\\min a_i$，所以只要会求 $\\sum_{l \\in [l_1,r_1]} \\sum_{r \\in [l_2,r_2]} \\max_{i \\in [l,r]} a_i$，然后将 $a_i=-a_i$，再做一遍，两遍答案加起来就是要输出的结果。\r\n\r\n### conclusion 2\r\n\r\n我会前缀和差分！\r\n\r\n $\\sum_{l \\in [l_1,r_1]} \\sum_{r \\in [l_2,r_2]} \\max_{i \\in [l,r]} a_i=\\sum_{l \\in [l_1,r_1]} \\sum_{r \\in [1,r_2]} \\max_{i \\in [l,r]} a_i-\\sum_{l \\in [l_1,r_1]} \\sum_{r \\in [1,l_2-1]} \\max_{i \\in [l,r]} a_i$。\r\n\r\n也就是说设 $s(l,r,x)=\\sum_{i \\in [l,r]}\\sum_{j \\in [1,x]} \\max_{k\\in [i,j]} a_k$，答案可以变成 $s(l1,r1,r2)-s(l1,r1,l2-1)$。\r\n\r\n现在只需会求 $s(l,r,x)$ 即可。\r\n\r\n### conclusion 3\r\n\r\n我会扫描线！\r\n\r\n这个做法在线做好像非常复杂了，所以可以尝试用离线下来做。\r\n\r\n将所有的 $s(l,r,x)$ 的询问挂在 $x$ 上，设 $f(i,x)=\\sum_{j\\in [i,x]} \\max_{k \\in [i,j]} a_k$，则 $s(l,r,x)=\\sum_{i\\in [l,r]} f(i,x)$。\r\n\r\n当 $x++$ 时，$f(i,x)+=\\max_{j\\in [i,x]}a_j$，也就是当前的后缀 $[i,x]$ 最大值。所以 $f(i,x)=\\max[i,i]+\\max[i,i+1]+...+\\max[i,x]=\\sum_{j=i}^xmax[i,j]$，也就是**以 $i$ 为左端点**的后缀最大值的历史版本和。 所以 $s(l,r,x)$  为区间 $[l,r]$ 的历史版本和之和。\r\n\r\n### conclusion 4\r\n\r\n我会 beats + 历史版本和（线段树 3）！\r\n\r\n直接做就行了，使用 beats 进行区间取 max，维护后缀最大值，线段树维护历史版本和，求 $s(l,r,x)$ 时在线段树上区间修改，时间复杂度为 $O(n\\times \\log_2^2n)$，瓶颈在使用 beats 进行区间取 max。\r\n\r\n### conclusion 5\r\n\r\n我会单调栈！\r\n\r\n后缀 $[i,x]$ 具有单调性，可以使用单调栈维护后缀最大值，来替换 beats。由于每个位置只会入栈一次，所以复杂度为**大常数**的 $O(n \\times \\log_2n)$，瓶颈在维护历史版本和与区间查询，维护历史版本和的常数较大。\r\n\r\n这里放一份 [\\_maojun\\_ 的代码](https://www.luogu.com.cn/record/162817348)。\r\n\r\n### conclusion 6\r\n\r\n我会观察性质！\r\n\r\n注意 a 数列是随机生成的。~~众所周知~~可以证明，在数据随机数列中，使用单调栈维护前缀/后缀 min/max 值，单调栈的大小期望为 $O(\\log_2n)$。\r\n\r\n那就可以不使用常数较大的常规方式维护历史版本和了。对于当前一段后缀 max 相同的区间，区间内每个数对答案的贡献在目前都是相同的，对于每段区间维护一个时间戳，记录它是什么时候进入单调栈的。当这个区间被弹出时，在线段树上将这个区间的历史版本和更新。\r\n\r\n与传统的历史版本和不同的是，现在只有在当前点被弹出时才在线段树上维护历史版本和。依然在单调栈中的点可以 $O(1)$ 计算贡献，而这种点又只有 $O(\\log_2n)$ 种。\r\n\r\n所以就获得了一种只需要区间修改和区间查询的线段树的做法，**相比之下常数更小**，复杂度为 $O(n \\times \\log_2n)$。可以将线段树改成 zkw 或超级树状数组。\\_maojun\\_ 使用了超级树状数组获得了[最优解](https://www.luogu.com.cn/record/163151201)。\r\n\r\n## AC Code\r\n\r\n```c\r\n#include<bits/stdc++.h>\r\n#define ll long long\r\n#define eb emplace_back\r\n#define mem(arr,x) memset(arr,x,sizeof(arr))\r\nusing namespace std;\r\nconstexpr int maxn=1e5+10;\r\nint n,q;\r\nll a[maxn];\r\nstruct node{int l,r,k,id;};\r\nnamespace SegmentTree{\r\n    #define ls p<<1\r\n    #define rs p<<1|1\r\n    #define lson ls,l,mid\r\n    #define rson rs,mid+1,r\r\n    #define all 1,1,n\r\n    #define setpos int p,int l,int r\r\n    #define setmid int mid=(l+r)>>1\r\n    ll tr[maxn<<2],tag[maxn<<2];\r\n    inline void pushup(int p){tr[p]=tr[ls]+tr[rs];}\r\n    inline void pushtag(setpos,ll s){tr[p]+=(r-l+1)*s;tag[p]+=s;}\r\n    inline void pushdown(setpos){if(!tag[p])return;setmid;pushtag(lson,tag[p]);pushtag(rson,tag[p]);tag[p]=0;}\r\n    void update(setpos,int pl,int pr,ll s){\r\n        if(l>=pl&&r<=pr)    return pushtag(p,l,r,s);\r\n        pushdown(p,l,r);\r\n        setmid;\r\n        if(pl<=mid) update(lson,pl,pr,s);\r\n        if(pr>mid)  update(rson,pl,pr,s);\r\n        pushup(p);\r\n    }\r\n    ll query(setpos,int pl,int pr){\r\n        if(l>=pl&&r<=pr)    return tr[p];\r\n        pushdown(p,l,r);\r\n        setmid;ll res=0;\r\n        if(pl<=mid) res=query(lson,pl,pr);\r\n        if(pr>mid)  res+=query(rson,pl,pr);\r\n        return res;\r\n    }\r\n}\r\nusing namespace SegmentTree;\r\nnamespace DataMaker{\r\n    const int mod = 1e9;\r\n    long long fst = 1023, sec = 1025;\r\n    void solve(){\r\n        for (int i = 1; i <= 100000; i++) {\r\n            a[i] = fst ^ sec;\r\n            fst = fst * 1023 % mod;\r\n            sec = sec * 1025 % mod;\r\n        }\r\n    }\r\n}\r\nvector<node> v[maxn];\r\nll ans[maxn];\r\nint stk[maxn],tp;\r\nvoid solve(){\r\n    mem(tr,0);mem(tag,0);tp=0;\r\n    for(int i=1;i<=n;i++){\r\n        while(tp&&a[stk[tp]]<=a[i]){\r\n            update(all,stk[tp-1]+1,stk[tp],1ll*(i-stk[tp])*a[stk[tp]]);\r\n            tp--;\r\n        }\r\n        stk[++tp]=i;\r\n        for(auto [l,r,k,id]:v[i]){\r\n            ll res=query(all,l,r);\r\n            for(int j=1;j<=tp;j++){\r\n                int len=min(stk[j],r)-max(stk[j-1],l-1);\r\n                if(len<=0)   continue;\r\n                res+=1ll*len*(i-stk[j]+1)*a[stk[j]];\r\n            }\r\n            ans[id]+=(res*k);\r\n        }\r\n    }\r\n}\r\nsigned main(){\r\n    scanf(\"%d\",&q);\r\n    n=1e5;\r\n    DataMaker::solve();\r\n    for(int i=1,l1,r1,l2,r2;i<=q;i++){\r\n        scanf(\"%d%d%d%d\",&l1,&r1,&l2,&r2);\r\n        v[r2].eb(l1,r1,1,i);\r\n        v[l2-1].eb(l1,r1,-1,i);\r\n    }\r\n    solve();\r\n    for(int i=1;i<=n;i++)   a[i]*=-1;\r\n    solve();\r\n    for(int i=1;i<=q;i++)   printf(\"%lld\\n\",ans[i]);\r\n}\r\n```\r\n\r\n## 总结\r\n\r\n基于数组随机可以获得小常数的 $O(n\\times \\log_2n)$，不基于数组随机可以获得历史版本和做法的 $O(n \\times \\log_2n)$。\r\n\r\n感谢 \\_maojun\\_ 的帮助，同时大力推荐[他的题解](https://www.luogu.com.cn/article/3wka43ys)。\r\n\r\n*文中部分引用了他人的代码和提交记录，如有侵权行为，请及时私信博主，我会依法进行更改或删除。",
+      "data": {
+        "title": "P10637 BZOJ4262 Sum",
+        "date": "2024-07-05 09:27:59",
+        "tags": [
+          "题解",
+          "线段树",
+          "单调性"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "p10637-solution"
+    },
+    {
+      "content": "### [题目传送器](https://www.luogu.com.cn/problem/P4897)\r\n\r\n### [更爽的阅读体验](https://yaohaoyou.github.io/post/p4897-solution)\r\n\r\n## 题意\r\n\r\n给一个无向连通图，询问两点之间需要割掉多少边权能使两点不连通。\r\n\r\n## 做法\r\n\r\n因为连通性是可传递的，所以可以使用分治。\r\n\r\n由于无向图两点间最小割 $=$ 最大流，所以使用网络最大流求最小割。\r\n\r\n对于当前处理需要处理的点集 $s$，随意选两个点 $u$ 和 $v$ 跑一次网络最大流，设最大流为 $maxflow$，则在最小割树上建一条 $(u,v,maxflow)$ 边。设割掉满流的边后 $u$ 能遍历到的点集为 $s1$，剩下的点集 $s2=\\complement_s s1$。往下递归处理 $s1$ 和 $s2$ 即可。求 $s1$ 可以找最后一次 dinic 的 bfs 遍历到的点。\r\n\r\n现在已经建出了最小割树，考虑如何使用。当断掉一条边后，会花费当前边权的代价，将原树树断成两颗新树，这两棵新树上的点两两互相不连通。那对于求 $(u,v)$ 的最小割，只要断掉树上 $(u,lca(u,v))$ 和 $(lca(u,v),v)$ 这两条链中最小的一条边即可。可以使用倍增维护边权最小值。\r\n\r\n## AC Code\r\n\r\n```c\r\n#include<bits/stdc++.h>\r\n#define pii pair<int,int>\r\n#define piii pair<int,pii>\r\n#define eb emplace_back\r\nusing namespace std;\r\nconst int maxn=1e5+10;\r\nconst int maxm=maxn*100;\r\nint n,m;\r\nstruct Tree{\r\n    int cnt=1;\r\n    int head[maxn];\r\n    struct edge{int nxt,to,w;}e[maxm];\r\n    inline void add(int u,int v,int w){e[++cnt]={head[u],v,w};head[u]=cnt;}\r\n}Tr;\r\nnamespace Graph{\r\n    piii g[maxn];\r\n    int cnt=1;\r\n    int head[maxn];\r\n    struct edge{int nxt,to,w;}e[maxm];\r\n    inline void add(int u,int v,int w){e[++cnt]={head[u],v,w};head[u]=cnt;}\r\n    inline void rebuild(){cnt=1;memset(head,0,sizeof(head));for(int i=1;i<=m;i++){add(g[i].first,g[i].second.first,g[i].second.second);add(g[i].second.first,g[i].first,g[i].second.second);}}\r\n}\r\nusing namespace Graph;\r\nint S,T;\r\nnamespace DINIC{\r\n    const int inf=0x3f3f3f3f;\r\n    int d[maxn],now[maxn];\r\n    queue<int> q;\r\n    inline bool bfs(){\r\n        while(!q.empty())   q.pop();\r\n        memset(d,0x3f,sizeof(d));\r\n        memcpy(now,head,sizeof(head));\r\n        d[S]=0;\r\n        q.push(S);\r\n        while(!q.empty()){\r\n            int u=q.front();q.pop();\r\n            for(int i=head[u];i;i=e[i].nxt){\r\n                int t=e[i].to;\r\n                if(d[t]!=inf||!e[i].w)  continue;\r\n                d[t]=d[u]+1;\r\n                q.push(t);\r\n                if(t==T)    return true;\r\n            }\r\n        }\r\n        return false;\r\n    }\r\n    int dfs(int u,int flw){\r\n        if(u==T)    return flw;\r\n        int res=0;\r\n        for(int i=now[u];i&&flw;i=e[i].nxt){\r\n            now[u]=i;\r\n            int t=e[i].to;\r\n            if(d[t]!=d[u]+1||!e[i].w)    continue;\r\n            int k=dfs(t,min(e[i].w,flw));\r\n            if(!k)  d[t]=inf;\r\n            e[i].w-=k;e[i^1].w+=k;\r\n            res+=k;flw-=k;\r\n        }\r\n        return res;\r\n    }\r\n    inline int dinic(){\r\n        rebuild();\r\n        int res=0;\r\n        while(bfs())    res+=dfs(S,inf);\r\n        return res;\r\n    }\r\n}\r\nusing namespace DINIC;\r\nnamespace DFS{\r\n    int w[20][maxn],f[20][maxn],dep[maxn];\r\n    void dfs(int u,int fa){\r\n        dep[u]=dep[f[0][u]=fa]+1;w[0][u]=inf;\r\n        for(int i=Tr.head[u];i;i=Tr.e[i].nxt){\r\n            int t=Tr.e[i].to;\r\n            if(t==fa)   continue;\r\n            dfs(t,u);\r\n            w[0][t]=Tr.e[i].w;\r\n        }\r\n    }\r\n    inline void init_LCA(){for(int i=1;i<=19;i++)for(int j=1;j<=n;j++){w[i][j]=min(w[i-1][j],w[i-1][f[i-1][j]]);f[i][j]=f[i-1][f[i-1][j]];}}\r\n    inline int LCA(int x,int y){  // O(nlogn) - O(logn) 倍增\r\n        int res=inf;\r\n        if(dep[x]<dep[y])   swap(x,y);\r\n        for(int i=19;~i;i--){\r\n            if(dep[f[i][x]]>=dep[y]){\r\n                res=min(res,w[i][x]);\r\n                x=f[i][x];\r\n            }\r\n        }\r\n        if(x==y)    return res;\r\n        for(int i=19;~i;i--){\r\n            if(f[i][x]^f[i][y]){\r\n                res=min(res,w[i][x]);res=min(res,w[i][y]);\r\n                x=f[i][x];y=f[i][y];\r\n            }\r\n        }\r\n        res=min(res,w[0][x]);res=min(res,w[0][y]);\r\n        return res;\r\n    }\r\n}\r\nvector<int> v,v1,v2;\r\nvoid divide(int l,int r){\r\n    v1.clear();v2.clear();\r\n    if(l>=r)    return;\r\n    S=v[l];T=v[l+1];\r\n    int res=dinic();\r\n    Tr.add(S,T,res);Tr.add(T,S,res);\r\n    for(int i=l;i<=r;i++){\r\n        if(d[v[i]]!=inf)   v1.eb(v[i]);\r\n        else    v2.eb(v[i]);\r\n    }\r\n    for(int i=0;i<v1.size();i++)    v[i+l]=v1[i];\r\n    for(int i=0;i<v2.size();i++)    v[i+l+v1.size()]=v2[i];\r\n    int siz=v1.size();\r\n    divide(l,l+siz-1);divide(l+siz,r);\r\n}\r\nint main(){\r\n    scanf(\"%d%d\",&n,&m);\r\n    for(int i=1,u,v;i<=m;i++){\r\n        scanf(\"%d%d%d\",&g[i].first,&g[i].second.first,&g[i].second.second);\r\n    }\r\n    for(int i=0;i<=n;i++)   v.eb(i);\r\n    divide(0,n);\r\n    DFS::dfs(1,0);\r\n    DFS::init_LCA();\r\n    int q;scanf(\"%d\",&q);\r\n    while(q--){\r\n        int u,v;\r\n        scanf(\"%d%d\",&u,&v);\r\n        printf(\"%d\\n\",DFS::LCA(u,v));\r\n    }\r\n}\r\n```\r\n\r\n\r\n\r\n## 总结 \r\n\r\n时间复杂度为 $O(n \\times D)$，$O(D)$ 是 dinic 的时间复杂度，理论是 $O(n^2\\times m)$，但实际上小很多。",
+      "data": {
+        "title": "P4897 【模板】最小割树（Gomory-Hu Tree） ",
+        "date": "2024-07-03 19:16:27",
+        "tags": [
+          "题解",
+          "算法",
+          "网络流"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "p4897-solution"
+    },
+    {
+      "content": "2024/7/3\r\nLG 粉丝破100了。\r\n所以到底有没有人看我的博客啊。。。\r\n如果有人能不能在这下面发条评论或给我 LG 私信。。。\r\n[about me](https://yaohaoyou.github.io/post/about-me/)",
+      "data": {
+        "title": "鲜花1",
+        "date": "2024-07-03 16:32:30",
+        "tags": [
+          "闲话"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "flower1"
+    },
+    {
+      "content": "### P5354  [Ynoi2017] 由乃的 OJ\r\n\r\n> Abstract Ynoi.\r\n\r\n不难想到可以先使用树剖维护这个东西。\r\n\r\n由于每一个二进制位是互相独立的，所以可以记录当前位是 0/1 在当前区间从左到右或从右到左后能否成为 1。可以开 k 棵线段树维护，复杂度 $O(n\\times \\log_2^2n\\times k)$。\r\n\r\n仔细观察 `pushup`，可以将 k 棵压成一颗，记录当前区间从左往右或从右往左后的。\r\n\r\n### AT_agc027_e [AGC027E] ABBreviate\r\n\r\n> 证明题？\r\n\r\n将 a -> 1，b -> 2，则 $\\bmod 3$ 结果不变。$p(s)=\\sum (s_i-a+1) \\bmod 3$。\r\n\r\n结论（不会证明）：s 变成字符 c 的 **充要条件** 是 $p(s)=p(c)$ 且 s 有相邻FDSA\r\n\r\n相同（即不为 ababa... 或 babab..）。\r\n\r\n前面贪心匹配，注意最后剩下的 p 值为 $0$。\r\n\r\ndp 即可。使用刷表发，$dp_i$ 表示前 $i$ 个数的答案，每次在当前序列末尾加上一个 a 或 b，注意加答案时要保证剩下的 p 值为 0。$a_i=p(s[1,i])$。\r\n$$\r\ndp_{nxt_{i+1,(a_i+1/2) \\bmod 3}} +=dp_i\r\n$$\r\n\r\n### CF1267H Help BerLine\r\n\r\n**CF3200**\r\n\r\n> 《面对做法构造题目》\r\n\r\n> 奇妙构造+奇妙证明？\r\n\r\n考虑这件事情有一个明显的必要条件是：任何时刻相邻两个亮着的灯必须颜色不同。\r\n\r\n对于时间到这枚举，可以使用 set 维护前驱和后继，当 $i = col$ 时，$lst_i \\not=col$，$nxt_i \\not= col$。\r\n\r\n~~cyz说~~ 可以归纳证明这也是充要条件。\r\n\r\n也可以证明，$col$ 的范围是 $\\log_{\\frac{3}{2}}N$。\r\n\r\n然后就做完了。。。\r\n\r\n### P3233 [HNOI2014] 世界树\r\n\r\n> 码量虚树，为何不改？\r\n\r\n$\\sum m \\le 3 \\times 10^5$套路建虚树，暴力是好做的，思考如何在虚树上做。\r\n\r\n答案 = 为在虚树上的点的贡献 + 不在虚树上的点的贡献。\r\n\r\n设距离节点 $i$ 最近的关键节点为 $p(i)$。\r\n\r\n1. 在虚树上的点\r\n\r\n    ​\t两遍 dfs 可以求出虚树上距离当前点最近的关键点，贡献直接加就可以了。\r\n\r\n2. 不在虚树上的点 $x$\r\n\r\n    ​\tⅠ $x$ 在虚树节点 $y$ 的子树并且这个子树中没有关键点。\r\n\r\n    ​\t\t $p(x)=p(y)$。直接统计即可\r\n\r\n    ​\tⅡ $x$ 在虚树节点 $u$ 和 $v$ 这条链上。\r\n\r\n    ​\t\t\t① $p(u)=p(v)$。则 $p(x)=p(u)$ ，直接统计即可。\r\n\r\n    ​\t\t\t② $p(u)\\not=p(v)$。二分出这条链上的 $p$ 的断点 $q$，则分开统计两条链即可。\r\n\r\n复杂度是 $O(\\sum m\\times \\log_2n)$。\r\n\r\n### AT_agc048_d [AGC048D] Pocky Game\r\n\r\n> 又是证明题？\r\n\r\n自行模拟或证明：只可能有两种操作，取 $1$ 个石子或取 $1$ 堆石子。\r\n\r\n$f_{l,r}$ 为 $[l+1,r]$ 没动，让 Firstleft 赢，$a_l$ 的最小值。$g_{l,r}$ 为 $[l,r-1]$ 没动，让 Secondrigtht 赢， $a_r$ 的最小值。\r\n\r\n若 $a_1<f_{1,n}$，则 Secondright 赢，否则 Firstleft 赢。",
+      "data": {
+        "title": "做题记录",
+        "date": "2024-07-03 10:52:39",
+        "tags": [
+          "做题记录"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "problems-solution"
+    },
+    {
+      "content": "### [题目传送器](https://www.luogu.com.cn/problem/AT_abc356_e)\r\n### [更爽的阅读体验](https://yaohaoyou.github.io/post/AT_abc356_e)\r\n\r\n### AT 1506\r\n## 前言\r\n赛时小丑以为写假了，遂写篇题解。\r\n\r\n我不强，我不知道调和级数，但我会根号做法。\r\n\r\n## 题意\r\n求 $\\sum_{i=1}^{N-1}\\sum_{j=i+1}^{N}\\left\\lfloor\\frac{\\max(A_i,A_j)}{\\min(A_i,A_j)}\\right\\rfloor$。\r\n\r\n## 做法\r\n显然可以先将 A 从小到大排序，然后答案就变成了 $\\sum_{i=2}^{N}\\sum_{j=1}^{i-1}\\left\\lfloor\\frac{A_i}{A_j}\\right\\rfloor$。\r\n\r\n然后这就是一个经典的整除分块。具体的，先枚举 $A_i$，那此时 $\\left\\lfloor\\frac{A_i}{A_j}\\right\\rfloor$ 的答案只有 $O(\\sqrt V)$ 种。对于当前的 $k=\\left\\lfloor\\frac{A_i}{A_j}\\right\\rfloor$，可以求出 $\\left\\lfloor\\frac{A_i}{A_{nxt}}\\right\\rfloor=k$ 的另一个边界 $nxt$，然后直接跳到 $nxt-1$ 即可。由于 $k$ 的取值只有 $O(\\sqrt V)$ 种，找到 $nxt$ 的过程可以使用二分答案，于是复杂度就是 $O(n \\times \\sqrt V \\times \\log_2 n)$。\r\n\r\n放个代码。赛时代码比较丑，二分答案就不要细看了。\r\n### [Code](https://atcoder.jp/contests/abc356/submissions/54228754)\r\n\r\n然而这样是需要在 2s 内跑 $4 \\times 10^9$ 的。明显会 TLE。思考如何优化。\r\n\r\n发现整除分块不好优化，所以尝试将 $\\log_2n$ 优化掉。发现二分答案的值域只有 $O(V)$，所以可以开一个数组提前预处理。时间复杂度为 $O(n \\times \\sqrt V + V \\times \\log_2 n)$。\r\n\r\n### [AC Code](https://atcoder.jp/contests/abc356/submissions/54227955)\r\n\r\n\r\n## 总结\r\n时间复杂度为 $O(n\\times \\sqrt V+V \\times \\log_2 n)$，相比其他做法的却劣了不少，需要 1600ms+。\r\n\r\n赛时真是小丑，同时感谢 \\_maojun\\_。",
+      "data": {
+        "title": "AT_abc356_e Max/Min",
+        "date": "2024-06-04 19:05:49",
+        "tags": [
+          "题解",
+          "AtCoder",
+          "分块"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "AT_abc356_e"
+    },
+    {
+      "content": "### [题目传送器](https://www.luogu.com.cn/problem/P10271)\r\n### [更爽的阅读体验](https://www.luogu.com.cn/article/muo3xaei)\r\n## 前言\r\n为什么都用 PAM 和 子序列自动机，我会二分答案 + manacher + Hash。\r\n\r\n## 题意\r\n自行看题。\r\n\r\n## 做法\r\n推一下式子即可，$pre_i$ 表示 $i$ 的前缀。\r\n$$\r\nRev(lcs(i,j)) = LCP(Rev(pre_i),Rev(pre_j))\r\n$$\r\n手模一下样例就能发现其实就是求以 $i$ 为中心的回文半径和以 $j$ 为中心的回文半径的 $\\text{LCP}$。\r\n\r\n显然答案是有二分性的，可以二分答案 $x$ 后将每个位置 $i$ 对应的 $[i-x+1,i]$ 的哈希值放入 map 或 unordered_map 中，只要有相同的就返回 true。\r\n\r\nmanacher 只需要跑以当前点为中心的回文串即可，不用在相邻两位加入字符。\r\n\r\n## AC Code\r\n```c\r\n#include<bits/stdc++.h>\r\n#define ull unsigned long long\r\nusing namespace std;\r\nconst int maxn=1e6+10,base=31;\r\nint n,p[maxn];\r\null hsh[maxn],bs[maxn];\r\nstring s;\r\nunordered_map<ull,bool> mp;  // 记录是否出现过的哈希值\r\ninline ull Hash(int l,int r){return hsh[r]-hsh[l-1]*bs[r-l+1];}\r\ninline bool check(int x){\r\n    mp.clear();\r\n    for(int i=1;i<=n;i++){\r\n        if(p[i]<x)  continue;\r\n        if(mp[Hash(i-x+1,i)])    return true;\r\n        mp[Hash(i-x+1,i)]=true;\r\n    }\r\n    return false;\r\n}\r\nint main(){\r\n    ios::sync_with_stdio(false);\r\n    cin.tie(0);cout.tie(0);\r\n    cin>>n>>s;\r\n    s='|'+s+'#';\r\n    bs[0]=1;\r\n    for(int i=1;i<=n;i++){\r\n        hsh[i]=hsh[i-1]*base+(s[i]-'a');\r\n        bs[i]=bs[i-1]*base;\r\n    }\r\n    // manacher\r\n    for(int i=1,mid=0,r=0;i<=n;i++){\r\n        p[i]=i>r?1:min(p[(mid<<1)-i],r-i+1);\r\n        while(s[i+p[i]]==s[i-p[i]]) p[i]++;\r\n        if(i+p[i]>r){r=i+p[i]-1;mid=i;}\r\n    }\r\n    // 二分答案\r\n    int l=1,r=n,ans=0;\r\n    while(l<=r){\r\n        int mid=(l+r)>>1;\r\n        if(check(mid)){ans=mid;l=mid+1;}\r\n        else    r=mid-1;\r\n    }\r\n    printf(\"%d\\n\",ans);\r\n}\r\n```\r\n\r\n## 总结 & 乱搞\r\n时间复杂度为 $O(n \\times \\log_2n)$，跑得还挺快。实测不使用哈希，直接将字符串区间放入 unordered_map，也就是 $O(n^2\\times \\log_2n)$ 也能过，只用 300+ms。",
+      "data": {
+        "title": "P10271 漫长悄悄话",
+        "date": "2024-06-03 22:10:47",
+        "tags": [
+          "题解",
+          "洛谷月赛",
+          "字符串"
+        ],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "p10271"
+    },
+    {
+      "content": "\r\nThis is my test.\r\n$Hello World$ ",
+      "data": {
+        "title": "This is my test",
+        "date": "2024-06-03 21:48:10",
+        "tags": [],
+        "published": true,
+        "hideInList": true,
+        "feature": null,
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "this-is-my-test"
+    },
+    {
+      "content": "\n## 欢迎来到我的小站呀，很遇见你！🤝高兴\n\n## 🏠 关于本站\n$\\texttt{yaohaoyou}$ 的博客\n\n## 👨‍💻 博主是谁\nGD 的 OI 选手，快来爆踩。\n\n## 📬 联系我呀\nLG:739274",
+      "data": {
+        "title": "关于",
+        "date": "2024-01-25 00:00:00",
+        "tags": [],
+        "published": true,
+        "hideInList": false,
+        "feature": null,
+        "isTop": true
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "",
+      "fileName": "about-me"
+    },
+    {
+      "content": "\n\n👏  欢迎使用 **Gridea** ！  \n✍️  **Gridea** 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ... \n\n<!-- more -->\n\n[Github](https://github.com/getgridea/gridea)  \n[Gridea 主页](https://gridea.dev/)  \n[示例网站](https://fehey.com/)\n\n## 特性👇\n📝  你可以使用最酷的 **Markdown** 语法，进行快速创作  \n\n🌉  你可以给文章配上精美的封面图和在文章任意位置插入图片  \n\n🏷️  你可以对文章进行标签分组  \n\n📋  你可以自定义菜单，甚至可以创建外部链接菜单  \n\n💻  你可以在 **Windows**，**MacOS** 或 **Linux** 设备上使用此客户端  \n\n🌎  你可以使用 **𝖦𝗂𝗍𝗁𝗎𝖻 𝖯𝖺𝗀𝖾𝗌** 或 **Coding Pages** 向世界展示，未来将支持更多平台  \n\n💬  你可以进行简单的配置，接入 [Gitalk](https://github.com/gitalk/gitalk) 或 [DisqusJS](https://github.com/SukkaW/DisqusJS) 评论系统  \n\n🇬🇧  你可以使用**中文简体**或**英语**  \n\n🌁  你可以任意使用应用内默认主题或任意第三方主题，强大的主题自定义能力  \n\n🖥  你可以自定义源文件夹，利用 OneDrive、百度网盘、iCloud、Dropbox 等进行多设备同步  \n\n🌱 当然 **Gridea** 还很年轻，有很多不足，但请相信，它会不停向前 🏃\n\n未来，它一定会成为你离不开的伙伴\n\n尽情发挥你的才华吧！\n\n😘 Enjoy~\n",
+      "data": {
+        "title": "Hello Gridea",
+        "date": "2018-12-12 00:00:00",
+        "tags": [],
+        "published": true,
+        "hideInList": true,
+        "feature": "/post-images/hello-gridea.png",
+        "isTop": false
+      },
+      "isEmpty": false,
+      "excerpt": "",
+      "abstract": "\n\n👏  欢迎使用 **Gridea** ！  \n✍️  **Gridea** 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ... ",
+      "fileName": "hello-gridea"
+    }
+  ],
+  "tags": [
+    {
+      "index": -1,
+      "name": "游记",
+      "slug": "swimming-record",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "题解",
+      "slug": "solution",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "数学",
+      "slug": "maths",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "拉格朗日插值",
+      "slug": "Lagrange interp",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "树上问题",
+      "slug": "trees",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "DP",
+      "slug": "dp",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "Codeforces",
+      "slug": "Codeforces",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "线段树",
+      "slug": "SegmentTree",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "单调性",
+      "slug": "monotonicity",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "算法",
+      "slug": "algorithm",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "网络流",
+      "slug": "flow",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "闲话",
+      "slug": "nothing",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "做题记录",
+      "slug": "Problem solving",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "AtCoder",
+      "slug": "AtCoder",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "分块",
+      "slug": "block",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "字符串",
+      "slug": "string",
+      "used": true
+    },
+    {
+      "index": -1,
+      "name": "洛谷月赛",
+      "slug": "luogu-contest",
+      "used": true
+    }
+  ],
+  "menus": [
+    {
+      "link": "/",
+      "name": "首页",
+      "openType": "Internal"
+    },
+    {
+      "link": "/archives",
+      "name": "归档",
+      "openType": "Internal"
+    },
+    {
+      "link": "/tags",
+      "name": "标签",
+      "openType": "Internal"
+    },
+    {
+      "link": "/post/about",
+      "name": "关于",
+      "openType": "Internal"
+    }
+  ]
+}
