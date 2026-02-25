@@ -77,5 +77,7 @@ void matt(int _cases){
 }
 int main(){
     freopen("snipe.in","r",stdin);freopen("snipe.out","w",stdout);
+    double sta=clock();
     int T;scanf("%d",&T);for(int i=1;i<=T;i++)matt(i);
+    debug("%.0fms\n",(clock()-sta)/CLOCKS_PER_SEC*1000);
 }
