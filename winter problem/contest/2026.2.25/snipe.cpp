@@ -24,7 +24,6 @@ namespace FastIO{
 using FastIO::read;using FastIO::readll;using FastIO::print;using FastIO::getc;using FastIO::putc;using FastIO::pus;using FastIO::flush;
 int n,mxc;
 struct node{int a,b,c;}a[maxn];
-priority_queue<ll,vector<ll>,greater<ll>> q1,q2;
 bool vis[maxn];
 int A[maxn],B[maxn],C[maxn];
 inline void gmn(auto &x,auto y){(x>y)&&(x=y);}
@@ -32,26 +31,29 @@ inline void gmx(auto &x,auto y){(x<y)&&(x=y);}
 bool check(ll x){
     x<<=1;
     memset(vis,0,sizeof(bool)*(n+5));
-    priority_queue<ll,vector<ll>,greater<ll>>().swap(q1);
-    priority_queue<ll,vector<ll>,greater<ll>>().swap(q2);
-    ll ma,mb,mc;int cnt=0,p=1,pa=1,pb=1,pc=1;
+    ll ma,mb,mc;int cnt=0,p1=1,p2=1,p3=1,pa=1,pb=1,pc=1;
     while(cnt^n){
         while(vis[A[pa]])pa++;
         while(vis[B[pb]])pb++;
         while(vis[C[pc]])pc++;
         ma=a[A[pa]].a+x;mb=a[B[pb]].b+x;mc=a[C[pc]].c+x;
-        while(p<=n&&a[p].a<=ma){
-            if(a[p].b<=mb)  q1.ep(((ll)a[p].c<<20)|p);
-            else    q2.ep(((ll)a[p].b<<20)|p);
-            p++;
+        bool flag=true;
+        while(p1<=n&&a[A[p1]].a<=ma){
+            int p=A[p1];
+            if(!vis[p]&&a[p].a<=ma&&a[p].b<=mb&&a[p].c<=mc) vis[p]=true,flag=false,cnt++;
+            p1++;
         }
-        while(!q2.empty()){int t=q2.top()&BS;if(a[t].b<=mb){q2.pop();q1.ep(((ll)a[t].c<<20)|t);}else break;}
-        if(q1.empty()||(q1.top()>>20)>mc)   return false;
-        while(!q1.empty()){
-            int t=q1.top()&BS;
-            if(a[t].c<=mc){cnt++;q1.pop();vis[t]=true;}
-            else    break;
+        while(p2<=n&&a[B[p2]].b<=mb){
+            int p=B[p2];
+            if(!vis[p]&&a[p].a<=ma&&a[p].b<=mb&&a[p].c<=mc) vis[p]=true,flag=false,cnt++;
+            p2++;
         }
+        while(p3<=n&&a[C[p3]].c<=mc){
+            int p=C[p3];
+            if(!vis[p]&&a[p].a<=ma&&a[p].b<=mb&&a[p].c<=mc) vis[p]=true,flag=false,cnt++;
+            p3++;
+        }
+        if(flag)    return false;
     }
     return true;
 }
@@ -63,10 +65,8 @@ void matt(int _cases){
     }
     sort(a+1,a+n+1,[&](node x,node y){return x.a<y.a;});
     iota(A+1,A+n+1,1);iota(B+1,B+n+1,1);iota(C+1,C+n+1,1);
-    sort(A+1,A+n+1,[&](int x,int y){return a[x].a<a[y].a;});
     sort(B+1,B+n+1,[&](int x,int y){return a[x].b<a[y].b;});
     sort(C+1,C+n+1,[&](int x,int y){return a[x].c<a[y].c;});
-    // if(spB::check())  return spB::solve();
     int l=0,r=mx,ans=0;
     while(l<=r){
         int mid=(l+r)>>1;
@@ -75,4 +75,9 @@ void matt(int _cases){
     }
     printf("%d\n",ans);
 }
-int main(){freopen("snipe.in","r",stdin);freopen("snipe.out","w",stdout);int T;scanf("%d",&T);for(int i=1;i<=T;i++)matt(i);}
+int main(){
+    freopen("snipe.in","r",stdin);freopen("snipe.out","w",stdout);
+    double sta=clock();
+    int T;scanf("%d",&T);for(int i=1;i<=T;i++)matt(i);
+    debug("%.0fms\n",(clock()-sta)/CLOCKS_PER_SEC*1000);
+}

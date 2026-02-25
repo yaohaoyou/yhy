@@ -1,0 +1,215 @@
+---
+title: '暑假讲题'
+date: 2025-07-31 11:53:01
+tags: [题解,做题记录]
+published: true
+hideInList: false
+feature: 
+isTop: false
+---
+$\Large{\color{red}\Diamond}$ 为重点转换步骤。
+
+## [AT_arc201_b [ARC201B] Binary Knapsack](https://www.luogu.com.cn/problem/AT_arc201_b)
+
+因为 $W$ 很大，所以不能是 01 背包的思路，应该想贪心。
+
+思考偏序关系，由于不同重量只有 $\log_2W$ 种，并且两个 $2^{x-1}$ 可以直接合并成 $2^x$，所以每次贪心取当前重量价值最大的一定更优。
+
+对 $W$ 进行二进制拆位，从小到大，若当前第 $i$ 位为 $1$，则选一个重量为 $2^i$ 的一定不劣。$\Large{\color{red}\Diamond}$ 
+
+剩下的排序后两两合并成重量为 $2^{i+1}$ 的物品，继续递归子问题。
+
+## [AT_arc200_e popcount<=2](https://www.luogu.com.cn/problem/AT_arc200_e)
+
+将得到的 $A$ 序列全部异或 $x$ 后依旧满足情况，所以不妨将 $A$ 异或 $A_1$ 后使 $A_1=0$。直接钦定 $A_1=0$，最后将答案 $\times 2^m$ 即可。$\Large{\color{red}\Diamond}$ 
+
+由于 $A_1=0$，$popcount(A_1\oplus A_i)\le 2$，所以 $popcount(A_i)\le2$。接下来分情况讨论。
+
+- $popcount(A_i)\le1$，没有其他限制了，方案数为 $(m+1)^{n-1}$。
+
+- 有且仅有一种 $popcount(A_x)=2$，方案数为 $\binom m 2(4^{n-1}-3^{n-1})$。
+
+- 有多种 $popcount(A_{a_1},A_{a_2},..A_{a_k})=2$，且 $popcount(A_{a_1} \And A_{a_2} \And..\And A_{a_k})=1,k\ge2$，方案数为 $m((m+1)^{n-1}-2^{n-1}-(m-1)(3^{n-1}-2^{n-1}))$。
+
+- 有且仅有三种 $popcount(A_x,A_y,A_z)=2$，此时只能有这三种数和 $0$ 出现，并且两两交的 popcount 都为 $1$，如 $\{A_x,A_y,A_z\}=\{3,5,6\}$。方案数为 $\binom m 3(4^{n-1}-3\times 3^{n-1}+3\times 2^{n-1}-1)$。
+
+## [P9140 THUPC 2023 初赛 背包](https://www.luogu.com.cn/problem/P9140)
+
+类似于[P2371 墨墨的等式](https://www.luogu.com.cn/problem/P2371)的思路，先取 $\frac{c_i}{v_i}$ 最大的物品作为基准并设 $m=v_i,k=c_i$，由于若 $V'$ 可以被凑出，则 $V'\equiv V(\bmod m)$ 的 $V$ 可以通过加入多个 $m$ 凑出，所以将物品的总大小在 $\bmod m$ 的剩余系上处理。$\Large{\color{red}\Diamond}$ 
+
+对于 $(V',C'),V\equiv V'(\bmod m)$ 的情况，此时的总贡献为 $C'+\frac{V-V'}mk$，由于 $\frac V m$ 固定，所以需要使 $C'-\lfloor\frac{V'}m\rfloor k$ 最大，将这个值设为同余最长路上的距离。转移时从 $p$ 加上物品 $x$ 后转移至 $q=(p+v_x)\bmod m$，$f_q=f_p+c_x-\lfloor\frac{p+v_x}m\rfloor k$。
+
+转移过程中需要保证没有正环和 $V'>V$。
+
+- 若有正权环 $u_1\to u_2\to...\to u_{siz}\to u_1$，由于转一圈后物品总体积一定为 $m$ 的倍数，而由于选择的基准为 $\frac{c_i}{w_i}$ 最大，所以一定不如全部选择物品 $i$，矛盾，所以不存在正权环。
+- 设 $\forall i\in[1,n], v_i\le lim_v=10^5$。图上共有 $m$ 个点，因为没有正权环，所以每个点最多走过 $1$ 次，走过的边数最多也只有 $m-1$ 条，每条边增加的体积 $\le lim_v$，所以 $V'\le (lim_v)^2=10^{10}<10^{11}$，所以 $V'<V$。$\Large{\color{red}\Diamond}$ 
+
+由于有负边权，所以不能用 dijkstra。这个题数据水，最短路直接用 SPFA 就过了，正解应该使用转两圈的做法将复杂度做到 $O(nm)$。
+
+建边的过程实际是枚举 $i\in[1,n],u\in[0,m)$ 并连边 $(u,(u+v_i)\bmod m,w)$，手玩一下（其实比较显然）可以发现对于 $i$ 会产生 $\gcd(v_i,m)$ 个环。由于本质上是在模意义下做完全背包，所以转移顺序并不影响。并且由于每个点只会在最短路上走一次，所以最短路只要在已知的 $\gcd(v_i,m)$ 个环上找到最小的 $dis$ 值，并用其转一圈更新这圈的其他点即可，也就是 $x\in[0,v_i):x\to (x+v_i)\bmod \to (x+2v_i)\bmod m\to...\to x$。写代码时为了方便，可以不用找到 $dis$ 最小值，直接在环上转两圈更新即可，复杂度为 $O(nm)$。
+
+## [P7320 「PMOI-4」可怜的团主](https://www.luogu.com.cn/problem/p7320)
+
+首先由一个结论是一棵树至少由 $\lceil\frac{leaf}2\rceil$ 条路径覆盖，构造是将叶子按 dfs 序排序后，路径为 $(lf_1,lf_{\lceil\frac{leaf}2\rceil}),(lf_2,lf_{\lceil\frac{leaf}2\rceil+1})\dots$，若 $leaf$ 是奇数则最后连一条 $(1,lf_{leaf})$。$\Large{\color{red}\Diamond}$
+
+必要性显然，应为一条路径最多覆盖两个叶子。充分性是这样的路径可以使相邻两条路径都有交集。若有一个点 $u$ 没有被覆盖。
+
+- 若 $u$ 有至少两个在 $u$ 儿子 dfs 序排列中相邻的 $v,w$，则必有一条经过 $v$ 子树的路径与一条经过 $w$ 子树的路径相交，所以 $u$ 一定被覆盖。
+
+- 若 $u$ 只有一个儿子，若有不在 $u$ 子树内的叶子则有一条从 $u$ 子树内到外的路径，否则从 $1\to u$ 的路径上 $deg_f=1$，则存在从 $u$ 子树内到 $1$ 的路径。
+
+综上，至少用 $\lceil\frac {leaf} 2\rceil$ 条路径一定能覆盖所有节点。
+
+由于 $\lceil\frac n 6\rceil$ 和 $\lfloor\frac n 3\rfloor$  的关系与 $\lceil\frac x 2\rceil$ 相似，所以考虑提出 dfs 树并看叶子考虑。$\Large{\color{red}\Diamond}$
+
+显然，若 $leaf\ge \lfloor\frac n 3\rfloor$，则选择第二种并将叶子节点输出即可。反之 $leaf < \lfloor\frac n 3\rfloor$，则覆盖所有点的路径数 $\lceil\frac {leaf} 2\rceil<\lceil\frac {\lfloor\frac n 3\rfloor} 2\rceil<\lceil\frac n 6\rceil$，使用上述的叶子节点相互匹配的做法后，剩下的路径用 $(x,x)$ 浪费掉即可。
+
+## [AT_agc037_d Sorting a Grid](https://www.luogu.com.cn/problem/AT_agc037_d)
+
+从无序的状态转移到有序的状态可以倒着思考，从有序的状态思考能到达的状态的共同点。 
+
+由有序的状态进行每``行重排``后每行的值域集合不会变，设行重排后的矩阵为：
+$$
+\begin{matrix}
+A&A&A&A&A\\
+B&B&B&B&B\\
+C&C&C&C&C\\
+D&D&D&D&D\\
+E&E&E&E&E\\
+\end{matrix}
+$$
+$1\le A\le m,m+1\le B\le 2m \dots$
+
+再``列重排``后矩阵的每一列都会包含 $A,B,C\dots$ 各一个，这是操作两步的必然结论。
+
+最后一步再回到输入的乱序矩阵，则此时乱序矩阵进行``行重排``后需要满足每列都各有 $A,B,C\dots$ 各一个的性质。$\Large{\color{red}\Diamond}$
+
+进行构造时将枚举 $(i,j)$ 后将 $i \leftrightarrow \lceil\frac {a_{i,j}-1} m\rceil+nm$，由于每行有 $m$ 个数，每种字符会出现 $m$ 次，所以最终连出的是**正则二分图（每个点度数都相同的二分图）**，每次需要寻找出一组完美匹配表示当前列的状态，随后删除这组边并继续寻找二分图完美匹配。本图任选一个左部点集合都满足 $out(S)=|S|$，由于 Hall 定理，存在完美匹配，删除匹配后依旧满足 $out(S)=|S|$，所以一定可以找出 $m$ 组完美匹配。$\Large{\color{red}\Diamond}$
+
+## [AT_agc061_c First Come First Serve](https://www.luogu.com.cn/problem/AT_agc061_c)
+
+设 $dp_i$ 表示 $[1,i]$ 的答案，转移为 $dp_i\leftarrow 2dp_{i-1}-C$，$C$ 为容斥掉的方案数。设 $i$ 最终取的值为 $t_i\in\{a_i,b_i\}$，则 $t_i$ 取 $a_i$ 和 $b_i$ 时结果相同当且仅当 $\forall t_j\notin[a_i,b_i]$，思考如何容斥掉这一部分。
+
+因为 $a_i<a_{i+1},b_i<b_{i+1}$，所以区间之间不存在包含。若使 $\not\exist t_j\in[a_i,b_i]$，则对于 $L_i=\min j(b_j>a_i),R_i=\max j(a_j<b_i)$，当 $j\in[L_i,i)$ 选 $t_j=a_j$，$j\in(i,R_i]$ 选 $t_j=b_j$，可以使 $k\in[L_i,R_i]$ 都可以选出 $t_k\notin[a_i,b_i]$，即满足 $\not\exist t_j\in[a_i,b_i]$。$\Large{\color{red}\Diamond}$
+
+所以对于 $dp_{R_i}$ 需要删去 $a_i$ 和 $b_i$ 重复的贡献，由于此时 $[L_i,R_i]$ 的方案固定，所以 $dp_{R_i}\leftarrow -dp_{L_{i-1}}$。
+
+求 $L_i$ 和 $R_i$ 直接二分或双指针即可，复杂度为 $\mathcal O(n)/\mathcal O(n\log_2n)$。
+
+## [P6657 【模板】LGV 引理](https://www.luogu.com.cn/problem/P6657)
+
+感觉原本的定义还是比较复杂，尝试用比较简洁但不一定足够适用的讲述。
+
+先构造矩阵
+$$
+M=\left[\begin{matrix}
+f(sx_1,sy_1,tx_1,ty_1) & \dots & f(sx_1,sy_1,tx_n,ty_n)\\
+f(sx_2,sy_2,tx_1,ty_1) & \dots & f(sx_2,sy_2,tx_n,ty_n)\\
+&\ddots\\
+f(sx_{n-1},sy_{n-1},tx_1,ty_1) & \dots & f(sx_{n-1},sy_{n-1},tx_n,ty_n)\\
+f(sx_n,sy_n,tx_1,ty_1) & \dots & f(sx_n,sy_n,tx_n,ty_n)\\
+\end{matrix}\right]
+$$
+使用 LGV 引理需要保证**存在构造**从 $(sx_i,sy_i)$ 到达 $(tx_{p_i},ty_{p_j})$ 的 $n$ 条路径之间互不相交，排列 $p$ **只能**为 $p=\{1,2,3..,n\}$。换言之，若 $\exist p_i\neq i$，则无法构造 $n$ 条互不相交的路径。LGV 引理只适用于 DAG。
+
+LGV 引理：从 $(sx_i,sy_i)$ 到达 $(tx_i,ty_i)$ 的 $n$ 条路径互不相交的方案数为 $\det(M)$。
+
+## [AT_agc057_d Sum Avoidance](https://www.luogu.com.cn/problem/AT_agc057_d)
+
+神仙题，根本不可能想出来。
+
+首先 $|A|$ 的上界显然是 $\lfloor\frac {S-1} 2\rfloor$，因为 $(1,S-1),(2,S-2)\dots$ 不能同时存在，若 $2|S$，也不能出现 $\frac S2$。而这个上界也可以直接构造出来，只要取最大的 $\lfloor\frac {S-1} 2\rfloor$ 个数即可，因为任意两个数相加已经 $>S$。此时想要让字典序尽量小。令选择的集合包括 $A\subseteq[1,\lfloor\frac {S-1} 2\rfloor]$，$B\subseteq [S-\lfloor\frac {S-1} 2\rfloor,S-1]$。
+
+将字典序变小的过程就是将一些 $x\in B$ 的换成 $S-x$。可以证明，直接从小到大，如果加入 $x$ 后依旧凑不出 $S$，则在答案集合加入 $x$ 一定更优。$\Large{\color{red}\Diamond}$
+
+>证明：对于任意一个 $x\in [1,\lfloor\frac {S-1} 2\rfloor]$，若前面的数能凑出 $x$，则加入 $x$ 不影响凑其他数。否则前面的数无法凑出 $x$，则可以加入 $S-x$，由于后面的加入集合的数都 $>x$，所以不会导致 $S-x$ 和其他数凑出 $S$。
+
+这样就可以比较方便的 $O(S)$ 求答案，思考如何继续加速贪心过程。
+
+设加入的最小数为 $d$，由于 $d\not\mid S$，$lcm(1,2,...43)>10^{18}$，所以 $d\le43$。思考两种添加方式，添加的数 $x\le \lfloor\frac {S-1} 2\rfloor$。
+
+1. $x$ 可以由 $A$ 中的数凑出。
+2. $x$ 不能被 $A$ 中的数凑出，但加入后也无法凑出 $S$。
+
+$1$ 的做法可以后面二分时再处理，思考 $2$ 会加入哪些数。因为 $d\in A$，所以$2$ 加入的数在 $\bmod d$ 意义下互不相同，否则可以用 $1$ 做出，所以 $2$ 加入的数至多 $\mathcal O(d)$，复杂度可以接受。$\Large{\color{red}\Diamond}$
+
+令 $f_i,i\in[1,d)$ 表示 $2$ 加入的数 $\bmod d=i$ 的最小的数，转移时枚举加入 $v$，若能加入需保证 $f_{(S-iv)\bmod d}+iv>S$，即保证 
+$$
+v\ge \max_{i=1}^{d-1}(\lfloor\frac{S-f_{(S-iv)\bmod d}}i\rfloor+1)
+$$
+由于转移式中只与 $v \bmod d$ 相关，所以枚举 $x = v_x\bmod d$，按上面的式子跑一遍后将 $v_x$ 加到 $v_x\equiv x(\bmod d)$ 为止。这一步需要枚举 $x$ 和 $i$，单次复杂度为 $\mathcal O(d^2)$。由于要从小到大进行贪心，所以对于所有的 $v_x$，每次只会选取最小的 $v_{mn}$ 更新所有的 $f$。更新 $f$ 时枚举 $i,j\in[1,d)$。
+$$
+f_{(i+j\times v_{mn})\bmod d}\leftarrow f_i + j \times v_{mn}
+$$
+由于每个 $x\in [0,d)$ 只会有至多一次 $x=mn$ 将 $f_x$ 更新至最小值（最终值），所以会进行 $\mathcal O(d)$ 次上述的``单次``，复杂度为 $\mathcal O(d^3)$。
+
+$A$ 中 $\le x$ 的个数为 $\sum_{i=0}^{d-1} \max(0,\lfloor\frac {x-f_i} d\rfloor+[i\not=0])$。注意 $f_0=0$，$i=0$ 时不加一是因为无法选取 $0\in A$。
+
+对于询问二分答案后求有多少个凑出的数 $\le x$，对于 $\le \lfloor\frac {S-1} 2\rfloor$ 的答案直接二分答案即可，$>\lfloor\frac {S-1} 2\rfloor$ 的答案先将 $k\leftarrow k-|A|$ 后反着二分。本题最终复杂度为 $\mathcal O(T(d^3+d\log_2k))$。
+
+## [CF1389G Directing Edges](https://www.luogu.com.cn/problem/CF1389G)
+
+ran_qwq 的讲题，感觉有点像答辩缝合怪。
+
+连通性和给无向边定向先想到使用边双缩点，因为一个边双内的点一定可以定向成强连通分量，这样一定更优。此时从无向图变成了一棵树，然后考虑关键点的限制。
+
+先随便取一个关键点做根，若一个子树内没有关键点，则将边全部定向为 $u\rightarrow fa_u$ 一定不劣，由于这种子树的贡献固定，所以再缩起来。具体的，若一条边 $(u,fa_u)$ 满足 $u$ 子树内没有关键点，而 $fa_u$ 子树内有关键点，则 $[\text{关键点能到达}fa_u]=[\text{关键点能到达}u]$，此时将 $u$ 子树和 $fa_u$ 缩到一起。此时所有叶子节点都是关键点。
+
+可以开始树形 DP 了。令 $f_u$ 表示 $u$ 子树内强制选 $u$ 为饱和点的收益，$f_u=\max(f_v-w(u,v),0)+c_u$，当让顶点 $i$ 强制选为饱和点时将 $i$ 钦定为根即可，写下换根 DP 即可。
+
+代码没写，感觉依托。
+
+## [CF1017G The Tree](https://www.luogu.com.cn/problem/CF1017G)
+
+lbw 的题感觉都很妙。
+
+考虑将修改和查询的复杂度平衡，尝试类似于线段树标记永久化的思路。先不管 2 操作，若一个操作 ``1 v`` 能影响到 $u$，则 $v\to fa_u$ 的点一定已经被标记为黑色，手玩可以发现修改之间的顺序其实不影响，所以将修改合并，即维护 $c_u$ 表示在 $u$ 节点进行了 $c_u$ 次操作，则操作 ``1 v`` 能影响到 $u$ 当且仅当 $\sum_\text{i is on path(v,u)}c_i\ge dep_u-dep_v+1$，套路地，将 $dep_u-dep_v+1$ 移到左边，分给每个 $\text{i is on path(v,u)}$。将 $c_u$ 的初始值设为 $-1$，然后求最大后缀和（一定要包含自己）是否 $\ge 0$ 即可。
+
+现在考虑操作 ``2 u``，首先肯定要将 $u$ 子树内的所有 $c_i$ 设为 $-1$，此外，需要让 $u$ 向上的最大后缀和变为 $-1$，所以将 $c_u\gets c_u-query(u)-1$。
+
+直接上树剖维护，复杂度 $\mathcal O(n\log^2n)$。
+
+## [AT_abc230_g [ABC230G] GCD Permutation](https://www.luogu.com.cn/problem/AT_abc230_g)
+
+令 $S(p)$ 表示满足 $p$ 命题的方案数。
+$$
+ans=S(\gcd(i,j)\ne 1\wedge \gcd(P_i,P_j)\ne 1)\\
+=S(1)-S(\gcd(i,j)=1)-S(\gcd(P_i,P_j)=1)+S(\gcd(i,j)=1 \wedge \gcd(P_i,P_j)=1)\\
+=\frac{n(n+1)}2-2\sum_{i=1}^n \varphi(i)+S(\gcd(i,j)=1\wedge \gcd(P_i,P_j)=1)\\
+$$
+只要解决 $\beta=S(\gcd(i,j)=1 \wedge \gcd(P_i,P_j)=1)=\sum_{i=1}^n\sum_{j=1}^n [\gcd(i,j)=1\wedge\gcd(P_i,P_j)=1]$ 即可。
+
+由莫反可得
+$$
+\beta=\sum_{x=1}^n\sum_{y=1}^n \mu(x)\mu(y)\sum_{i=1}^n\sum_{j=1}^n[(x|\gcd(i,j))\wedge (y|\gcd(P_i,P_j))]\\
+=\sum_{x=1}^n\sum_{y=1}^n\mu(x)\mu(y)\binom{(\sum_{x|i,y|P_i}1)+1}2\\
+\text{let} f(x,y)=\sum_{i=1}^n [x|i\wedge y|p_i]\\
+\beta=\sum_{x=1}^n\sum_{y=1}^n \mu(x)\mu(y) \frac{(f(x,y)+1)f(x,y)}2
+$$
+每次加入一个新的数时枚举 $x|i,y|P_i$ 并修改对 $\beta$ 的贡献即可，复杂度为 $\mathcal O(n\ln n+\sum_{i=1}^n d(i)^2)$，打表得 $N=2\times10^5$ 时大约为 $6\times 10^7$。
+
+## [P13997 【MX-X19-T6】「FeOI Round 4.5」はぐ](https://www.luogu.com.cn/problem/P13997)
+
+路径上求可以差分转化成四个点到根求，同时可能有 $a_i\gets a_i\pm dep_i$，然后就是求 $\bigoplus_{i=0}^{dis(1,x)}(a_{p_i}+k)$，其中 $p_i$ 为 $1$ 走到 $x$ 的经过的第 $i$ 个点。每个位单独考虑，$x_k$ 表示 $x$ 二进制下的第 $k$ 位的值，拆项得
+$$
+(a_j+k)_i=(a_j)_i\oplus k_i\oplus[(a_j\bmod 2^i+k\bmod 2^i)\ge2^i]
+$$
+$\bigoplus(a_j)_i$ 可以直接预处理出根到 $x$ 的 $a$ 的异或和，$k$ 直接看 $dep_x$ 的奇偶性即可，最后一个考虑离线下来，将询问 $(x,k,i)$ 挂在 $x$ 上，使用 BIT 维护当前点祖先的 $a_j \bmod 2^i$ 即可，复杂度为 $\mathcal O(n\log^2 n)$。
+
+
+
+## [One, Two, Three](https://qoj.ac/problem/6537)
+
+怎么出了若干次的题都还没补过。
+
+设共匹配 $A$ 组 $(1,2,3)$ 和 $B$ 组 $(3,2,1)$，求 $\max(A+B)$。显然 $(1,2,3)$ 选定的一定是最左边的 $A$ 个 $1$ 和最右边的 $A$ 个 $3$，$(3,2,1)$ 同理。再分讨一下发现取的 $(1,2,3)$ 匹配 $(a_i,b_i,c_i)$ 满足 $a_1<a_2<\dots<a_A$，$b_1<b_2<\dots<b_A$，$c_1<c_2<\dots<c_A$ 一定是不劣的，证明可以讨论 $2$ 的位置。现在就可以将匹配对应到 $A+B$ 个区间了。
+
+过程其实就类似二分图匹配，需要对 $A+B$ 个区间 $[l_i,r_i]$ 匹配所在区间内的 $2$。考虑 HALL 定理，即需要满足对于任意一个 $S\in [A+B]$，满足 $|S|\le cnt2(\cup [l_i,r_i]),i\in S$，由于区间之间有偏序关系，即 $\forall l_i<l_j,r_i<r_j$，所以实际上 $S$ 取到一个区间是本质相同的，即 $R-L+1\le cnt2[l_L,r_R]$。
+
+换一种说法，就是对于每一个区间 $[l,r]$，令被 $[l,r]$ 严格包含的区间数量为 $f_{l,r}$，则满足 $\forall l\le r,f_{l,r}\le cnt2[l,r]$。
+
+对于每对 $(A,B)$，考虑 $f_{l,r}$ 的下界，先考虑 $(1,2,3)$ 的情况，令 $x\gets cnt1(1,l-1),y\gets cnt3(r+1,n)$，则 $[l,r]$ 需要包含 $\max(0,A-x)$ 个 $1$ 和 $\max(0,A-y)$ 个 $3$，按照匹配的顺序左右端点都单调可以发现 $[l,r]$ 的最右边 $y$ 个 $1$ 和最左边 $x$ 个 $3$ 会被外面的点匹配，所以内部就会剩下 $\max(A-x-y,0)$ 组 $(1,3)$ 需要匹配，所以有 $\max(A-x-y,0)\le cnt2[l,r]$。
+
+同理考虑 $(3,2,1)$ 的情况能得到 $\max(A-cnt1[0,l-1]-cnt3[r+1,n],0)+\max(B-cnt3[0,l-1]-cnt1[r+1,n],0)\le f_{l,r}\le cnt2[l,r]$。
+
+分讨两个 $\max$ 的取值，就能得到 $A,B,A+B$ 的范围了，构造由于 $(1,2,3)$ 和 $(3,2,1)$ 的区间内部满足左右端点都是单调的，所以在左端点加入，发现一个 $2$ 时贪心匹配最小的右端点即可。时间复杂度为 $\mathcal O(n)$。

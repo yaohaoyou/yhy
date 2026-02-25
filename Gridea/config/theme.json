@@ -1,0 +1,33 @@
+{
+  "config": {
+    "archivesPageSize": 50,
+    "archivesPath": "archives",
+    "dateFormat": "YYYY-MM-DD",
+    "feedCount": 10,
+    "feedFullText": false,
+    "footerInfo": "Powered by <a href=\"https://github.com/getgridea/gridea\" target=\"_blank\">Gridea</a>",
+    "postPageSize": 10,
+    "postPath": "post",
+    "postUrlFormat": "SLUG",
+    "showFeatureImage": true,
+    "siteDescription": "yaohaoyou 的博客",
+    "siteName": "yaohaoyou",
+    "tagPath": "tag",
+    "tagUrlFormat": "SHORT_ID",
+    "themeName": "bitcron-pro"
+  },
+  "customConfig": {
+    "Santa": true,
+    "Spring": true,
+    "envelope": "",
+    "ga": "",
+    "github": "",
+    "highlight": true,
+    "hljs": "agate",
+    "rss": "",
+    "telegram": "",
+    "twitter": "",
+    "weibo": "",
+    "zhihu": ""
+  }
+}
