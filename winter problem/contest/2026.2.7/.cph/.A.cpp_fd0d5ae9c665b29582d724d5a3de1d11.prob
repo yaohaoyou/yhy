@@ -1,0 +1,1 @@
+{"name":"Local: A","url":"d:\\yhy\\winter problem\\contest\\2026.2.7\\A.cpp","tests":[{"id":1770424988169,"input":"0 4 38\n4 2\n8 20\n15 14\n11 19\n","output":"3"},{"id":1770424994734,"input":"0 1 1919\n1900 19\n","output":"1"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\yhy\\winter problem\\contest\\2026.2.7\\A.cpp","group":"local","local":true}
