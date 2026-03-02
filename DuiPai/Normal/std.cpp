@@ -1,47 +1,84 @@
-#include<bits/stdc++.h>
-#define ll long long
-#define eb emplace_back
-#define ep emplace
-#define pii pair<int,int>
-#define fi first
-#define se second
-#define debug(...) fprintf(stderr,__VA_ARGS__)
-#define mems(arr,x) memset(arr,x,sizeof(arr))
-#define memc(arr1,arr2) memcpy(arr1,arr2,sizeof(arr2))
+#include <bits/stdc++.h>
 using namespace std;
-const int maxn=2e5+10;
-int n;
-int a[maxn],c[maxn];
-struct BIT{
-    int tr[maxn];
-    inline int lowbit(int x){return x&-x;}
-    inline void add(int x,int s){while(x<=n){tr[x]+=s;x+=lowbit(x);}}
-    inline int que(int x){int res=0;while(x){res+=tr[x];x^=lowbit(x);}return res;}
-    inline int query(int l,int r){return que(r)-que(l-1);}
-    void clear(){for(int i=0;i<=n;i++)tr[i]=0;}
-}T;
-bool chk(){
-    T.clear();fill(c,c+n+1,0);
-    ll s=0,s2=0,z=0,f=0;
-    for(int i=1;i<=n;i++){
-        T.add(a[i],1);
-        s+=i-T.que(a[i]);
-        s2+=abs(i-a[i]);
-        if(a[i]-i>=0)   c[a[i]-i]++,z++;
-        else f++;
+
+bool isBalanced(const string& s) {
+    int bal = 0;
+    for (char c : s) {
+        if (c == '(') bal++;
+        else bal--;
+        if (bal < 0) return false;
     }
-    return s+s==s2;
+    return bal == 0;
 }
-void matt(int _cases){
-    scanf("%d",&n);
-    for(int i=1;i<=n;i++)   scanf("%d",&a[i]);
+
+int longestValid(const string& s) {
+    stack<int> st;
+    st.push(-1);
+    int maxLen = 0;
+    for (int i = 0; i < (int)s.size(); i++) {
+        if (s[i] == '(') {
+            st.push(i);
+        } else {
+            st.pop();
+            if (!st.empty()) {
+                maxLen = max(maxLen, i - st.top());
+            } else {
+                st.push(i);
+            }
+        }
+    }
+    return maxLen;
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
     
-    vector<int> ans;
-    for(int i=0;i<n;i++){
-        if(chk())   ans.eb(i);
-        for(int j=n-1;j;j--)    swap(a[j],a[j+1]);
+    int N, Q;
+    cin >> N >> Q;
+    string S;
+    cin >> S;
+    
+    while (Q--) {
+        int L, R;
+        cin >> L >> R;
+        L--; R--;
+        
+        string X = S.substr(L, R - L + 1);
+        int n = X.size();
+        
+        // 判断是否无限
+        int total = count(X.begin(), X.end(), '(') - count(X.begin(), X.end(), ')');
+        bool infinite = false;
+        
+        if (total == 0) {
+            // 检查所有循环移位
+            string temp = X + X;  // 方便取循环移位
+            for (int start = 0; start < n; start++) {
+                string candidate = temp.substr(start, n);
+                if (isBalanced(candidate)) {
+                    infinite = true;
+                    break;
+                }
+            }
+        }
+        
+        if (infinite) {
+            cout << "-1\n";
+            continue;
+        }
+        
+        // 有限情况：重复足够多次
+        int repeat = n * 10;  // 可以调整
+        string longStr;
+        longStr.reserve(n * repeat);
+        for (int i = 0; i < repeat; i++) {
+            longStr += X;
+        }
+        
+        int ans = longestValid(longStr);
+        cout << ans << "\n";
     }
-    printf("%d\n",ans.size());for(int i:ans)printf("%d%c",i," \n"[i==ans.back()]);
-    if(ans.empty())puts("");
+    
+    return 0;
 }
-int main(){int T;scanf("%d",&T);for(int i=1;i<=T;i++)matt(i);}
