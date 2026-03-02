@@ -29,11 +29,11 @@ using namespace Graph;
 int tot,len;
 int siz[maxn],son[maxn],dfsn[maxn],tp[maxn],fa[maxn],dep[maxn];
 int L[maxn],R[maxn],ans[maxn];
-vector<pii> Q[maxn];
+vector<pii> Q[maxn*20];
 pii p[maxn*20];
 set<piii> st;
 struct BIT{
-    int tr[maxn];
+    int tr[maxn*20];
     inline int lowbit(int x){return x&-x;}
     inline void add(int x,int s){while(x<=len){tr[x]+=s;x+=lowbit(x);}}
     inline int que(int x){int res=0;while(x){res+=tr[x];x^=lowbit(x);}return res;}
@@ -84,10 +84,10 @@ int main(){
         for(pii j:tmp)  p[++len]=j;
         R[i]=len;
     }
-    for(int i=1;i<=len;i++) printf("[%d,%d]\n",p[i].fi,p[i].se);
+    // for(int i=1;i<=len;i++) printf("[%d,%d]\n",p[i].fi,p[i].se);
     for(int i=1;i<=q;i++){
         int l,r;scanf("%d%d",&l,&r);
-        if(L[l]<=R[r-1])    Q[R[r-1]].eb(L[l],i);
+        if(l<r&&L[l]<=R[r-1])    Q[R[r-1]].eb(L[l],i);
         else    ans[i]=1;
     }
     st.ep(pii(1,len),0);
