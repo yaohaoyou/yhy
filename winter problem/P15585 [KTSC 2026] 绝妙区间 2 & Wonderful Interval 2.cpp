@@ -1,4 +1,4 @@
-﻿#include<bits/stdc++.h>
+#include<bits/stdc++.h>
 #define ll long long
 #define eb emplace_back
 #define ep emplace
@@ -34,10 +34,11 @@ set<piii>::iterator split(int x){
     st.erase(it);
     st.ep(pii(l,x-1),k);return st.ep(pii(x,r),k).fi;
 }
-int main(){
-    scanf("%d%d",&n,&q);
-    for(int i=1;i<=n;i++)   scanf("%d%d",&a[i],&b[i]);
-    for(int i=1;i<=q;i++){int l,r;scanf("%d%d",&l,&r);l++;r++;Q[r].eb(l,i);}
+vector<int> array_operation(vector<int> A, vector<int> B, vector<int> L, vector<int> R){
+    n=A.size();
+    for(int i=1;i<=n;i++)   a[i]=A[i-1],b[i]=B[i-1];
+    q=L.size();
+    for(int i=1;i<=q;i++)   Q[R[i-1]+1].eb(L[i-1]+1,i);
     st.ep(pii(1,1e9),0);
     for(int i=1;i<=n;i++){
         auto itr=split(b[i]+1),itl=split(a[i]);
@@ -50,5 +51,7 @@ int main(){
         T2.add(i,1);mp[b[i]]=i;
         for(auto [l,id]:Q[i])   ans[id]=T.query(l,i)==T2.query(l,i);
     }
-    for(int i=1;i<=q;i++)   putchar(ans[i]?'1':'0'),putchar(' ');
+    vector<int> res;
+    for(int i=1;i<=q;i++)   res.eb(ans[i]);
+    return res;
 }

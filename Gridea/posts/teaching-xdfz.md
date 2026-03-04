@@ -434,3 +434,40 @@ $$
 
 这个区间 $\min$ 还是不太好求，考虑将 $rk_i$ 排序后建立对应的 $ht$ 的小根笛卡尔树，然后就将区间 $\min$ 转化成求笛卡尔树上的 LCA$\Large\color{red}\Diamond$。考虑枚举 $rk_{len-Q+1}$ 的 LCA 为 $u$，则对答案贡献 $\min(P-mn_u+1,ht_u)$，其中 $mn_u$ 表示 $u$ 子树内的编号最小值。发现 $u$ 越往上 $mn_u$ 越小，$P-mn_u+1$ 越大，$ht_u$ 越小，所以可以在链上二分求解两个函数交点就是答案。复杂度 $\mathcal O(\sum (n+m+q)\log (n+m))$。
 
+## [CF1874E Jellyfish and Hack](https://www.luogu.com.cn/problem/CF1874E)
+
+令 $f_{i,j}$ 表示长度为 $i$ 的排列，当前的权值和为 $j$ 的方案数。
+$$
+f_{i,j}=\sum_{k=0}^{i-1}\sum_{l=0}^{j-i} \binom{i-1}k f_{k,l}f_{i-1-k,j-i-l}
+$$
+由于第二维的大小为 $\mathcal O(n^2)$ 的，所有直接做复杂度是 $\mathcal O(n^6)$，即使用 FFT 也只能做到 $\mathcal O(n^4\log n)$。
+
+看到第二维是卷积形式，考虑对序列 $f_i$ 做生成函数$\Large\color{red}\Diamond$。令 $F_i(x)=\sum_{j=i}^{n^2}f_{i,j} x^j$，则转移式可以写成
+$$
+F_i=\sum_{k=0}^{i-1}\binom{i-1}k x^i F_kF_{i-1-k}
+$$
+由于 $F_i$ 是一个至多 $n^2$ 次的多项式，所以只要求出 $\mathcal O(n^2)$ 个点值后拉差即可复原系数。$\Large\color{red}\Diamond$对于每个 $i$ 维护 $g_{i,j}=F_i(j)$，卷积时直接对位乘即可，最后要给 $n^2$ 次多项式做拉差复杂度为 $\mathcal O((n^2)^2)=\mathcal O(n^4)$。
+
+这题能对 FFT 加速的主要原因是需要做 $\mathcal O(n^2)$ 次卷积，若只维护点值单次做卷积的复杂度就是 $\mathcal O(n^2)$，最后在拉差还原时也是 $\mathcal O(n^4)$ 的。若只做一次，拉差还原部分就已经是 $\mathcal O(n^2)$ 的，不如暴力。
+
+#### 已知 $k$ 次多项式的 $k+1$ 个点值，$\mathcal O(k^2)$还原多项式。
+
+将拉格朗日插值式子展开：
+$$
+\begin{align}
+f(x)&=\sum_if(x_i)\prod_{j\neq i}\frac{x-x_j}{x_i-x_j} \\
+&=\sum_{i}\frac{f(x_i)}{\prod_{j\neq i}(x_i-x_j)} \prod_{j\neq i} (x-x_j) \\
+\end{align}
+$$
+前半部分的值是已知的，直接 $\mathcal O(k^2)$ 枚举 $i,j$ 求即可，后半部分就是多个一次函数相乘，直接每次暴力展开是 $\mathcal O(k^3)$ 的，但是可以写成 $\frac{\prod(x-x_j)}{x-x_i}$，然后预处理 $\prod(x-x_i)$ 的系数后每次做大除法即可，复杂度为 $\mathcal O(k^2)$。
+
+## [2026 省选模拟赛 Day 17 #B. 追忆](https://newoj.daimayuan.top/p/4775?tid=69a5374fbff5d4356a21b04f)
+
+假的追忆，但更困难了。
+
+首先这个题的空间是开不下 $\mathcal O(n^2)$ 的 bitset 的，但是由于只需要求可达的集合大小，所以可以类似将 $[1,n]$ 按照 $B$ 分块$\Large\color{red}\Diamond$，每次只求到达一个块内元素的可达性，空间为 $\mathcal O(nB)$，时间为 $\mathcal O(\frac{n^2}\omega+\frac{n^2}B)$，只要将 $B$ 开到刚好卡到空间限制就基本不会对时间复杂度有影响。
+
+其实这个矩阵内的点是假的，就算开到**空间内的点/k 维偏序**也只是常数上的区别，因为都已经有 $\mathcal O(\frac{n^2}\omega)$ 的复杂度了就不用考虑怎么拆多维偏序了，直接对于每一维求出在询问区间内的点的集合，然后全部 ``&`` 起来就是满足的集合。需要求满足的点的可达集合，就可以先对每个点 $u$ 记录 $bs_{u,i}$ 表示 $u$ 是否在第 $i$ 个询问中，然后转移时跑拓扑排序，将 $u$ 可达的点 $t$ 都做 $bs_t\gets bs_t \vee bs_u$ 表示 $t$ 会贡献到询问 $i$ $\Large\color{red}\Diamond$。
+
+现在有一个 $n\times q$ 的 ``bitset`` 记录了 $bs_{u,i}$ 表示 $u$ 是否会贡献到询问 $i$，若把其当成一个 01 矩阵，则第 $i$ 个询问的答案就是第 $i$ 列的和。考虑 [诡异操作](https://uoj.ac/problem/671) 的 trick，记录 $cnt_{i,j}$ 表示第 $i$ 列的和的第 $j$ 个二进制位，然后将 $cnt$ 转置后就变成了一个 $\log_2n \times q$ 的矩阵，每次做对两个矩阵的每一行依次做二进制加法，单次复杂度为 $\mathcal O(\frac{q\log n}\omega)$，做 $n$ 次加法复杂度就是 $\mathcal O(\frac{nq\log n}{\omega})$。但是可以使用分治将 $\log n$ 进一步减小，具体的，每次递归求解 $[l,mid]$ 和 $[mid+1,r]$ 的和，再做一次加法，复杂度 $T(n)=2T(\frac n2)+\mathcal O(\frac{q\log n}\omega)$，由主定理可以得到 $T(n)=\mathcal O(\frac{nq}\omega)$，虽然都是做 $n-1$ 次加法，但分治可以将 $\log n$ 不卡满，所以复杂度少一个 $\log$。总复杂度为 $\mathcal O(\frac{nq}\omega)$，需要使用第一段的卡空间方法，将 $q$ 次询问分块处理，平衡后时间复杂度做到 $\mathcal O(\frac{nq}\omega+qB)$，空间 $\mathcal O(\frac{nB}\omega)$。
+
