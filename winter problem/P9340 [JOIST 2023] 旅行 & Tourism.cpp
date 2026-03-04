@@ -52,7 +52,7 @@ void dfs(int u,int ft){
 void dfs2(int u,int ft){
     dfsn[u]=++tot;
     if(son[u])  tp[son[u]]=tp[u],dfs2(son[u],u);
-    go(u,i)if((t^ft)&&(t^son[u])){tp[t]=t;dfs2(t,u);}
+    go(u,i)if(t^ft&&t^son[u]){tp[t]=t;dfs2(t,u);}
 }
 inline vector<pii> path(int x,int y){
     vector<pii> res;
