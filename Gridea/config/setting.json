@@ -1,1 +1,29 @@
- 
+{
+    "config": {
+      "branch": "main",
+      "cname": "",
+      "domain": "https://yaohaoyou.github.io",
+      "email": "yaohaoyoutql@outlook.com",
+      "enabledProxy": "direct",
+      "platform": "github",
+      "privateKey": "",
+      "repository": "yaohaoyou.github.io",
+      "token": "这里自己去 luogu 找",
+      "username": "yaohaoyou"
+    },
+    "comment": {
+      "commentPlatform": "gitalk",
+      "disqusSetting": {
+        "api": "",
+        "apikey": "",
+        "shortname": ""
+      },
+      "gitalkSetting": {
+        "clientId": "Ov23liLJ4kIBiCGG2YFP",
+        "clientSecret": "a2362bd2775ee09c905191765f2f32575301798f",
+        "owner": "yaohaoyou",
+        "repository": "yaohaoyou.github.io"
+      },
+      "showComment": true
+    }
+  }
