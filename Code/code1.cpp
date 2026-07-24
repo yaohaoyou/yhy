@@ -1,54 +1,32 @@
-﻿#include<bits/stdc++.h>
+#include<bits/stdc++.h>
 #define ll long long
 #define eb emplace_back
 #define ep emplace
 #define pii pair<int,int>
-#define piii pair<pii,int>
 #define fi first
 #define se second
 #define debug(...) fprintf(stderr,__VA_ARGS__)
 #define mems(arr,x) memset(arr,x,sizeof(arr))
 #define memc(arr1,arr2) memcpy(arr1,arr2,sizeof(arr2))
 using namespace std;
-inline void gmn(auto &x,auto y){(x>y)&&(x=y);}
-inline void gmx(auto &x,auto y){(x<y)&&(x=y);}
-const int maxn=2.5e5+10,inf=2e9;
-int n,q;
+inline void gmn(int &x,int y){(x>y)&&(x=y);}
+const int maxn=1e6+10;
+int n,k;
 int a[maxn],b[maxn];
-struct BIT{
-    int tr[maxn];
-    inline int lowbit(int x){return x&-x;}
-    inline void add(int x,int s){while(x<=n){tr[x]+=s;x+=lowbit(x);}}
-    inline int que(int x){int res=0;while(x){res+=tr[x];x^=lowbit(x);}return res;}
-    inline int query(int l,int r){return que(r)-que(l-1);}
-    void clear(){for(int i=0;i<=n;i++)tr[i]=0;}
-}T,T2;
-bool ans[maxn];
-unordered_map<int,int> mp;
-set<piii> st;
-vector<pii> Q[maxn];
-set<piii>::iterator split(int x){
-    auto it=--st.lower_bound(piii(pii(x,inf),inf));
-    int l=it->fi.fi,r=it->fi.se,k=it->se;
-    if(l==x)    return it;
-    st.erase(it);
-    st.ep(pii(l,x-1),k);return st.ep(pii(x,r),k).fi;
-}
-int main(){
-    scanf("%d%d",&n,&q);
-    for(int i=1;i<=n;i++)   scanf("%d%d",&a[i],&b[i]);
-    for(int i=1;i<=q;i++){int l,r;scanf("%d%d",&l,&r);l++;r++;Q[r].eb(l,i);}
-    st.ep(pii(1,1e9),0);
-    for(int i=1;i<=n;i++){
-        auto itr=split(b[i]+1),itl=split(a[i]);
-        for(auto it=itl;it!=itr;it++)
-            if(it->se)  T.add(it->se,-(it->fi.se-it->fi.fi+1));
-        st.erase(itl,itr);
-        st.ep(pii(a[i],b[i]),i);
-        T.add(i,b[i]-a[i]+1);
-        if(mp.count(b[i]))  T2.add(mp[b[i]],-1);
-        T2.add(i,1);mp[b[i]]=i;
-        for(auto [l,id]:Q[i])   ans[id]=T.query(l,i)==T2.query(l,i);
+inline __int128 C(int x,int y){__int128 w=1;for(int i=1;i<=y;i++)w*=x-i+1;for(int i=1;i<=y;i++)w/=i;return w;}
+void matt(int _cases){
+    scanf("%d%d",&n,&k);
+    if(ceil(log2(k))>n) return puts("-1"),void();
+    for(int i=1;i<=k;i++)   b[i]=log10(i)+1;
+    reverse(b+1,b+k+1);
+    int m=k,p=0;
+    for(int i=0;k;i++){
+        int x=min(C(n,i),__int128(k));
+        k-=x;while(x--) a[++p]=i;
     }
-    for(int i=1;i<=q;i++)   putchar(ans[i]?'1':'0'),putchar(' ');
+    k=m;
+    ll ans=0;
+    for(int i=1;i<=k;i++)   ans+=1ll*a[i]*b[i];
+    printf("%lld\n",ans);
 }
+int main(){int T;scanf("%d",&T);for(int i=1;i<=T;i++)matt(i);}

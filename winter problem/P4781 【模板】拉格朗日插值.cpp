@@ -27,10 +27,9 @@ int main(){
     for(int i=1;i<=n;i++)   scanf("%d%d",&x[i],&y[i]);
     int ans=0;
     for(int i=1;i<=n;i++){
-        int res=1;
-        for(int j=1;j<=n;j++)
-            if(i^j)mmul(res,immul(imdel(k,x[j]),qpow(imdel(x[i],x[j]),mod-2)));
-        madd(ans,immul(res,y[i]));
+        int res=y[i];
+        for(int j=1;j<=n;j++)if(i^j)mmul(res,immul(imdel(k,x[j]),qpow(imdel(x[i],x[j]),mod-2)));
+        madd(ans,res);
     }
     printf("%d\n",ans);
 }
