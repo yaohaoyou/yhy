@@ -1,5 +1,6 @@
 {
     "C_Cpp.autocomplete": "default",
+    "C_Cpp.intelliSenseEngine": "default",
     "editor.cursorStyle": "underline",
     "editor.cursorSmoothCaretAnimation": "on",
     "editor.fontFamily": "Fira Code",
@@ -9,14 +10,6 @@
     "workbench.productIconTheme": "emoji-product-icons-fun",
     "cmake.configureOnOpen": true,
     "editor.minimap.enabled": true,
-    "C_Cpp.intelliSenseEngine":"default",
-    "[c]": {
-        "editor.quickSuggestions": {
-            "comments": "on",
-            "strings": "on",
-            "other": "on"
-        }
-    },
     "files.associations": {
         "iostream": "cpp",
         "ostream": "cpp",
@@ -116,27 +109,29 @@
     },
     "C_Cpp.errorSquiggles": "enabled",
     "cpu.compileArgs.common": {
-        "c++": "",
+        "c++": "-O2 -std=c++14 -Wl,--stack=4096000000",
         "java": "-g"
     },
     "cpu.compileArgs.debug": {
         "c++": "",
+        "rust": "-g -C debug-assertions=on"
     },
     "cpu.compileArgs.fast": {
         "c++": "",
+        "rust": "-C opt-level=2"
     },
     "cpu.createFiles": true,
     "cpu.createFileName": "\"summer problem\"/{{problemid}}{{problem}}.cpp",
     "cpu.createFileTemplate": "",
     "cpu.nProcs": 1,
-    "cpu.testDir": "c:\\Users\\noi017\\Documents",
-    "cpu.buildDir": "c:\\Users\\noi017\\Documents",
     "cpu.compiler": {
-        "c++": "D:/mingw64/bin/g++.exe"
+        "c++": "D:\\mingw64\\bin\\g++.exe"
     },
     "editor.quickSuggestions": {
         "other": "on",
         "comments": "on",
         "strings": "on"
-    }
+    },
+    "cpu.testDir": "",
+    "cpu.buildDir": ""
 }

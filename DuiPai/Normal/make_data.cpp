@@ -8,22 +8,20 @@
 #define debug(...) fprintf(stderr,__VA_ARGS__)
 #define mems(arr,x) memset(arr,x,sizeof(arr))
 #define memc(arr1,arr2) memcpy(arr1,arr2,sizeof(arr2))
+inline void gmn(auto &x,auto y){(x>y)&&(x=y);}
+inline void gmx(auto &x,auto y){(x<y)&&(x=y);}
 using namespace std;
-using namespace std::chrono;
-const int maxn=1010;
-auto millisec_since_epoch=duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-mt19937 matt(millisec_since_epoch);
-mt19937_64 matt64(millisec_since_epoch);
-int rd(){return abs(int(matt()));}
-int n,m,k;
+const int maxn=2e5+10;
+int n;
 int a[maxn];
+inline ll rd(){return 1ll*rand()*rand();}
 int main(){
-    srand(millisec_since_epoch);
-    int T=10;
-    printf("%d\n",T);
-    while(T--){
-        n=rd()%100+1;m=rd()%10+1;
-        printf("%d %d\n",n,m);
-        for(int i=1;i<=n;i++) printf("%d ",rd());puts("");
-    }
+	timeb t;
+    ftime(&t);
+    srand(time(0));
+    srand(t.millitm+rand()*rand()%rand()+rand()^rand()<<11);
+    if(rand()&1)n=rd()%20+1;
+    else    n=rd()%1000+1;
+    printf("%d %d\n",n,rd()%1001);
+    for(int i=2;i<=n;i++)   printf("%d %d\n",rd()%(i-1)+1,i);
 }

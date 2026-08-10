@@ -1,53 +1,93 @@
 #include<bits/stdc++.h>
-#define _pop(x) __builtin_popcount(x)
+#define ll long long
+#define eb emplace_back
+#define ep emplace
+#define pii pair<int,int>
+#define fi first
+#define se second
+#define debug(...) fprintf(stderr,__VA_ARGS__)
+#define mems(arr,x) memset(arr,x,sizeof(arr))
+#define memc(arr1,arr2) memcpy(arr1,arr2,sizeof(arr2))
 using namespace std;
-const int maxn=1e6+10;
-int n,l,r,cnt;
-inline void out(int pl,int pr){
-    // printf("**%d %d\n",pl,pr);
-    pl--;pr--;
-    int i=__lg(pr-pl+1),j=pl/(1<<i);
-    // cout<<"? "<<i<<' '<<j<<endl;
-    cnt++;
+const int maxn=2e3+10,B=2047,dir[4][2]={{-1,-1},{-1,0},{0,-1},{0,0}};
+bool out=false;
+int n,m,cnt;
+queue<pii> q;
+bool st[maxn][maxn];
+char a[maxn][maxn];
+inline ll H(ll x,int y){return (x<<11)|y;}
+inline int get(char c){return c=='?'?-1:c=='1';}
+inline int chk(int i,int j){
+    int x=get(a[i][j]),y=get(a[i][j+1]),z=get(a[i+1][j]),w=get(a[i+1][j+1]);
+    if((x==-1)+(y==-1)+(z==-1)+(w==-1)>1)   return 0;
+    if(x==-1)   swap(x,w),swap(y,z);
+    if(x==1){x^=1;if(~y)y^=1;if(~z)z^=1;if(~w)w^=1;}
+    if(y==0||z==0||w==1)    return 0;
+    int c=(x==0)+(y==1)+(z==1)+(w==0);
+    if(c==4)    return -1;
+    if(c==3)    return 1;
+    return 0;
 }
-namespace SegmentTree{
-    #define ls p<<1
-    #define rs p<<1|1
-    #define lson ls,l,mid
-    #define rson rs,mid+1,r
-    int query(int p,int l,int r,int pl,int pr){
-        // printf("%d %d %d %d %d\n",p,l,r,pl,pr);
-        if(l>=pl&&r<=pr){
-            int x=0;
-            out(l,r);
-            cin>>x;
-            return x;
+void solve(int i,int j){
+    if(i==n||j==m)  return;
+    int c=chk(i,j);
+    if(c==-1){
+        // assert(!out);
+        if(out)while(true);
+        exit(puts("No")&0);
+    }
+    if(c==1){
+        cnt++;
+        if(a[i][j]=='?'){
+            a[i][j]=a[i+1][j+1]^1;
+            q.ep(i,j);st[i][j]=true;
         }
-        int mid=(l+r)>>1,res=0;
-        if(pr<=mid) return query(lson,pl,pr);
-        if(pl>mid)  return query(rson,pl,pr);
-        int c1=_pop(pr-mid)+_pop(mid-pl+1),c2=1;
-        if(pl-1>=l) c2+=_pop(pl-l);
-        if(pr+1<=r) c2+=_pop(r-pr);
-        if(c1<=c2)  res=(query(lson,pl,mid)+query(rson,mid+1,pr))%100;
-        else{
-            int x;
-            out(l,r);
-            cin>>x;
-            res=x;
-            if(pl-1>=l)    res=(res-query(lson,l,pl-1)+100)%100;
-            if(pr+1<=r)    res=(res-query(rson,pr+1,r)+100)%100;
+        if(a[i][j+1]=='?'){
+            a[i][j+1]=a[i+1][j]^1;
+            q.ep(i,j+1);st[i][j+1]=true;
         }
-        return res;
+        if(a[i+1][j]=='?'){
+            a[i+1][j]=a[i][j+1]^1;
+            q.ep(i+1,j);st[i+1][j]=true;
+        }
+        if(a[i+1][j+1]=='?'){
+            a[i+1][j+1]=a[i][j]^1;
+            q.ep(i+1,j+1);st[i+1][j+1]=true;
+        }
     }
 }
-using namespace SegmentTree;
-int main(){    freopen("data.in","r",stdin);freopen("mine.out","w",stdout);
-
-    cin>>n>>l>>r;
-    l++;r++;
-    n=1<<n;
-    int res=query(1,1,n,l,r);
-    // cout<<"! "<<res<<endl;
-    printf("%d\n",cnt);
+int main(){
+    // puts("Yes\n1111101101\n0011100001\n1001110011");exit(0);
+    scanf("%d%d",&n,&m);
+    for(int i=1;i<=n;i++){
+        scanf("%s",a[i]+1);
+        for(int j=1;j<=m;j++)if(a[i][j]!='?')st[i][j]=true,cnt++;
+    }
+    for(int i=1;i<n;i++)
+        for(int j=1;j<m;j++)solve(i,j);
+    int x=1,y=1;
+    while(true){
+        while(!q.empty()){
+            auto [x,y]=q.front();q.pop();
+            for(int d=0;d<4;d++){
+                int i=x+dir[d][0],j=y+dir[d][1];
+                if(!i||!j)  continue;
+                solve(i,j);
+            }
+        }
+        if(cnt==n*m)    break;
+        while(x<=n){
+            while(y<=m&&st[x][y])y++;
+            if(y<=m){
+                if(!out)puts("Yes");
+                cnt++;out=true;
+                st[x][y]=true;
+                a[x][y]='1';q.ep(x,y);
+                break;
+            }
+            else    x++,y=1;
+        }
+    }
+    if(!out)    puts("Yes");
+    for(int i=1;i<=n;i++,puts(""))for(int j=1;j<=m;j++)putchar(a[i][j]);
 }
