@@ -487,3 +487,23 @@ $$
 f_i=-\sum_{j=0}^{i-1}f_jg_{i-j}=\sum_{j=0}^9 g_jf_{i-j}
 $$
 只是一个固定系数的递推形式，可以使用矩阵快速幂做到 $\mathcal O(9^3\log n)$。
+
+### [P5853 [USACO19DEC] Tree Depth P](https://www.luogu.com.cn/problem/P5853)
+
+弱化版：求有多少个长度为 $n$ 的排列的逆序对数量为 $k$。
+
+考虑从 $1$ 到 $n$ 一个一个插入排列，则插入 $i$ 会产生 $[0,i)$ 个逆序对，所以答案就是 $[x^k]\displaystyle\prod_{i=1}^n(1+x+x^2+\dots +x^{i-1})=[x^k]\prod_{i=1}^n\sum_{j=0}^{i-1}x^j$。
+
+$(x+1)(x^2+x+1)=x^3+2x^2+2x+1$
+$$
+(a_0+a_1x+a_2x^2+\dots +a_hx^h)(1+x+\dots+x^k)=a_hx^{h+k}+(a_h+a_{h-1})x^{h+k-1}+\dots+(a_h)x^k+\dots+(a_0+a_1)x+a_0
+$$
+
+$$
+(a+bx+cx^2)(1+x)=cx^3+(b+c)x^2+(a+b)x+a\\
+(a+bx+cx^2)(1+x+x^2)=cx^4+(b+c)x^3+(a+b+c)x^2+(a+b)x+a\\
+(a+bx)(1+x+x^2)=bx^3+(a+b)x^2+(a+b)x+a\\
+(bx^3+(a+b)x^2+(a+b)x+a)/(1+x+x^2)=bx+a\\
+1+2x+2x^2+x^3/(x+1)=x
+$$
+
