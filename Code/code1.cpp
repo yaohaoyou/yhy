@@ -13,6 +13,7 @@ inline void gmx(auto &x,auto y){(x<y)&&(x=y);}
 using namespace std;
 int n=100;
 int main(){
+    srand(time(0));
     for(int i=1;i<=n;i++){
         printf("$%d+%d=$                       ",rand()%11,rand()%11);
         if(i%5==0)  puts("");
