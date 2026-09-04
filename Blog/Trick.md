@@ -494,16 +494,16 @@ $$
 
 考虑从 $1$ 到 $n$ 一个一个插入排列，则插入 $i$ 会产生 $[0,i)$ 个逆序对，所以答案就是 $[x^k]\displaystyle\prod_{i=1}^n(1+x+x^2+\dots +x^{i-1})=[x^k]\prod_{i=1}^n\sum_{j=0}^{i-1}x^j$。
 
-$(x+1)(x^2+x+1)=x^3+2x^2+2x+1$
+### [P10802 [CEOI 2024] 核酸检测](https://www.luogu.com.cn/problem/P10802)
+
+贝叶斯公式的好记写法，$p(A|B)$ 表示 $B$ 已发生时 $A$ 发生的概率。
 $$
-(a_0+a_1x+a_2x^2+\dots +a_hx^h)(1+x+\dots+x^k)=a_hx^{h+k}+(a_h+a_{h-1})x^{h+k-1}+\dots+(a_h)x^k+\dots+(a_0+a_1)x+a_0
+p(A|B)p(B)=p(B|A)p(A)\\
+p(A|B)=\frac{p(B|A)p(A)}{p(B)}
 $$
 
-$$
-(a+bx+cx^2)(1+x)=cx^3+(b+c)x^2+(a+b)x+a\\
-(a+bx+cx^2)(1+x+x^2)=cx^4+(b+c)x^3+(a+b+c)x^2+(a+b)x+a\\
-(a+bx)(1+x+x^2)=bx^3+(a+b)x^2+(a+b)x+a\\
-(bx^3+(a+b)x^2+(a+b)x+a)/(1+x+x^2)=bx+a\\
-1+2x+2x^2+x^3/(x+1)=x
-$$
+### [P13691 [CEOI 2025] highest](https://www.luogu.com.cn/problem/P13691)
 
+一次跳到一个区间内的任意点类似的跳跳问题考虑使用倍增记录 $f_{i,x}$ 表示 $x$ 跳 $2^i$ 步能跳到 $[i,f_{i,x}]$ 之间的任意点。
+
+一次只能跳到一个点的就是[弹飞绵羊](https://www.luogu.com.cn/problem/P3203)。
