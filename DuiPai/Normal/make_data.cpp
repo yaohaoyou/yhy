@@ -16,10 +16,7 @@ int n;
 int a[maxn];
 inline ll rd(){return 1ll*rand()*rand();}
 int main(){
-	timeb t;
-    ftime(&t);
-    srand(time(0));
-    srand(t.millitm+rand()*rand()%rand()+rand()^rand()<<11);
+    srand(chrono::system_clock::now().time_since_epoch().count());
     if(rand()&1)n=rd()%20+1;
     else    n=rd()%1000+1;
     printf("%d %d\n",n,rd()%1001);
