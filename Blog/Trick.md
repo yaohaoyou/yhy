@@ -511,3 +511,7 @@ $$
 ### [AT_arc227_f Erase and Raise](https://www.luogu.com.cn/problem/AT_arc227_f)
 
 对于多个区间加操作满足区间两两不交可以转化成括号匹配（折线图），对区间 $[l,r]$ 加 $x$ 时在 $l$ 处放斜率为 $x$ 的上升线段，在 $r$ 处放斜率为 $-x$ 的下降线段。
+
+### [qoj18302 Remix](https://qoj.ac/problem/18302/statement/zh_cn)
+
+由抽屉原理得当 $2^n>\sum a_i+1$ 时一定可以选出两个集合 $S,T$ 满足 $\sum_{i\in S}a_i=\sum_{i\in T}a_i$，即任选 $\mathcal O(\log_2 V)$ 个数就有 $sum(S)=sum(T)$。
