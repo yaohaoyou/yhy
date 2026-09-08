@@ -274,9 +274,15 @@ ST 表可以实现操作和查询分离的区间取 min，区间查询 min（$\m
 
 fail 树满足两个点 $p,q$ 表示的字符串 $S,T$，$S$ 为 $T$ 的后缀当且仅当 $q \in subtree(p)$。所以匹配问题中，与 $p$ 的字符串匹配的次数为文本串经过 $subtree(p)$ 的次数之和。
 
-#### [CF710F String Set Queries](https://www.luogu.com.cn/problem/CF710F) AC自动机部分 做法
+#### [CF710F String Set Queries](https://www.luogu.com.cn/problem/CF710F) 
+
+AC自动机部分
 
 另外一种求解文本串匹配次数之和的方法是，若文本串匹配到了 $p$ 表示的字符串，则文本串一定可以匹配到 $p$ 的所有祖先，所以可以提前记录下 dep，插入文本串时加上经过的点的 dep 就是答案，于是也可以做修改点权了。
+
+二进制分组部分
+
+这个好像是更典的。对于单个操作具有独立性并需要强制在线时，可以考虑二进制分组，将 $2^k$ 个操作一起做，当第 $1$ 组有两个操作时类似进位往前合并，就可以只消耗 $\log q$ 倍的代价完成。
 
 [参考](https://www.cnblogs.com/alex-wei/p/Common_String_Theory_Theory_automaton_related.html)
 

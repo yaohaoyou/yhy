@@ -121,7 +121,7 @@
         "rust": "-C opt-level=2"
     },
     "cpu.createFiles": true,
-    "cpu.createFileName": "\"summer problem\"/{{problemid}}{{problem}}.cpp",
+    "cpu.createFileName": "\"before noip2026\"/{{problemid}}{{problem}}.cpp",
     "cpu.createFileTemplate": "",
     "cpu.nProcs": 1,
     "cpu.compiler": {
