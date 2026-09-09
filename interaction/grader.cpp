@@ -1,76 +1,136 @@
-#include <bits/stdc++.h>
-#include "explore.h"
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <queue>
+#include <utility>
+#include <vector>
+#include "highway.h"
 
+namespace {
 
-const int MAX_N = 5e5 + 10;
-const int CALL_LIMIT = 50;
+constexpr int MAX_NUM_CALLS = 100;
+constexpr long long INF = 1LL << 61;
 
-#define ull unsigned long long
-int N, M, ev[MAX_N];
-std::vector<int> edge[MAX_N];
-std::set<std::pair<int, int> > edge_all, edge_rep;
+int N, M, A, B, S, T;
+std::vector<int> U, V;
+std::vector<std::vector<std::pair<int, int>>> graph;
 
-void FAIL(std::string s){
-	std::cout << s << std::endl;
-	exit(0);
+bool answered, wrong_pair;
+int num_calls;
+
+int read_int() {
+  int x;
+  if (scanf("%d", &x) != 1) {
+    fprintf(stderr, "Error while reading input\n");
+    exit(1);
+  }
+  return x;
 }
 
-void Report(int a, int b) {
-	if (a > b) std::swap(a, b);
-	if (edge_rep.count(std::make_pair(a, b))) {
-		FAIL("Report called twice for one edge");
-	}
-	if (!edge_all.count(std::make_pair(a, b))) {
-		FAIL("Reported edge does not exist");
-	}
-	edge_rep.insert(std::pair<int,int>(a, b));
+void wrong_answer(const char *MSG) {
+  printf("Wrong Answer: %s\n", MSG);
+  exit(0);
 }
 
-std::vector<ull> Query(std::vector<ull> weight, std::vector<int> edges) {
-	// printf("{");for(int i:edges) printf("%d ",i);puts("}");
-	static bool enabled[MAX_N];
-	static int call_cnt = 0;
-	if (++call_cnt > CALL_LIMIT) {
-		FAIL("Call of query exceeded the limitation");
-	}
-	if (weight.size() != N) {
-		FAIL("Size of weight must be equal to N");
-	}
-	std::fill_n(enabled + 1, M, false);
-	for (int i = 0;i < edges.size(); i ++){
-		if (enabled[ edges[i] ]) {
-			FAIL("Elements in edges must be unique");
-		}
-		enabled[ edges[i] ] = true;
-	}
-	std::vector<ull> res;
-	for (int i = 1; i <= N; i++) {
-		ull t = 0;
-		for (int j = 0;j < edge[i].size(); j ++){
-			if (enabled[ edge[i][j] ]) {
-				t ^= weight[(i ^ ev[ edge[i][j] ]) - 1];
-			}
-		}
-		res.push_back(t);
-	}
-	return res;
+}  // namespace
+
+long long ask(const std::vector<int> &w) {
+  if (++num_calls > MAX_NUM_CALLS) {
+    wrong_answer("more than 100 calls to ask");
+  }
+  if (w.size() != (size_t)M) {
+    wrong_answer("w is invalid");
+  }
+  for (size_t i = 0; i < w.size(); ++i) {
+    if (!(w[i] == 0 || w[i] == 1)) {
+      wrong_answer("w is invalid");
+    }
+  }
+
+  std::vector<bool> visited(N, false);
+  std::vector<long long> current_dist(N, INF);
+  std::queue<int> qa, qb;
+  qa.push(S);
+  current_dist[S] = 0;
+  while (!qa.empty() || !qb.empty()) {
+    int v;
+    if (qb.empty() ||
+        (!qa.empty() && current_dist[qa.front()] <= current_dist[qb.front()])) {
+      v = qa.front();
+      qa.pop();
+    } else {
+      v = qb.front();
+      qb.pop();
+    }
+    if (visited[v]) {
+      continue;
+    }
+    visited[v] = true;
+    long long d = current_dist[v];
+    if (v == T) {
+      return d;
+    }
+    for (auto e : graph[v]) {
+      int vv = e.first;
+      int ei = e.second;
+      if (!visited[vv]) {
+        if (w[ei] == 0) {
+          if (current_dist[vv] > d + A) {
+            current_dist[vv] = d + A;
+            qa.push(vv);
+          }
+        } else {
+          if (current_dist[vv] > d + B) {
+            current_dist[vv] = d + B;
+            qb.push(vv);
+          }
+        }
+      }
+    }
+  }
+  return -1;
 }
 
-int main(){
-	freopen("graph.in","r",stdin);
-	scanf("%d%d", &N, &M);
-	for (int i = 1; i <= M; i++) {
-		int u, v;
-		scanf("%d%d", &u, &v);
-		if (u > v) std::swap(u, v);
-		edge_all.insert(std::pair<int,int>(u, v));
-		ev[i] = u ^ v;
-		edge[u].push_back(i); edge[v].push_back(i);
-	}
-	Solve(N, M);
-	if (edge_all != edge_rep) {
-		FAIL("Some edges are not reported");
-	}
-	std::cout << "Correct" << std::endl;
+void answer(int s, int t) {
+  fprintf(stderr,"answer (%d,%d) (%d,%d)\n",s,t,S,T);
+  if (answered) {
+    wrong_answer("answered not exactly once");
+  }
+
+  if (!((s == S && t == T) || (s == T && t == S))) {
+    wrong_pair = true;
+  }
+
+  answered = true;
 }
-#undef ull
+
+int main() {
+  N = read_int();
+  M = read_int();
+  A = read_int();
+  B = read_int();
+  S = read_int();
+  T = read_int();
+  U.resize(M);
+  V.resize(M);
+  graph.assign(N, std::vector<std::pair<int, int>>());
+  for (int i = 0; i < M; ++i) {
+    U[i] = read_int();
+    V[i] = read_int();
+    graph[U[i]].push_back({V[i], i});
+    graph[V[i]].push_back({U[i], i});
+  }
+
+  answered = false;
+  wrong_pair = false;
+  num_calls = 0;
+  find_pair(N, U, V, A, B);
+  if (!answered) {
+    wrong_answer("answered not exactly once");
+  }
+  if (wrong_pair) {
+    wrong_answer("{s, t} is wrong");
+  }
+  printf("Accepted: %d\n", num_calls);
+  return 0;
+}
