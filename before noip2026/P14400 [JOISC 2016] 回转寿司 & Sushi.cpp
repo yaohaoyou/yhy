@@ -1,4 +1,4 @@
-﻿#include<bits/stdc++.h>
+#include<bits/stdc++.h>
 #define ll long long
 #define eb emplace_back
 #define ep emplace
@@ -10,7 +10,7 @@
 #define memc(arr1,arr2) memcpy(arr1,arr2,sizeof(arr2))
 using namespace std;
 bool mem1;
-const int maxn=4e5+10,B=2;
+const int maxn=4e5+10,B=540;
 int n,q;
 int a[maxn],id[maxn],bl[maxn],br[maxn];
 priority_queue<int,vector<int>,greater<int>> tag[maxn/B+10];
@@ -18,13 +18,11 @@ priority_queue<int> pq[maxn/B+10];
 bool mem2;
 inline void broke(int x){
     if(tag[x].empty())  return;
-    for(int i=bl[x];i<=br[x];i++){
-        if(tag[x].top()<=a[i]){int w=a[i];a[i]=tag[x].top();tag[x].pop();tag[x].ep(w);}
-    }
+    for(int i=bl[x];i<=br[x];i++)
+        if(tag[x].top()<=a[i]){tag[x].ep(a[i]);a[i]=tag[x].top();tag[x].pop();}
     while(!tag[x].empty())  tag[x].pop();
-    while(!pq[x].empty())   pq[x].pop();
 }
-inline void rebuild(int x){for(int i=bl[x];i<=br[x];i++)pq[x].ep(a[i]);}
+inline void rebuild(int x){priority_queue<int>(a+bl[x],a+br[x]+1).swap(pq[x]);}
 inline int query(int l,int r,int x){
     if(id[l]==id[r]){
         broke(id[l]);
@@ -36,7 +34,6 @@ inline int query(int l,int r,int x){
     for(int i=l;i<=br[id[l]];i++)if(a[i]>x)swap(a[i],x);
     rebuild(id[l]);
     for(int i=id[l]+1;i<id[r];i++){
-        printf("! %d %d\n",i,pq[i].size());
         if(x<=pq[i].top())  pq[i].ep(x),tag[i].ep(x),x=pq[i].top(),pq[i].pop();
     }
     broke(id[r]);
