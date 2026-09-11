@@ -521,3 +521,7 @@ $$
 ### [qoj18302 Remix](https://qoj.ac/problem/18302/statement/zh_cn)
 
 由抽屉原理得当 $2^n>\sum a_i+1$ 时一定可以选出两个集合 $S,T$ 满足 $\sum_{i\in S}a_i=\sum_{i\in T}a_i$，即任选 $\mathcal O(\log_2 V)$ 个数就有 $sum(S)=sum(T)$。
+
+### [CF2239C Revival](https://www.luogu.com.cn/problem/CF2239C)
+
+令 $s_i$ 为前缀 $i$ 的逆序对个数，则 $s_i-s_{i-1}$ 表示 $p_i$ 在前缀 $i$ 的相对排名。
