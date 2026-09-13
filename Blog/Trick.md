@@ -525,3 +525,7 @@ $$
 ### [CF2239C Revival](https://www.luogu.com.cn/problem/CF2239C)
 
 令 $s_i$ 为前缀 $i$ 的逆序对个数，则 $s_i-s_{i-1}$ 表示 $p_i$ 在前缀 $i$ 的相对排名。
+
+### [【UNR #10】字符串](https://uoj.ac/problem/1096)
+
+需要比较 $s$ 和 $rev(s)$ 的大小时，只需要对于任意 $x\in[\lfloor\frac n2\rfloor,n]$,比较 $s[1,x]<s[n-x+1,n]$ 即可，这个同时可以用于判定回文串。本题将判定的长度进行二进制分组。
