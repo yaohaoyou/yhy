@@ -132,6 +132,6 @@
         "comments": "on",
         "strings": "on"
     },
-    "cpu.testDir": "",
-    "cpu.buildDir": ""
+    "cpu.testDir": "c:\\test\\test",
+    "cpu.buildDir": "c:\\test\\build"
 }

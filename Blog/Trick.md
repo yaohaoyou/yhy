@@ -529,3 +529,13 @@ $$
 ### [【UNR #10】字符串](https://uoj.ac/problem/1096)
 
 需要比较 $s$ 和 $rev(s)$ 的大小时，只需要对于任意 $x\in[\lfloor\frac n2\rfloor,n]$,比较 $s[1,x]<s[n-x+1,n]$ 即可，这个同时可以用于判定回文串。本题将判定的长度进行二进制分组。
+
+### [P4565 [CTSC2018] 暴力写挂](https://www.luogu.com.cn/problem/P4565)
+
+科技：边分树合并，在[before noip2026](https://yaohaoyou.github.io/post/before-noip2026/)里，注意会有至多 $4n$ 个节点。
+
+推荐博客：[边分治 JiaZP](https://www.cnblogs.com/JiaZP/p/14127006.html)，[边分治和边分树 zltzlt](https://www.cnblogs.com/zltzlt-blog/p/17988230)。
+
+### [AT_arc181_e [ARC181E] Min and Max at the edge](https://www.luogu.com.cn/problem/AT_arc181_e)
+
+kruskal 建出的最小生成树有性质：对于任意非树边 $(u,v,w)$，在树上 $u\to v$ 的路径经过的边权都 $\le w$。证明考虑做 kruskal 时按边权从小到大扫完合并连通块的过程。
