@@ -133,5 +133,20 @@
         "strings": "on"
     },
     "cpu.testDir": "c:\\test\\test",
-    "cpu.buildDir": "c:\\test\\build"
+    "cpu.buildDir": "c:\\test\\build",
+    "touchfish.enableBilibili": true,
+    "touchfish.enableChiphell": false,
+    "touchfish.enableDouyin": false,
+    "touchfish.enableHupu": false,
+    "touchfish.enableIthome": false,
+    "touchfish.enableLinuxdo": false,
+    "touchfish.enableNetease": false,
+    "touchfish.enableNga": false,
+    "touchfish.enableQqmusic": false,
+    "touchfish.enableV2ex": false,
+    "touchfish.enableWeibo": false,
+    "touchfish.enableWeread": false,
+    "touchfish.enableX": false,
+    "touchfish.enableXhs": false,
+    "touchfish.enableXiaoyuzhou": false
 }
