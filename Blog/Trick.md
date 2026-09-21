@@ -539,3 +539,24 @@ $$
 ### [AT_arc181_e [ARC181E] Min and Max at the edge](https://www.luogu.com.cn/problem/AT_arc181_e)
 
 kruskal 建出的最小生成树有性质：对于任意非树边 $(u,v,w)$，在树上 $u\to v$ 的路径经过的边权都 $\le w$。证明考虑做 kruskal 时按边权从小到大扫完合并连通块的过程。
+
+### [qoj12103 Intergalactic ship](https://qoj.ac/problem/12103/statement/)
+
+当 $n> 0$ 时有
+$$
+\binom{n}{0}+\binom n2+\dots=\binom n1+\binom n3+\dots=2^{n-1}
+$$
+证明：
+$$
+(1-1)^n=\sum_{k=0}^n (-1)^k\binom{n}{k}=\binom n0-\binom n1+\dots=0
+$$
+
+### [AT_arc230_a Meeting on Tree](https://atcoder.jp/contests/arc230/tasks/arc230_a)
+
+$$
+\sum_{i=0}^n\sum_{j=0}^i \binom ni\binom mj=\sum_{i=0}^n\sum_{j=0}^i \binom n{n-i}\binom{m}{i-j}=\sum_{i=0}^n \binom{n+m}{n-i}=\sum_{i=0}^n \binom{n+m}i
+\\
+\sum_{i=0}^n\sum_{j=i}^m \binom ni\binom mj=\sum_{j=0}^m\sum_{i=0}^j \binom m{m-j}\binom n{j-i}=\sum_{i=0}^m \binom{n+m}{m-i}=\sum_{i=0}^m\binom{n+m}i
+$$
+
+神秘的范德蒙德卷积。
