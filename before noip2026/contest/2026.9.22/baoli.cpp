@@ -25,11 +25,11 @@ void matt(int _cases){
     scanf("%d",&n);
     a.resize(n+1);b.resize(n+1);
     for(int i=1;i<=n;i++)   scanf("%1d",&a[i]);
-    for(int i=1;i<=n;i++)   scanf("%1d",&b[i]);
+    // for(int i=1;i<=n;i++)   scanf("%1d",&b[i]);
     mp[a]=0;q.ep(a);
     while(!q.empty()){
         auto c=q.front();q.pop();
-        if(b==c)    break;
+        // if(b==c)    break;
         int now=mp[c];
         for(int i=1;i<=n;i++){
             for(int j=i+1;j<=n;j++){
@@ -42,27 +42,28 @@ void matt(int _cases){
             }
         }
     }
-    int cnt=0;for(int i=1;i<=n;i++)cnt+=a[i]!=b[i];
+    for(auto [i,j]:mp)  gmx(mx,j);
+    // if(mx==8)   exit(printf("max = %d\n",mx)&0);
     // if(cnt>4&&mp[b]==4){
     //     for(int i=1;i<=n;i++)printf("%d",a[i]);puts("");
     //     for(int i=1;i<=n;i++)printf("%d",b[i]);puts("");
     //     exit(0);
     // }
-    gmx(mx,mp[b]);
+    // gmx(mx,mp[b]);
     // printf("%d\n",mp[b]);
 }
 void data(int n){
-    int T=(1<<n+n);
+    int T=(1<<n);
     printf("%d\n",T);
-    for(int i=0;i<1<<n;i++)for(int j=0;j<1<<n;j++){
+    for(int i=0;i<1<<n;i++){
         printf("%d\n",n);
         for(int x=1;x<=n;x++)printf("%d",bool(i&(1<<x-1)));puts("");
-        for(int y=1;y<=n;y++)printf("%d",bool(j&(1<<y-1)));puts("");
+        // for(int y=1;y<=n;y++)printf("%d",bool(j&(1<<y-1)));puts("");
     }
     exit(0);
 }
 int main(){
-    // data(5);
+    // data(6);
     debug("%.2fMB\n",abs(&mem1-&mem2)/1024./1024);
     int T;scanf("%d",&T);for(int i=1;i<=T;i++)matt(i);
     printf("max = %d\n",mx);

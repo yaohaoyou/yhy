@@ -91,7 +91,6 @@ int main(){
     sort(c+1,c+n+1,[&](pii x,pii y){return pii(abs(x.fi),x.se)<pii(abs(y.fi),y.se);});
     for(int i=1;i<=n;i++)if(c[i].fi>=0)T[0].upd(i,a[c[i].se]*2,1ll*c[i].fi*a[c[i].se]);else T[1].upd(i,a[c[i].se]*2,-1ll*c[i].fi*a[c[i].se]);
     for(int i=1;i<=n;i++)   b[c[i].se]=i;
-    printf("%lld\n",solve());
     while(q--){
         int x,y;scanf("%d%d",&x,&y);x=(x+1)%n+1;
         a[x]=y;x=b[x];
