@@ -559,4 +559,8 @@ $$
 \sum_{i=0}^n\sum_{j=i}^m \binom ni\binom mj=\sum_{j=0}^m\sum_{i=0}^j \binom m{m-j}\binom n{j-i}=\sum_{i=0}^m \binom{n+m}{m-i}=\sum_{i=0}^m\binom{n+m}i
 $$
 
-神秘的范德蒙德卷积。
+神秘的范德蒙德卷积做前缀或后缀组合数和。
+
+### [CF2268D AghaBalaSar and Hamed](https://www.luogu.com.cn/problem/CF2268D)
+
+类似最短路的最优化问题考虑是否有必经点可以直接转移而来。
