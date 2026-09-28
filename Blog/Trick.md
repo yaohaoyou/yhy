@@ -564,3 +564,7 @@ $$
 ### [CF2268D AghaBalaSar and Hamed](https://www.luogu.com.cn/problem/CF2268D)
 
 类似最短路的最优化问题考虑是否有必经点可以直接转移而来。
+
+### [qoj20248 Astana Hard Metro](https://qoj.ac/problem/20248/statement/zh_cn)
+
+Product Trick：形如一个数组 $a$ 的贡献是 $\prod a_i$，对所有可能的 $a$ 求贡献和，可以转换成在第 $i$ 个盒子中的 $a_i$ 个球中选一个的方案数，这样可以从主动选的关系改成被动选的关系，可以通过计数哪些球要被选和哪些盒子已经选过了解决。
