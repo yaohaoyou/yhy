@@ -11,19 +11,23 @@
 inline void gmn(auto &x,auto y){(x>y)&&(x=y);}
 inline void gmx(auto &x,auto y){(x<y)&&(x=y);}
 using namespace std;
-const int maxn=2e5+10,V=1e9;
+const int maxn=2e5+10;
+int V=100;
 int n;
 int a[maxn];
 inline ll rd(){return 1ll*rand()*rand();}
 int main(){
     srand(chrono::system_clock::now().time_since_epoch().count());
-    if(rd()&1)n=rd()%100+1;
+    if(rd()&1)n=rd()%500+1;
     else    n=rd()%10+1;
+    if(rd()&1)  V=1e3;
+    else    V=10;
     printf("%d\n",n);
-    if(rd()&1){
-        for(int i=1;i<=n;i++)   printf("%d ",rd()%(1000*n)+1);
-    }
-    else{
-        for(int i=1;i<=n;i++)   printf("%d ",rd()%(2*n)+1);   
+    int lst=1;
+    for(int i=1;i<=n;i++){
+        int l=lst+rd()%V,r=lst+rd()%V;
+        if(l>r)swap(l,r);
+        printf("%d %d\n",l,r);
+        lst=r+1;
     }
 }
