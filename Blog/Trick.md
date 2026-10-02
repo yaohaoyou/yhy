@@ -572,3 +572,20 @@ Product Trick：形如一个数组 $a$ 的贡献是 $\prod a_i$，对所有可�
 ### [2026 CSP-S 模拟赛 Day 13 #C. (x)](https://newoj.daimayuan.top/p/5795?tid=6abd18c54f6635dea32a80f1)
 
 第 $i$ 个位置选 ``(`` 有 $a_i$ 的贡献，选 ``)``有 $b_i$ 的贡献，求最后整个序列是合法括号串的最大贡献和。首先可以将 $a_i\gets a_i-b_i$，然后选作 ``(`` 有 $a_i$ 贡献。然后有前 $2i+1$ 个位置至少要有 $i+1$ 个左括号，所以每次将 $a_{2i},a_{2i+1}$ 放入大根堆，然后堆中取出最大的元素使其成为左括号并加上贡献。
+
+### [CF2228E2 Amanojaku and Sequence (Hard Version)](https://www.luogu.com.cn/problem/CF2228E2)
+
+$$
+F(n,m)=\sum_{i=0}^n \binom{m+i}m=\binom{n+m+1}{m+1}\\
+G(n,m)=\sum_{i=0}^n i\binom{m+i}m=(m+1)\binom{m+n+1}{m+2}\\
+H(n,m)=\sum_{i=0}^n i^2\binom{m+i}m=(m+1)\binom{m+n+1}{m+2}+(m+1)(m+2)\binom{m+n+1}{m+3}
+$$
+
+证明：
+$$
+F(n,m)=\sum_{i=0}^n \binom{m+i+1}{m+1}-\binom{m+i}{m+1}=\binom{m+n+1}{m+1}\\
+G(n,m)=\sum_{i=0}^n i\binom{m+i}m=\sum_{i=0}^n \frac{(m+i)!}{m!(i-1)!}=(m+1)\sum_{i=0}^n \binom{m+i}{m+1}=(m+1)\binom{m+n+1}{m+2}\\
+H(n,m)=\sum_{i=0}^n i^2\binom{m+i}m=\sum_{i=0}^n i\binom{m+i}m+i(i-1)\binom{m+i}m=G(n,m)+\sum_{i=0}^n\frac{(m+i)!}{m!(i-2)!}\\
+=G(n,m)+(m+1)(m+2)\sum_{i=0}^n \binom {m+i}{m+2}=(m+1)\binom{m+n+1}{m+2}+(m+1)(m+2)\binom{m+n+1}{m+3}
+$$
+实际上应该可以继续拆下去做 $\sum i^k\binom{m+i}m$，这里主要用到的技巧是在获得 $\frac{(m+i)!}{m!(i-1)!}$ 时分子分母补一个常数 $(m+1)$，然后就能写成组合数了。
