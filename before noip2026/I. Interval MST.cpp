@@ -15,7 +15,8 @@ using namespace std;
 bool mem1;
 const int maxn=2e6+10;
 int n,q;
-int a[maxn],c[maxn];
+int a[maxn];
+vector<int> c[maxn];
 piii b[maxn];
 struct DSU{
     int fa[maxn];
@@ -31,19 +32,33 @@ int main(){
     for(int i=1;i<=n;i++)   scanf("%d",&a[i]);
     while(q--){
         int l,r;scanf("%d%d",&l,&r);
-        fill(c+1,c+n+1,0);
+        for(int i=1;i<=n;i++)c[i].clear();
         int m=0;pii mx=pii(a[l],l);ll ans=0;
+        // c[l]=a[l];
         for(int i=l+1;i<=r;i++){
             if(a[i]>mx.fi){
-                c[mx.se]=a[i];
+                c[mx.se].eb(a[i]);
+                // c[mx.se]=a[i];
                 ans+=a[i]-mx.fi;
             }
             else{
-                c[mx.se]=a[i];
+                c[mx.se].eb(a[i]);
                 ans+=a[i]-mx.fi;
-                for(int j=l;j<i;j++)if(c[j]>a[i])ans-=c[j]-a[i],c[j]=a[i];
+                for(int j=l;j<i;j++){
+                    for(int &k:c[j])
+                    if(k>a[i]){
+                        ans-=k-a[i],k=a[i];
+                    }
+                }
             }
             mx=max(mx,pii(a[i],i));
+            for(int j=l;j<i;j++){
+                for(int k:c[j]) printf("%d,",k);
+                printf(" ");
+            }
+            printf("\n%d\n",ans);
+            // for(int j=l;j<i;j++)printf("%d ",c[j]-a[j]);puts("");
+            // printf("%d\n",ans);
             // if(i>l){
                 // int j=max_element(a+l,a+i)-a;
                 // b[++m]=piii(a[i]-a[j],pii(i,j));

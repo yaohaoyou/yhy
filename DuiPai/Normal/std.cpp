@@ -3,6 +3,7 @@
 #define eb emplace_back
 #define ep emplace
 #define pii pair<int,int>
+#define piii pair<int,pii>
 #define fi first
 #define se second
 #define debug(...) fprintf(stderr,__VA_ARGS__)
@@ -12,56 +13,47 @@ inline void gmn(auto &x,auto y){(x>y)&&(x=y);}
 inline void gmx(auto &x,auto y){(x<y)&&(x=y);}
 using namespace std;
 bool mem1;
-const int maxn=1e8+10,mod=1e9+7;
-namespace FastMod{
-    inline void madd(int &x,int y){x+=y;(x>=mod)&&(x-=mod);}
-    inline void mdel(int &x,int y){x-=y;(x<0)&&(x+=mod);}
-    inline void mmul(int &x,int y){x=1ull*x*y%mod;}
-    inline int imadd(int x,int y){madd(x,y);return x;}
-    inline int imdel(int x,int y){mdel(x,y);return x;}
-    inline int immul(int x,int y){mmul(x,y);return x;}
-    inline int qpow(int x,int y){int res=1;while(y){if(y&1) mmul(res,x);mmul(x,x);y>>=1;}return res;}
-}
-using namespace FastMod;
-int n,m;
+const int maxn=2e7+10;
+int n,q;
 int a[maxn];
-inline int calc(ll l,ll r,ll t){return immul((t+r-l)%mod,(r-l+1)%mod);}
+piii b[maxn];
+struct DSU{
+    int fa[maxn];
+    void init(){iota(fa+1,fa+n+1,1);}
+    int find(int x){return fa[x]==x?x:fa[x]=find(fa[x]);}
+    inline void merge(int x,int y){fa[find(y)]=find(x);}
+    inline int operator[](int x){return find(x);}
+}U;
 bool mem2;
 int main(){
-    // freopen("street.in","r",stdin);freopen("street.out","w",stdout);
     debug("%.2fMB\n",abs(&mem1-&mem2)/1024./1024);
-    scanf("%d",&n);
-    for(int i=1;i<=n;i++){
+    scanf("%d%d",&n,&q);
+    for(int i=1;i<=n;i++)   scanf("%d",&a[i]);
+    while(q--){
         int l,r;scanf("%d%d",&l,&r);
-        for(int j=l;j<=r;j++)   a[++m]=j;
-    }
-    int L=0,T=0,ans=0;a[0]=-10;
-    while(++T){
-        for(int j=m;j>L;j--){
-            if(a[j]!=a[j-1]+1)  a[j]--;
-            if(!a[j])   L=j,madd(ans,T),a[j]=-10;
+        int m=0;
+        for(int i=l;i<=r;i++){
+            // if(i>l){
+            //     int j=max_element(a+l,a+i)-a;
+            //     b[++m]=piii(a[i]-a[j],pii(i,j));
+            // }
+            // if(i<r){
+            //     int j=min_element(a+i+1,a+r+1)-a;
+            //     b[++m]=piii(a[j]-a[i],pii(j,i));
+            // }
+            for(int j=l;j<i;j++)
+                b[++m]=piii(a[i]-a[j],pii(i,j));
         }
-        if(L==m)    break;
+        sort(b+1,b+m+1);
+        U.init();
+        int ans=0;
+        for(int i=1;i<=m;i++){
+            int u=b[i].se.fi,v=b[i].se.se,w=b[i].fi;
+            u=U[u];v=U[v];
+            if(u==v)    continue;
+            // printf("%d %d %d\n",u,v,w);
+            U.merge(u,v);ans+=w;
+        }
+        printf("%d\n",ans);
     }
-    printf("%d\n",ans);
-    // ll now=0;int ans=0;
-    // for(int i=1;i<=n;i++){
-    //     ll x,r;scanf("%lld%lld",&x,&r);
-    //     if(i==1){
-    //         madd(ans,calc(x,r,x));
-    //         now=x+(r-x)*2;
-    //         continue;
-    //     }
-    //     if(x<=now+1){
-    //         now+=2;
-    //         madd(ans,calc(x,r,now));
-    //         now+=2*(r-x);
-    //     }
-    //     else{
-    //         now=x;
-    //         madd(ans,calc(x,r,x));
-    //         now+=2*(r-x);
-    //     }
-    // }
-    // printf("%d\n",ans);
 }

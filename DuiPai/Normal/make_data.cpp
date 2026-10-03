@@ -18,16 +18,12 @@ int a[maxn];
 inline ll rd(){return 1ll*rand()*rand();}
 int main(){
     srand(chrono::system_clock::now().time_since_epoch().count());
-    if(rd()&1)n=rd()%500+1;
-    else    n=rd()%10+1;
-    if(rd()&1)  V=1e3;
-    else    V=10;
-    printf("%d\n",n);
-    int lst=1;
-    for(int i=1;i<=n;i++){
-        int l=lst+rd()%V,r=lst+rd()%V;
+    n=rd()%5+1;int q=1000;
+    printf("%d %d\n",n,q);
+    for(int i=1;i<=n;i++)   printf("%d ",rd()%1000);puts("");
+    while(q--){
+        int l=rd()%n+1,r=rd()%n+1;
         if(l>r)swap(l,r);
         printf("%d %d\n",l,r);
-        lst=r+1;
     }
 }
