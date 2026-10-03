@@ -27,7 +27,7 @@ Tom 的线段都是斜率为 $\pm 1$ 的，Jerry 移动的斜率为 $[-1,1]$，�
 继续拓展到 $k>1$ 的情况，要选出 $k$ 条不相交的，可以构建费用流模型 $\Large{\color{red}\Diamond}$
 
 1. 将 $S$ 连向所有在 $y=x$ 上的点，容量为 $1$，费用为 $0$。
-2. $in_x\to out_x$ 容量为 $1$，费用为 $w_x$。
+2.  $in_x\to out_x$ 容量为 $1$，费用为 $w_x$。
 3. $out_y\to in_x$ 容量为 $+\infty / k$，费用为 $0$。
 4. 将所有在 $y=x-2m$ 上的点连向 $T$，容量为 $1$，费用为 $0$。
 
@@ -111,3 +111,99 @@ $a_i+d_i$ 已经是常数了，考虑后面是一个类似取中点的形式，�
 使用堆维护斜率拐点（经过堆中的拐点时斜率会 $-1$），因为需要做前缀取 $\min$，即将所有的斜率和 $0$ 取 $\min$，考虑倒着维护从右往左的拐点。直接记录 $k,b$ 表示在 $+\infty$ 处的 $F(x)=kx+b$，当加入 $|x-p|$ 函数时，在 $x\ge p$ 时会 $k\gets k+1,b\gets b-p$，到了 $p$ 处时还原成 $p-x$，即设置两个在 $p$ 处的拐点时 $k\gets k-2,b\gets b+2p$。
 
 做完了加凸函数，然后再前缀取 $\min$，直接从右往左走直到 $k\le 0$ 时即可。复杂度 $\mathcal O(n\log n)$。代码很好写，但理解了挺久的。
+
+## [Pyh 的求和](https://loj.ac/p/6179)/[P4240 毒瘤之神的考验](https://www.luogu.com.cn/problem/P4240)
+
+$$
+ans=\sum_{i=1}^n\sum_{j=1}^m\varphi(ij)\\
+=\sum_{i=1}^n\sum_{j=1}^m\frac{\varphi(i)\varphi(j)\gcd(i,j)}{\varphi(\gcd(i,j))}\\
+=\sum_{d=1}^{\min(n,m)}\frac{d}{\varphi(d)}\sum_{i=1}^{n/d}\sum_{j=1}^{m/d} [\gcd(i,j)=1]\varphi(id)\varphi(jd) \\
+=\sum_{d=1}^{\min(n,m)}\frac{d}{\varphi(d)}\sum_{i=1}^{n/d}\sum_{j=1}^{m/d} \sum_{p|i,p|j}\mu(p)\varphi(id)\varphi(jd) \\
+=\sum_{d=1}^{\min(n,m)}\frac{d}{\varphi(d)}\sum_{p=1}^{\min(n,m)}\mu(p)\sum_{i=1}^{n/dp}\sum_{j=1}^{m/dp} \varphi(idp)\varphi(jdp) \\
+$$
+
+预处理 $f_n=\sum_{ij=n}\frac{i}{\varphi(i)}\mu(j)$，预处理复杂度为 $\mathcal O(n\log n)$。
+$$
+ans=\sum_{x=1}^{\min(n,m)} f_x(\sum_{i=1}^{\lfloor\frac{n}{x}\rfloor}\varphi(ix))(\sum_{j=1}^{\lfloor\frac{m}{x}\rfloor}\varphi(jx))
+$$
+预处理 $g_{n,x}=\sum_{i=1}^{x}\varphi(in)$，复杂度还是 $\mathcal O(n\log n)$。
+$$
+ans=\sum_{x=1}^{\min(n,m)} f_xg_{x,\lfloor\frac nx\rfloor}g_{x,\lfloor\frac mx\rfloor}
+$$
+现在 $ans$ 的形式还是对于 $x\in[1,\min(n,m)]$ 进行对位乘后求和，不太能直接优化，考虑根号分治。
+
+对于 $x\le B$ 时暴力跑上面的式子，复杂度 $\mathcal O(B)$。对于 $x>B$，预处理 $h_{n,i,j}=\sum_{x=1}^n f_xg_{x,i}g_{x,j}$，再对第一维做前缀和（即$h'_{n,i,j}=\sum_{k\le n} h_{k,i,j}$）。对 $n$ 和 $m$ 做整除分块，有序对 $(\lfloor\frac{n}{x}\rfloor,\lfloor\frac{m}{x}\rfloor)$ 只有 $\mathcal O(\sqrt n+\sqrt m)$ 种，复杂度为 $\mathcal O({\color{red}\frac{n^2}B}+T\sqrt n)$。总复杂度为 $\mathcal O(\frac{n^2} B+TB+T\sqrt n)$，平衡取 $B=\sqrt\frac{n^2}{T}$，视 $n,T$ 同阶时，做到 $\mathcal O(n\sqrt n)$。
+
+解释一下上面红色的为什么是 $\frac{n^2}B$：
+$$
+\int_B^n \frac{n^2}{i^2}\,di=\frac{n^2}{B}-n
+$$
+空间复杂度也是 $\mathcal O(\frac{n^2}B)$ 的，再 LOJ 需要将 $B$ 稍微开大来卡空间。
+
+## [P4213 【模板】杜教筛](https://www.luogu.com.cn/problem/P4213)
+
+求 $sf(n)=\sum_{i=1}^n f(i)$，其中 $f$ 是积性函数。
+
+构造积性函数 $g$，有
+$$
+\sum_{i=1}^n(f*g)(i)=\sum_{i=1}^n\sum_{d|i} f(d)g(\frac id) \\
+=\sum_{d=1}^n g(d)\sum_{i=1}^{\lfloor\frac nd\rfloor}f(i)\\
+=\sum_{d=1}^ng(d)sf(\lfloor\frac{n}d\rfloor)
+$$
+移项可以得到：
+$$
+g(1)sf(n)=\sum_{i=1}^n (f*g)(i)-\sum_{d=2}^n g(d)sf(\lfloor\frac nd\rfloor)
+$$
+若能快速求出 $f*g$ 和 $g$ 的前缀和，就可以使用整除分块加速求出 $sf(n)$。结论有，当能 $\mathcal O(1)$ 求出 $f*g$ 和 $g$ 的前缀和时，若提前使用线性筛算出前面的 $sf(n)$，可以做到 $\mathcal O(n^\frac 23)$，不预处理复杂度是 $\mathcal O(n^\frac 34)$。
+
+当 $f=\varphi$ 时，有 $\varphi*1=id$，$g=1$ 和 $f*g=id$ 的前缀和都能快速求。
+
+当 $f=\mu$ 时，有 $\mu*1=\epsilon$，$g=1$，$f*g=\epsilon$。
+
+当 $f(i)=\varphi(i)i$，有 $h(i)=(f*id)(i)=\sum_{d|i}\varphi(d)d\frac{i}{d}=i\sum_{d|i}\varphi(d)=i^2$。$g=id$，$f*g=h$。
+
+## [P4482 [BJWC2018] Border 的四种求法](P4482 [BJWC2018] Border 的四种求法)
+
+给定字符串 $s$，$q$ 次询问求 $s[l,r]$ 的 border 长度。
+
+将 border 拆成前缀的后缀形式，答案就是最大的 $x$ 满足 $x\in [0,r-l],lcs(pre_{l+x-1},pre_r)\ge x$。建出后缀树后有性质 $lcs(pre_x,pre_y)=len_{LCA(en_x,en_y)}$，其中 $en_i$ 表示 SAM 中以 $i$ 结尾的节点。所以题目就是要求 $en_r$ 的祖先 $x$ 的子树中满足 $id_p\in[l,r),id_p-len_x+1\le l$（其中可能将 LCA 算得更高，但是一定不优，所以没问题），其中 $id_{en_{i}}=i$。这个不满足单调性，直接做不好做，考虑使用树剖将询问放到 $\log n$ 个重链后离线处理。
+
+对于一条重链，需要处理下面两种询问：
+
+1. 对于一个前缀 $i\in tp_u\leadsto fa_u$，求最大的 $x\in endpos_i$，$x\in [l,r)$，$x-len_i+1\le l$。
+2. 对于一个后缀 $i\in u\leadsto lst_u$，求最大的 $x\in endpos_i$，$x\in[l,r)$，$x-len_u+1\le l$，即 $x\in[l,\min(l+len_u-1,r-1)]$。
+
+其中 $endpos_i$ 表示 $i$ 子树中所有 $en_v$ 的集合，实际上可以只用枚举轻子树的，因为重子树会在下面算到。处理时直接遍历重链上 $i$ 的所有轻子树的总复杂度为 $\mathcal O(n\log n)$ 的$\Large{\color{red}\Diamond}$，证明考虑树剖复杂度证明。对于 2 询问直接用 set 存下 $endpos$ 后``lower_bound``即可。对于 1 操作需要建线段树，维护 $x-len_i+1$ 的区间最小值，询问时在 $[l,r)$ 线段树上二分$\Large{\color{red}\Diamond}$。总复杂度为 $\mathcal O(n\log^2n+q\log^2n)$。
+
+## [P16958 [SCCPC 2026] 括号序列](https://www.luogu.com.cn/problem/P16958)
+
+[ZROJ](https://zhengruioi.com/problem/3585?cid=2165)
+
+什么脑电波推式子题？
+
+不难想到枚举将哪一个``)``换成``(``后计算后面的方案数，根据路径相关计数方法，得到的答案（实际上还要加上前缀合法串的数量，简单这里不考虑）就是：
+$$
+ans=\sum_{s_i=)}\sum_{j=x_i+1}^{n/2}\binom{2j-i}{j-x_i-1}-\binom{2j-i}{j-x_i-2} \\
+=\sum_{s_i=)}\sum_{j=0}^{n/2-x_i-1}\binom{2j+2x_i+2-i}{j}-\binom{2j+2x_i+2-i}{j-1} \\
+$$
+其中 $x_i$ 表示前 $i$ 个位置的``(``数量，令 $c_i=2x_i+2-i$。将组合数提取出来设成 $f$：
+$$
+f(a,b)=\sum_{i=0}^b \binom{2i+a}{i}\\
+ans=\sum_{s_i=)}f(c_i,\frac n2-x_i-1)-f(c_i+2,\frac{n}2-x_i-2)
+$$
+通过对 $f$ 做差分，可以发现$\Large{\color{red}\Diamond}$：
+$$
+f(a,b)-f(a-1,b)=\sum_{i=0}^b\binom{2i+a}i-\binom{2i+a-1}{i}\\
+=\sum_{i=0}^b\binom{2i+a-1}{i-1}\\
+=\sum_{i=0}^{b-1}\binom{2i+a+1}{i}\\
+=f(a+1,b-1)\\
+\color{red}f(a,b)=f(a+1,b-1)+f(a-1,b)\\
+f(a-1,b),f(a,b) \to f(a+1,b-1),f(a,b)\to f(a,b),f(a+1,b)
+$$
+最后一行表明了可以 $\mathcal O(1)$ 通过已知的 $f(x-1,y),f(x,y)$ 推导到 $x\gets x+1$，而最后要求解的式子中 $c_i+i$ 是单调递增的（$c_i-c_{i+1}\le 1$），第二维也是单调递减的。考虑使用类似莫队的指针维护 $f(a,b)\Large{\color{red}\Diamond}$。总复杂度为 $\mathcal O(n)$。
+
+## [Good Night](https://qoj.ac/problem/18303/statement/zh_cn)
+
+[ZROJ](https://zhengruioi.com/problem/3602?cid=2166)
+
+将 $a_i$ 称为颜色。考虑对于线段树每个区间维护完全覆盖其的区间个数。具体地，先将 $n$ 个区间插入线段树，然后对于每个线段树节点记录它到根路径上经过的颜色种数 $tr_p$。实际上，只需要维护颜色种数为 $=0/=1/\ge 2$ 即可。对于一次区间删除操作，可以类似看作对开始时插入操作的撤销，因为有 $tr_p\le tr_{son}$，所以只需要检查儿子能否改变 $tr$，若能就继续递归检查，否则结束。因为所有点只会变化至多 $2$ 次，总复杂度为 $\mathcal O(n\log n)$。
