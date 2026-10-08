@@ -274,15 +274,9 @@ ST 表可以实现操作和查询分离的区间取 min，区间查询 min（$\m
 
 fail 树满足两个点 $p,q$ 表示的字符串 $S,T$，$S$ 为 $T$ 的后缀当且仅当 $q \in subtree(p)$。所以匹配问题中，与 $p$ 的字符串匹配的次数为文本串经过 $subtree(p)$ 的次数之和。
 
-#### [CF710F String Set Queries](https://www.luogu.com.cn/problem/CF710F) 
-
-AC自动机部分
+#### [CF710F String Set Queries](https://www.luogu.com.cn/problem/CF710F) AC自动机部分 做法
 
 另外一种求解文本串匹配次数之和的方法是，若文本串匹配到了 $p$ 表示的字符串，则文本串一定可以匹配到 $p$ 的所有祖先，所以可以提前记录下 dep，插入文本串时加上经过的点的 dep 就是答案，于是也可以做修改点权了。
-
-二进制分组部分
-
-这个好像是更典的。对于单个操作具有独立性并需要强制在线时，可以考虑二进制分组，将 $2^k$ 个操作一起做，当第 $1$ 组有两个操作时类似进位往前合并，就可以只消耗 $\log q$ 倍的代价完成。
 
 [参考](https://www.cnblogs.com/alex-wei/p/Common_String_Theory_Theory_automaton_related.html)
 
@@ -500,92 +494,4 @@ $$
 
 考虑从 $1$ 到 $n$ 一个一个插入排列，则插入 $i$ 会产生 $[0,i)$ 个逆序对，所以答案就是 $[x^k]\displaystyle\prod_{i=1}^n(1+x+x^2+\dots +x^{i-1})=[x^k]\prod_{i=1}^n\sum_{j=0}^{i-1}x^j$。
 
-### [P10802 [CEOI 2024] 核酸检测](https://www.luogu.com.cn/problem/P10802)
-
-贝叶斯公式的好记写法，$p(A|B)$ 表示 $B$ 已发生时 $A$ 发生的概率。
-$$
-p(A|B)p(B)=p(B|A)p(A)\\
-p(A|B)=\frac{p(B|A)p(A)}{p(B)}
-$$
-
-### [P13691 [CEOI 2025] highest](https://www.luogu.com.cn/problem/P13691)
-
-一次跳到一个区间内的任意点类似的跳跳问题考虑使用倍增记录 $f_{i,x}$ 表示 $x$ 跳 $2^i$ 步能跳到 $[i,f_{i,x}]$ 之间的任意点。
-
-一次只能跳到一个点的就是[弹飞绵羊](https://www.luogu.com.cn/problem/P3203)。
-
-### [AT_arc227_f Erase and Raise](https://www.luogu.com.cn/problem/AT_arc227_f)
-
-对于多个区间加操作满足区间两两不交可以转化成括号匹配（折线图），对区间 $[l,r]$ 加 $x$ 时在 $l$ 处放斜率为 $x$ 的上升线段，在 $r$ 处放斜率为 $-x$ 的下降线段。
-
-### [qoj18302 Remix](https://qoj.ac/problem/18302/statement/zh_cn)
-
-由抽屉原理得当 $2^n>\sum a_i+1$ 时一定可以选出两个集合 $S,T$ 满足 $\sum_{i\in S}a_i=\sum_{i\in T}a_i$，即任选 $\mathcal O(\log_2 V)$ 个数就有 $sum(S)=sum(T)$。
-
-### [CF2239C Revival](https://www.luogu.com.cn/problem/CF2239C)
-
-令 $s_i$ 为前缀 $i$ 的逆序对个数，则 $s_i-s_{i-1}$ 表示 $p_i$ 在前缀 $i$ 的相对排名。
-
-### [【UNR #10】字符串](https://uoj.ac/problem/1096)
-
-需要比较 $s$ 和 $rev(s)$ 的大小时，只需要对于任意 $x\in[\lfloor\frac n2\rfloor,n]$,比较 $s[1,x]<s[n-x+1,n]$ 即可，这个同时可以用于判定回文串。本题将判定的长度进行二进制分组。
-
-### [P4565 [CTSC2018] 暴力写挂](https://www.luogu.com.cn/problem/P4565)
-
-科技：边分树合并，在[before noip2026](https://yaohaoyou.github.io/post/before-noip2026/)里，注意会有至多 $4n$ 个节点。
-
-推荐博客：[边分治 JiaZP](https://www.cnblogs.com/JiaZP/p/14127006.html)，[边分治和边分树 zltzlt](https://www.cnblogs.com/zltzlt-blog/p/17988230)。
-
-### [AT_arc181_e [ARC181E] Min and Max at the edge](https://www.luogu.com.cn/problem/AT_arc181_e)
-
-kruskal 建出的最小生成树有性质：对于任意非树边 $(u,v,w)$，在树上 $u\to v$ 的路径经过的边权都 $\le w$。证明考虑做 kruskal 时按边权从小到大扫完合并连通块的过程。
-
-### [qoj12103 Intergalactic ship](https://qoj.ac/problem/12103/statement/)
-
-当 $n> 0$ 时有
-$$
-\binom{n}{0}+\binom n2+\dots=\binom n1+\binom n3+\dots=2^{n-1}
-$$
-证明：
-$$
-(1-1)^n=\sum_{k=0}^n (-1)^k\binom{n}{k}=\binom n0-\binom n1+\dots=0
-$$
-
-### [AT_arc230_a Meeting on Tree](https://atcoder.jp/contests/arc230/tasks/arc230_a)
-
-$$
-\sum_{i=0}^n\sum_{j=0}^i \binom ni\binom mj=\sum_{i=0}^n\sum_{j=0}^i \binom n{n-i}\binom{m}{i-j}=\sum_{i=0}^n \binom{n+m}{n-i}=\sum_{i=0}^n \binom{n+m}i
-\\
-\sum_{i=0}^n\sum_{j=i}^m \binom ni\binom mj=\sum_{j=0}^m\sum_{i=0}^j \binom m{m-j}\binom n{j-i}=\sum_{i=0}^m \binom{n+m}{m-i}=\sum_{i=0}^m\binom{n+m}i
-$$
-
-神秘的范德蒙德卷积做前缀或后缀组合数和。
-
-### [CF2268D AghaBalaSar and Hamed](https://www.luogu.com.cn/problem/CF2268D)
-
-类似最短路的最优化问题考虑是否有必经点可以直接转移而来。
-
-### [qoj20248 Astana Hard Metro](https://qoj.ac/problem/20248/statement/zh_cn)
-
-Product Trick：形如一个数组 $a$ 的贡献是 $\prod a_i$，对所有可能的 $a$ 求贡献和，可以转换成在第 $i$ 个盒子中的 $a_i$ 个球中选一个的方案数，这样可以从主动选的关系改成被动选的关系，可以通过计数哪些球要被选和哪些盒子已经选过了解决。
-
-### [2026 CSP-S 模拟赛 Day 13 #C. (x)](https://newoj.daimayuan.top/p/5795?tid=6abd18c54f6635dea32a80f1)
-
-第 $i$ 个位置选 ``(`` 有 $a_i$ 的贡献，选 ``)``有 $b_i$ 的贡献，求最后整个序列是合法括号串的最大贡献和。首先可以将 $a_i\gets a_i-b_i$，然后选作 ``(`` 有 $a_i$ 贡献。然后有前 $2i+1$ 个位置至少要有 $i+1$ 个左括号，所以每次将 $a_{2i},a_{2i+1}$ 放入大根堆，然后堆中取出最大的元素使其成为左括号并加上贡献。
-
-### [CF2228E2 Amanojaku and Sequence (Hard Version)](https://www.luogu.com.cn/problem/CF2228E2)
-
-$$
-F(n,m)=\sum_{i=0}^n \binom{m+i}m=\binom{n+m+1}{m+1}\\
-G(n,m)=\sum_{i=0}^n i\binom{m+i}m=(m+1)\binom{m+n+1}{m+2}\\
-H(n,m)=\sum_{i=0}^n i^2\binom{m+i}m=(m+1)\binom{m+n+1}{m+2}+(m+1)(m+2)\binom{m+n+1}{m+3}
-$$
-
-证明：
-$$
-F(n,m)=\sum_{i=0}^n \binom{m+i+1}{m+1}-\binom{m+i}{m+1}=\binom{m+n+1}{m+1}\\
-G(n,m)=\sum_{i=0}^n i\binom{m+i}m=\sum_{i=0}^n \frac{(m+i)!}{m!(i-1)!}=(m+1)\sum_{i=0}^n \binom{m+i}{m+1}=(m+1)\binom{m+n+1}{m+2}\\
-H(n,m)=\sum_{i=0}^n i^2\binom{m+i}m=\sum_{i=0}^n i\binom{m+i}m+i(i-1)\binom{m+i}m=G(n,m)+\sum_{i=0}^n\frac{(m+i)!}{m!(i-2)!}\\
-=G(n,m)+(m+1)(m+2)\sum_{i=0}^n \binom {m+i}{m+2}=(m+1)\binom{m+n+1}{m+2}+(m+1)(m+2)\binom{m+n+1}{m+3}
-$$
-实际上应该可以继续拆下去做 $\sum i^k\binom{m+i}m$，这里主要用到的技巧是在获得 $\frac{(m+i)!}{m!(i-1)!}$ 时分子分母补一个常数 $(m+1)$，然后就能写成组合数了。
+还有另外一种理解方式类似延后钦定，就是从位置 $1$ 到 $n$ 一个一个插入，在位置 $i$ 中插入 $[1,i]$ 表示 $a_i$ 在 $a[1,i]$ 中的相对排名，然后将 $[1,i)$ 中 $a_j\ge a_i$ 做 $a_j\gets a_j+1$。这样操作不会改变前面每个位置的前缀相对排名，可以生成所有的排列。结论和上面的一样，而本题中的拓展就需要这一种理解来解决对于位置的钦定关系。

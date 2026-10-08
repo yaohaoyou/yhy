@@ -8,53 +8,14 @@
 #define debug(...) fprintf(stderr,__VA_ARGS__)
 #define mems(arr,x) memset(arr,x,sizeof(arr))
 #define memc(arr1,arr2) memcpy(arr1,arr2,sizeof(arr2))
+inline void gmn(auto &x,auto y){(x>y)&&(x=y);}
+inline void gmx(auto &x,auto y){(x<y)&&(x=y);}
 using namespace std;
-bool mem1;
-const int maxn=4e5+10,B=2;
-int n,q;
-int a[maxn],id[maxn],bl[maxn],br[maxn];
-priority_queue<int,vector<int>,greater<int>> tag[maxn/B+10];
-priority_queue<int> pq[maxn/B+10];
-bool mem2;
-inline void broke(int x){
-    if(tag[x].empty())  return;
-    for(int i=bl[x];i<=br[x];i++){
-        if(tag[x].top()<=a[i]){int w=a[i];a[i]=tag[x].top();tag[x].pop();tag[x].ep(w);}
-    }
-    while(!tag[x].empty())  tag[x].pop();
-    while(!pq[x].empty())   pq[x].pop();
-}
-inline void rebuild(int x){for(int i=bl[x];i<=br[x];i++)pq[x].ep(a[i]);}
-inline int query(int l,int r,int x){
-    if(id[l]==id[r]){
-        broke(id[l]);
-        for(int i=l;i<=r;i++)if(a[i]>x)swap(a[i],x);
-        rebuild(id[l]);
-        return x;
-    }
-    broke(id[l]);
-    for(int i=l;i<=br[id[l]];i++)if(a[i]>x)swap(a[i],x);
-    rebuild(id[l]);
-    for(int i=id[l]+1;i<id[r];i++){
-        printf("! %d %d\n",i,pq[i].size());
-        if(x<=pq[i].top())  pq[i].ep(x),tag[i].ep(x),x=pq[i].top(),pq[i].pop();
-    }
-    broke(id[r]);
-    for(int i=bl[id[r]];i<=r;i++)if(a[i]>x)swap(a[i],x);
-    rebuild(id[r]);
-    return x;
-}
+int n=100;
 int main(){
-    debug("%.2fMB\n",abs(&mem1-&mem2)/1024./1024);
-    scanf("%d%d",&n,&q);
-    for(int i=1;i<=n;i++)   scanf("%d",&a[i]);
-    for(int i=1;i<=n;i++)   id[i]=(i-1)/B+1;
-    for(int i=1;i<=id[n];i++)   bl[i]=br[i-1]+1,br[i]=min(i*B,n),rebuild(i);
-    while(q--){
-        int l,r,x;scanf("%d%d%d",&l,&r,&x);
-        if(l<=r){
-            printf("%d\n",query(l,r,x));
-        }
-        else{x=query(l,n,x);printf("%d\n",query(1,r,x));}
+    srand(time(0));
+    for(int i=1;i<=n;i++){
+        printf("$%d+%d=$                       ",rand()%11,rand()%11);
+        if(i%5==0)  puts("");
     }
 }
