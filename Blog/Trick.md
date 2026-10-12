@@ -495,3 +495,15 @@ $$
 考虑从 $1$ 到 $n$ 一个一个插入排列，则插入 $i$ 会产生 $[0,i)$ 个逆序对，所以答案就是 $[x^k]\displaystyle\prod_{i=1}^n(1+x+x^2+\dots +x^{i-1})=[x^k]\prod_{i=1}^n\sum_{j=0}^{i-1}x^j$。
 
 还有另外一种理解方式类似延后钦定，就是从位置 $1$ 到 $n$ 一个一个插入，在位置 $i$ 中插入 $[1,i]$ 表示 $a_i$ 在 $a[1,i]$ 中的相对排名，然后将 $[1,i)$ 中 $a_j\ge a_i$ 做 $a_j\gets a_j+1$。这样操作不会改变前面每个位置的前缀相对排名，可以生成所有的排列。结论和上面的一样，而本题中的拓展就需要这一种理解来解决对于位置的钦定关系。
+
+### [QOJ20734 Flipping Lamps](https://qoj.ac/problem/20734/statement/zh_cn)
+
+异或卷积的 FWT：
+$$
+i\circ j=|i{\color{red}\cap} j|\bmod 2\\
+FWT(a)_i=\sum_{j\circ i=0}a_j-\sum_{j\circ i=1}a_j=\sum (-1)^{j\circ i}a_j\\
+FWT(FWT(a))_i=\sum(-1)^{j\circ i}\sum(-1)^{k\circ j}a_k\\
+=\sum_j\sum_k(-1)^{(i\oplus k)\circ j}a_k\\
+=\sum_j a_i=n\times a_i\\
+a_i=\frac{FWT(FWT(a))_i}n\\
+$$
