@@ -148,5 +148,6 @@
     "touchfish.enableWeread": false,
     "touchfish.enableX": false,
     "touchfish.enableXhs": false,
-    "touchfish.enableXiaoyuzhou": false
+    "touchfish.enableXiaoyuzhou": false,
+    "editor.editContext": false
 }
