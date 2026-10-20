@@ -507,3 +507,7 @@ FWT(FWT(a))_i=\sum(-1)^{j\circ i}\sum(-1)^{k\circ j}a_k\\
 =\sum_j a_i=n\times a_i\\
 a_i=\frac{FWT(FWT(a))_i}n\\
 $$
+
+## [C. 断章的诗(utakizuna)](https://www.goj.wiki/d/Union2024/p/P2200)
+
+对于点集 $a_1,a_2,\dots a_n(dfn_{a_1}<dfn_{a_2}<\dots<dfn_{a_n})$，$1\to a_i$ 的链的并形成的虚树的节点个数为 $\sum dep_{a_i}-\sum dep_{LCA(a_i,a_{i+1})}$。
