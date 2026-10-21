@@ -153,7 +153,7 @@ $$
 
 当 $f(i)=\varphi(i)i$，有 $h(i)=(f*id)(i)=\sum_{d|i}\varphi(d)d\frac{i}{d}=i\sum_{d|i}\varphi(d)=i^2$。$g=id$，$f*g=h$。
 
-## [P4482 [BJWC2018] Border 的四种求法](P4482 [BJWC2018] Border 的四种求法)
+## [P4482 [BJWC2018] Border 的四种求法](https://www.luogu.com.cn/problem/P4482)
 
 给定字符串 $s$，$q$ 次询问求 $s[l,r]$ 的 border 长度。
 

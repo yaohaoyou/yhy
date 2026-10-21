@@ -508,6 +508,10 @@ FWT(FWT(a))_i=\sum(-1)^{j\circ i}\sum(-1)^{k\circ j}a_k\\
 a_i=\frac{FWT(FWT(a))_i}n\\
 $$
 
-## [C. 断章的诗(utakizuna)](https://www.goj.wiki/d/Union2024/p/P2200)
+### [C. 断章的诗(utakizuna)](https://www.goj.wiki/d/Union2024/p/P2200)
 
 对于点集 $a_1,a_2,\dots a_n(dfn_{a_1}<dfn_{a_2}<\dots<dfn_{a_n})$，$1\to a_i$ 的链的并形成的虚树的节点个数为 $\sum dep_{a_i}-\sum dep_{LCA(a_i,a_{i+1})}$。
+
+### [#9449. New School Term](https://qoj.ac/problem/9449/statement/zh_cn)
+
+01背包无法做撤销物品，可以转成求有多少种使容量到达 $x$ 的方案数然后对大质数取模判方案数是否为 $0$。
