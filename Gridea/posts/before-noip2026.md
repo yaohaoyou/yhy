@@ -83,3 +83,222 @@ $$
 $g(l,p-1,p,n)$ 的左端点对区间最大值一定没有贡献，只需要预处理在 $[p,n]$ 中每个数在多少个区间为最大值，另一边同理。同时预处理 $g(x,n,x,n),g(1,x,1,x)$ 就可以做到 $\mathcal O(n)-\mathcal O(1)$。
 
 然后考虑修改后的点造成的贡献，令修改点 $x$ 的 $[l,r]=[\max(ql,pr_x+1),\min(qr,nx_x-1)]$，则区间 $[l,r]$ 的新贡献为 $-f(l,r)+f(l,x-1)+f(x+1,r)+a_x\times (x-l+1)\times (r-x+1)$，只需要对每个修改后的点都做一遍再加上 $f(l,r)$ 即可。复杂度为 $\mathcal O(qB+\frac{n^2}{B})$，当 $n,q$ 同阶时复杂度为 $\mathcal O(n\sqrt n)$。
+
+## [P4565 [CTSC2018] 暴力写挂](https://www.luogu.com.cn/problem/P4565)
+
+边分树的科技。
+
+类似于点分树，边分树就是将边分治过程中的重边相互连边构成一棵二叉树，若当前分治子图只剩一个点就连成叶子。这棵新树比点分树多了一个二叉树的性质，所以可以做合并和可持久化。
+
+这题使用的就是合并的技巧。先对每个单点取出这个点跑到根经过的链，将其称为**边分树链**，也就是类似线段树合并时初始的 $n$ 棵动态开点线段树。合并与线段树也类似，对于两个初始节点会在他们的边分树的 lca 处合并，此时合并信息并贡献答案即可。时空都是 $\mathcal O(n\log n)$，注意边分树会有至多会有 $4n$ 条边。
+
+## [CF757G Can Bash Save the Day?](https://www.luogu.com.cn/problem/CF757G)
+
+可持久化边分树板子。
+
+## [P13842 篱莘龙](https://www.luogu.com.cn/problem/P13842)
+
+考虑只有 $a_i\le b_i$ 怎么做，就是找到一个点 $x$ 满足 $\max a\le x \le \min b$，加入一个时对区间 $[a_i,b_i]$ 加一，答案就是最大的位置，直接使用线段树维护。然后考虑加入 $a_i > b_i$，显然只能对于 $\max a\le b_i<a_i\le \min b$ 才能加入 $[b_i,a_i]$，并且最终方案只能加入至多一对 $a_i>b_i$。思考到这里已经可以直接做三维偏序给所有被当前区间 $[a_i,b_i]$ 包含的 $[b_j,a_j]$ 贡献加一，然后求最大值即可，复杂度为 $\mathcal O(n\log^2n)$，不太能过，现在已经做到三维偏序了，需要更强的性质才能优化。
+
+前面提到了最终方案至多有一对 $a_i>b_i$，所以能说明如果为了加入这样一对而删掉之前的 $a_j\le b_j$ 的一定是不优的，换句话说，加入的 $[a_i,b_i]$ 一定要在当前极大包含 $x$ 的所有区间的交集中。$\Large{\color{red}\Diamond}$
+
+## [CF2048G Kevin and Matrices](https://www.luogu.com.cn/problem/CF2048G)
+
+和 arc230_d 的区别在于此题复杂度为 $\mathcal O(nk\log m)$。
+
+令 $f_{w,i,j}$ 表示钦定有 $i$ 行都 $\ge w$，$j$ 列都 $\le w$  的方案数，$g_{w,i,j}$ 表示恰好，有
+$$
+f_{w,i,j}=(k-w+1)^{i(m-j)}\times w^{j(n-i)}\times k^{(n-i)(m-j)}
+$$
+容斥可得：
+$$
+ans=\sum_{w=1}^k\sum_{i=1}^n\sum_{j=1}^m g_{w,i,j}\\
+=\sum_{w=1}^k\sum_{i=1}^n\sum_{j=1}^m \sum_{x=i}^n\sum_{y=j}^m (-1)^{x-i+y-j} \binom nx \binom myf_{w,x,y}\\
+=\sum_{w=1}^k\sum_{x=1}^n\sum_{y=1}^m \binom nx \binom myf_{w,x,y}\sum_{i=1}^x(-1)^{x-i}\sum_{j=1}^y(-1)^{y-j}\\
+=\sum_{w=1}^k\sum_{x=1}^n\sum_{y=1}^m (-1)^{x-1+y-1}\binom nx \binom myf_{w,x,y}\\
+$$
+由于 $m$ 较大，考虑在 $f_{w,i,j}$ 中按 $j$ 分开：
+$$
+f_{w,i,j}=[(k-w+1)^ik^{n-i}]^{m-j}\times (w^{n-i})^j\\
+X=(k-w+1)^ik^{n-i},Y=w^{n-i}\\
+f_{w,i,j}=X^{m-j}Y^j
+$$
+这个形式已经类似二项式定理了，尝试带入：
+$$
+ans=\sum_{w=1}^k\sum_{x=1}^n\sum_{y=1}^m (-1)^{x-1+y-1}\binom nx \binom my X^{m-j}Y^j\\
+=\sum_{w=1}^k\sum_{x=1}^n(-1)^x\binom nx\sum_{y=1}^m (-1)^y\binom my X^{m-j}Y^j\\
+=\sum_{w=1}^k\sum_{x=1}^n(-1)^x\binom nx\sum_{y=\color{red}0}^m \binom my X^{m-j}(-Y)^j-X^m\\
+=\sum_{w=1}^k\sum_{x=1}^n(-1)^x\binom nx[(X-Y)^m-X^m]\\
+$$
+复杂度为 $\mathcal O(nk\log m)$。
+
+## [Min Max Matrix](https://atcoder.jp/contests/arc230/tasks/arc230_d)
+
+对刚刚求 $ans$ 的过程将 $w$ 单独提出来，有
+$$
+F(y)=\sum_{w=1}^y\sum_{x=1}^n(-1)^x\binom nx[(X-Y)^m-X^m]\\
+$$
+答案就是 $F(k)$，因为 $k$ 很大，套路不难想到用拉差，观察 $F$ 的式子，不难感受出这是个关于 $y$ 的 $\mathcal O(nm)$ 次多项式，因为含 $w$ 的最高次数是 $\mathcal O(nm)$，其余都是乘上常数后做前缀和，所以可以套用上面做法用拉差做到 $\mathcal O(n^2m\log n)$ 预处理，$\mathcal O(nm)$ 查询。
+
+## [AT_arc230_e Minister](https://www.luogu.com.cn/problem/AT_arc230_e)
+
+若只要保证有解有操作策略每次保留更小的数，令第 $i$ 次抽上的球是 $p_i$，则条件是 $\forall i,\exist j<i \cap p_j<m-p_i$。若已经固定了 $p$，答案就是 $\max\{p_i|\forall j>i,p_j<m-p_i\}$。考虑如何对 $p$ 的贡献计数。
+
+由于限制是形如 $x+y<m$，所以套路地将 $[1,n]$ 分成 $< \frac m2$ 和 $\ge \frac m2$，然后按照 $|x-\frac m2|$ 排序，相同时先大后小，参考下面的例子：
+
+```
+n=20,m=30
+1,2,3,4,5,6,7,8,9,20,10,19,11,18,12,17,13,16,14,15
+A,A,A,A,A,A,A,A,A,B ,A ,B ,A ,B ,A ,B ,A ,B ,A ,B 
+```
+
+这个分组满足任意两个 $A$ 相加合法，任意两个 $B$ 不合法，对 $x\in A$ 合法的 $y\in B$ 都在 $x$ 后面，对 $y\in B$ 合法的 $x\in A$ 都在 $y$ 前面。$\Large{\color{red}\Diamond}$按照这个顺序来钦定相对排名。
+
+当将 $x\in B$ 插入开头时，实际上和插在第二位没有区别，但是后面就不能插在开头了，所以为了方便，若想将 $x$ 插在开头，就插在第二位，同时将一个状态 $fl$ 设为 $1$，若有一个 $y\in A$ 后面插到开头就将 $fl$ 还原成 $0$。若到了最后 $fl$ 为 $1$ 就将方案数乘二表示可以将 $x$ 放开头或第二。
+
+现在处理完了合法性的情况，还要处理具体贡献。考虑直接钦定答案$\Large{\color{red}\Diamond}$，则在此之后插入的所有数都必须在答案之前出现。若答案 $x\in B$，则显然后面的 $A,B$ 都只能插在 $p^{-1}_x$ 前面。若答案 $x\in A$，此时最后的是 $y\in B$，若在更晚还往 $y$ 后插入答案就会比 $x$ 更大，所以还是只能往前。综上所述，钦定答案后就只能往当前最后的 $B$ 前面插入了，所以 dp 时再记录最后的 $B$ 的相对位置。状态 $f_{i,j,k=\{0,1\},l=\{0,1\}}$ 表示放了 $i$ 个数，最后一个 $B$ 的相对位置为 $j$，第二位是否为 $B$，是否已经钦定答案（若还未钦定答案则记录方案数，否则记录总贡献）。
+
+## [#TR0020. 【2021省选模拟day2】矩阵](https://www.goj.wiki/d/Union2024/p/1927)
+
+很抽象的构造题，想了很久都不会。
+
+据说看着这个图想就没救了，尝试将这个图形象化表示。要找出 $\le Q$ 个集合对 $\{R,C\}$，每次操作将 $(R_i,C_j)$ 染色，需要满足 $\not\exist R_i=C_j \vee R_i=C_j+1$，然后将所有 $i<j\vee i>j+1$ 的点 $(i,j)$ 染色。
+
+发现 $Q=\mathcal O(\log_2 n)$，考虑分治解决 $[l,r]$ 的部分，即 $(i,j)$ 满足 $\min(i,j)\le mid\le \max(i,j)$ 的染色。可以操作 $1.(R=[l,mid],C=[mid+1,r])$，$2.(R=[mid+1,r],C=[l,mid)$，$3.(R=[mid+1,r],C=\{mid\})$。随后 $[l,mid],(mid,r]$ 的部分可以同时进行，所以次数为 $3\log_2 n$。发现 $3$ 的操作点数很少，思考能不能划到别的里面，如果不操作 $3$，则 $mid$ 和 $[mid+2,r]$ 之间就还未染色，考虑继续下放这个要求到后面，将 $(mid,r]$ 改成 $[mid,r]$，这样就完成了 $3$ 的操作效果，但直接这样并行后会导致不满足 $R_i\neq C_j$，参考下面的图。如果按照上面同时进行就会有 $R_i=C_j=mid$，所以不行，需要错位操作，即 RCCR 和 CRRC。操作次数降到了 $2\log n+\mathcal O(1)$，注意在区间长度 $\le 4$ 时要暴力做。
+
+![](https://cdn.luogu.com.cn/upload/image_hosting/jrkgi7nv.webp)
+
+## [2026 CSP-S 模拟赛 Day 13 #C. (x)](https://newoj.daimayuan.top/p/5795?tid=6abd18c54f6635dea32a80f1)
+
+[qoj](https://qoj.ac/problem/18915)
+
+依旧据说是一个很典的问题：第 $i$ 个位置选 ``(`` 有 $a_i$ 的贡献，选 ``)``有 $b_i$ 的贡献，求最后整个序列是合法括号串的最大贡献和。首先可以将 $a_i\gets a_i-b_i$，然后选作 ``(`` 有 $a_i$ 贡献。然后有前 $2i+1$ 个位置至少要有 $i+1$ 个左括号，所以每次将 $a_{2i},a_{2i+1}$ 放入大根堆，然后堆中取出最大的元素使其成为左括号并加上贡献。
+
+对于原题中的询问令 $b_i=a_i\ge a_k$，然后暴力就是维护一个 $c$，每次将 $w\gets \max(0,w+c_i+c_{i+1}-1)$，若在 $i\ge k$ 时还有 $w=0$ 的时刻就说明一定会成为左括号，右括号类似，然后现在就有 $\mathcal O(nq)$。
+
+剩下的其实不难，直接用线段树维护上面的东西，然后从小到大扫 $a_i$ 即可。复杂度为 $\mathcal O((n+q)\log n)$。
+
+## [CF2228E2 Amanojaku and Sequence (Hard Version)](https://www.luogu.com.cn/problem/CF2228E2)
+
+引理：
+$$
+F(n,m)=\sum_{i=0}^n \binom{m+i}m=\binom{n+m+1}{m+1}\\
+G(n,m)=\sum_{i=0}^n i\binom{m+i}m=(m+1)\binom{m+n+1}{m+2}\\
+H(n,m)=\sum_{i=0}^n i^2\binom{m+i}m=(m+1)\binom{m+n+1}{m+2}+(m+1)(m+2)\binom{m+n+1}{m+3}
+$$
+证明：
+$$
+F(n,m)=\sum_{i=0}^n \binom{m+i+1}{m+1}-\binom{m+i}{m+1}=\binom{m+n+1}{m+1}\\
+G(n,m)=\sum_{i=0}^n i\binom{m+i}m=\sum_{i=0}^n \frac{(m+i)!}{m!(i-1)!}=(m+1)\sum_{i=0}^n \binom{m+i}{m+1}=(m+1)\binom{m+n+1}{m+2}\\
+H(n,m)=\sum_{i=0}^n i^2\binom{m+i}m=\sum_{i=0}^n i\binom{m+i}m+i(i-1)\binom{m+i}m=G(n,m)+\sum_{i=0}^n\frac{(m+i)!}{m!(i-2)!}\\
+=G(n,m)+(m+1)(m+2)\sum_{i=0}^n \binom {m+i}{m+2}=(m+1)\binom{m+n+1}{m+2}+(m+1)(m+2)\binom{m+n+1}{m+3}
+$$
+实际上应该可以继续拆下去做 $\sum i^k\binom{m+i}m$，这里主要用到的技巧是在获得 $\frac{(m+i)!}{m!(i-1)!}$ 时分子分母补一个常数 $(m+1)$，然后就能写成组合数了。
+
+位置 $i$ 的贡献不难写作：
+$$
+sum=m-s_n\\
+\sum_{x=0}^{sum}\binom{x+c_i-1}{c_i-1}\binom{sum-x+c_n-c_i-1}{c_n-c_i-1}(x+s_i)^2=\sum_{x=0}^{sum}\binom{x+c_i-1}{c_i-1}\binom{sum-x+c_n-c_i-1}{c_n-c_i-1}(s_i^2+2xs_i+x^2)\\
+W_1=s_i^2\binom{sum+c_n-1}{c_n-1}\\
+W_2=2s_i\sum_{x=0}^{sum}\frac{(x+c_i-1)!}{(x-1)!(c_i-1)!}\binom{sum-x+c_n-c_i-1}{c_n-c_i-1}=2s_ic_i\sum_x \binom{x+c_i-1}{c_i}\binom{sum-x+c_n-c_i-1}{c_n-c_i-1}=2s_ic_i\binom{sum+c_n-1}{c_n}\\
+W_3=\frac{W_2}{2s_i}+\sum_{x=0}^{sum} \frac{(x+c_i-1)!}{(x-2)!(c_i-1)!}\binom{sum-x+c_n-c_i-1}{c_n-c_i-1}=c_i\binom{sum+c_n-1}{c_n}+c_i(c_i+1)\sum_x \binom{x+c_i-1}{c_i+1}\binom{sum-x+c_n-c_i-1}{c_n-c_i-1}\\
+=c_i\binom{sum+c_n-1}{c_n}+c_i(c_i+1)\binom{sum+c_n-1}{c_n+1}\\
+$$
+
+## [C. 子集异或(c)](https://www.goj.wiki/d/Union2024/p/P2156?tid=6ac783d760ea062058cd7009)
+
+这可能也是一个 trick。
+
+发现每次求 $F$ 的过程形如将 $a$ 排序后 $F\gets 1$，若 $F\ge a_i$ 则 $F\gets F+a_i$，最后 $F$ 就是答案。正常做需要对着值域中的所有位置判断是否有 $F\ge x$，但是每次 $F\gets F+a_i$ 会加的值越来越大，考虑对值域进行二进制分组$\Large{\color{red}\Diamond}$，分成 $\{[1,2),[2,4),[4,8),\dots\}$，这样分组就有了性质：每个组内的区间若存在一个 $a_i\in[l,r),F\ge a_i$，那么做一次 $F\gets F+a_i$ 就会直接离开这个区间（$F+a_i\ge r$），所以整个过程一定只会跨过 $\log_2V$ 个区间。
+
+令 $f_{i,r}$ 表示右端点为 $r$ 时 $F(l,r)$ 跨过了 $[2^i,2^{i+1})$ 的最大的左端点。令 $l=f_{i,r}$，$s=1+\sum_{x=l}^r [a_x<2^i]a_x$，$mn=\min(2^{i+1},\min_{a_x\ge 2^i}a_x)$ 需要满足 $l\le f_{i-1,r}$，$s\ge mn$。不难通过 set 做到 $\mathcal O(n\log n\log V)$ 求 $f$，可以用单调队列做到 $\mathcal O(n\log nV)$。
+
+现在考虑固定右端点 $r$ 求答案。区间 $l\in (f_{i+1,r},f_{i,r}]$ 满足 $2^{i+1}\le F(l,r)<2^{i+2}$，且 $F(l,r)=1+\sum_{x=l}^r[a_x<2^{i+1}]a_x$，直接使用前缀和的前缀和不难 $\mathcal O(1)$ 求出区间内 $l$ 的答案，这部分复杂度就是 $\mathcal O(n\log nV)$。
+
+## AT_abc458_g [ABC458G] Children Yearn for the Evil Kindergarten
+
+反悔贪心还是太吃操作了，还是多积累一个做法吧。
+
+### 反悔贪心做法
+
+先二分答案，直接贪心策略是每次先给所有小孩 $b_i$，然后剩余的尽量让最多个小孩达到 $c_i$ 然后离开。但是这显然不对，因为有两种可能 1.前面让太多小孩离开导致到某个时刻无法满足 $b_i$ 的限制。2.$c_{i-1}$ 很大但是 $c_i$ 很小，在 $i-1$ 离开会导致无法在 $i$ 离开。但实际上都可以使用反悔来解决。若想让 $j$ 时刻逃离的小孩在 $i$ 时刻回来，则能获得 $c_j-\sum_{k=j+1}^i b_k$ 的贡献，记 $s$ 为 $b$ 的前缀和，则用堆维护 $c_j-s_j$ 的最大值即可。若当前时刻的奖牌总数无法满足 $b$ 的限制就一直反悔，若堆顶的小孩在当前时刻逃离能更优也要反悔，注意需要对本质相同的小孩同时处理。
+
+### slope trick 做法
+
+可能这个更正常一点，但是 dp 状态也是比较奇怪。
+
+正着做既要维护当前奖牌数又要维护小孩数太麻烦，考虑倒着维护后缀。记 $f_{i,j}$ 表示让 $j$ 个小孩在 $[i,n]$ 离开所需的最少的 $i-1$ 留下来的奖牌个数。转移考虑枚举有多少个在 $i$ 时刻逃离：
+$$
+f_{i,j}=\max(0,b_i\times j-a_i+\min_{k=0}^j (c_i\times k+f_{i+1,j-k}))
+$$
+感性理解 $F_i(x)=f_{i,x}$ 是凸的，证明可以发现转移式是做 $(\min,+)$ 卷积。考虑使用 slope trick$\Large{\color{red}\Diamond}$，取 $\min$ 就是将所有的斜率和 $c_i$ 取 $\min$，然后将所有的斜率加上 $b_i$，和 $0$ 取 $\max$ 就是将一个前缀斜率覆盖成 $0$。所以要做的操作只有前后缀推平，全局加，直接用 deque 不难做到线性。
+
+## AT_utpc2023_g Graph Weighting
+
+显然一个点双内的所有边需要是相同的边权，令第 $i$ 个点双有 $v_i+1$ 个点和 $e_i$ 条边，边权都是 $x_i$，则要求 $\sum v_ix_i=W,\min\sum e_ix^2_i$。
+
+直接做可以 $\mathcal O(nK^2)$，记 $f_{i,j}$ 表示前 $i$ 个点双有 $\sum v_ix_i=j$ 的最小 $\sum e_ix_i^2$，转移时枚举 $x_i$。发现每次就是对 $e_ix^2$ 做 $(\min,+)$ 卷积，而 $x^2$ 是凸的，所以用决策单调性可以做到 $\mathcal O(nK\log K)$。
+
+现在还是不够快，感觉当 $v_i$ 相同时每个都重复做卷积没有必要，考虑同时对所有 $v_i$ 相同的点双一起做。可以贪心每次将 $e_i[(x_i+1)^2-x_i^2]$ 放入小根堆中，然后取出最小的后 $x_i\gets x_i+1$ 就能贪心地解决求 $g_i=\min\sum e_jx_j^2,\sum v_j=i$。$g_i$ 的 $i$ 只有 $\lfloor\frac K i\rfloor$ 种取值，对所有不同 $v$ 求解的复杂度为 $\mathcal O(K\ln K\log n)$。此时得出的 $g_i$ 的有值点也满足凸性，但是因为只有 $v_i$ 的倍数位置有值，所以合并后的 $f$ 并没有凸性，要做不凸函数和凸函数合并。
+
+由于按照点双分组，有 $\sum e_i=m,e_i\ge v_i$，所以 $v_i$ 只有 $\mathcal O(\sqrt m)$ 种值，直接套用上面的决策单调性合并就能做到 $\mathcal O(K\sqrt m\log K+K\ln K\log n)$。
+
+解释一下前文如何对长为 $n$ 的无性质数组 $a$ 和长为 $m$ 的下凸数组 $b$ 在 $\mathcal O((n+m)\log (n+m))$ 做 $(min,+)$ 卷积。令卷积后的数组为 $c$，即 $c_i=\min (a_j+b_{i-j})$，令 $w(i,j)=a_i+b_{j-i}$，则 $w$ 满足四边形不等式，即 $w(i,j)+w(i+1,j+1)\le w(i,j+1)+w(i+1,j)$，因为 $2b_{j-i}\le b_{j-i+1}+b_{j-i-1}$（$b$ 的凸性）。因此有 $opt_i$ 表示 $c_i$ 从 ${\color{red}a}_{opt_i}$ 转移单调不降（注意不是 $b$），直接使用分治优化即可做到 $\mathcal O((n+m)\log (n+m))$。
+
+## [一般难度的推式子题](https://qoj.ac/contest/1814/problem/414/statement/zh_cn)
+
+可能算是反射容斥板子题？
+
+首先需要**注意到**这样的树的定义就是与长为 $2n$ 的合法括号串一一匹配的，然后就转化成一种括号串的贡献为最大前缀和（左右括号赋值 $1,-1$），求所有括号串权值和。$\Large{\color{red}\Diamond}$
+
+再转化一下，放在网格图上就是形如有两条线 $y=x-1$ 和 $y=x+i$ 不能走到，求从 $(0,0)$ 走到 $(n,n)$ 的方案数。想了很久无果，最后发现就是个板子。记 $A$ 为到达 $y=x-1$ 并随后离开，$B$ 同理。则答案为 $f(\empty)-f(A)-f(B)+f(AB)+f(BA)-f(ABA)-f(BAB)+\dots$，其中比如 $f(AB)$ 表示钦定先后完成 $AB$ 的路径数，求解 $f$ 可以直接类似只有一条禁线一样做多次对称，当对称后的点离开第一象限就停止。证明不难，但是第一次见还是不太会。这样做能证明在 $\mathcal O(\frac n i)$ 步后就会离开第一象限，总复杂度为 $\mathcal O(n\ln n)$。
+
+## [AT_ndpc2026_j 個数と総和](https://www.luogu.com.cn/problem/AT_ndpc2026_j)
+
+求
+$$
+[x^Sy^T]\prod_{i=1}^n \frac{1}{1-xy^{a_i}}
+$$
+有类似 BM 的多项式做法，但是不太会。
+
+考虑对 $S,T$ 二进制拆位，记 $f_{i,j,k}$ 表示只考虑 $c_x$ 的 $i$ 个低位，求和满足了 $S,T$ 的前 $i$ 个低位的限制，$\sum c_i$ 造成 $j$ 个进位，$\sum A_ic_i$ 造成 $k$ 个进位的方案数。转移考虑对 $c_x$ 的第 $i$ 位做01背包，随后与 $f$ 合并转移即可。总复杂度为 $\mathcal O(n^3\max A\log V)$。
+
+## [AT_agc058_d [AGC058D] Yet Another ABC String](https://www.luogu.com.cn/problem/AT_agc058_d)
+
+考虑在每次出现极长段``ABC``的地方进行容斥，即找到形如``(A/B)ABC``，``(B/C)BCA``，``(A/C)CAB``。使用二项式反演将恰好没有出现转化成钦定出现若干极长段，但是会发现若极长段在开头就可能有三种形式，其他情况可以根据段的前一个位是``A/B/C``确定只有两种可能不合法段。这里可以认为 $S_0=A$，算完后再加上 $S[1,3]=ABC$ 的情况即可。现在考虑已经确定 $S_0$，没有不合法段的方案数，记为 $f(a,b,c)$。由二项式反演不难得到：
+$$
+f(a,b,c)=\sum_{i=0}^{\min(a,b,c)} (-1)^i \binom{a+b+c-3i}{a-i,b-i,c-i}\binom{a+b+c-2i}{i}2^i
+$$
+其中第一个组合数表示将没被钦定的位置排列，第二个组合数表示往 $a+b+c-3i+1$ 个空里插入 $i$ 段``ABC``，即往 $n=a+b+c-3i-1$ 个洞放 $m=i$ 个球，方案数为 $\binom{n+m-1}{n-1}=\binom{a+b+c-2i}{a+b+c-3i}=\binom{a+b+c-2i}i$，最后 $2^i$ 就是根据插入位置的上一个位置确定两种``ABC``的排列顺序。答案就是 $f(a,b,c){\color{red}-}f(a-1,b-1,c-1)$，减号是因为已经钦定了一个``ABC``段，所以要多乘上一个 $-1$ 的容斥系数。
+
+## [P17725 [SCP-S 2026] 大雨 / rain](https://www.luogu.com.cn/problem/P17725)
+
+大困难题，看题解感觉应该还挺自然的，但是自己做就是会绕圈乱想。
+
+首先有重要观察，给前缀操作就相当于给区间操作$\Large{\color{red}\Diamond}$，所以要做的就是给 $a$ 划分成 $k$ 段，每段 $\oplus$ 上同一个数，最后要求 $a$ 单调不降（若最后一段不异或答案 $-1$），求 $k$ 的最小值。 
+
+先考虑 $a_n$ 要被异或。其次，对于跨越两端之间的数 $a_i,a_{i+1}$ 可以让 $a_{i+1}$ 异或的数加上 $2^{big}$ 次方，这样就能保证段之间是单调的，只要满足对于每个段内有 $a_i\oplus x\le a_{i+1}\oplus x$ 即可。分段时考虑贪心让每段尽量长，考虑 $a_i\oplus a_{i+1}$ 的最高位为 $k$，则 $x$ 的第 $k$ 位应和 $a_i$ 相同，当出现矛盾时就结束分段，复杂度 $\mathcal O(n)$，可以解决特殊性质部分。
+
+对于 $a_n$ 不会被异或的情况，显然答案至少是上面的 $ans-1$，并且希望让最后一个被异或的数最小。令前面 $[1,i]$ 的答案为 $f_i$，则类似地令 $g_i$ 表示前 $i$ 个数分成 $f_i$ 个段的最小的 $a_i$，转移可以枚举 $i$ 在的段的左端点，然后可以 $\mathcal O(1)/\mathcal O(\log V)$ 算出答案，复杂度为 $\mathcal O(n^2/n^2\log V)$，考虑优化。
+
+完了，好像发现正解和上面的 dp 没有很大关系。考虑 dp 实际上的操作就是对于固定的 $i$，从右往左枚举 $j$ 同时加入所有满足 $a_j\oplus x\ge g_{j-1}$ 且 $x$ 满足 $[j,i]$ 的限制的 $x$，查询时找到 $\min(x\oplus a_i)$。考虑使用 trie 维护，$[j,i]$ 的限制就是若干位不能为 $0/1$，这个可以通过在 trie 上维护 $ban_{u,i,0/1}=0/1$ 表示 $u$ 子树内距离为 $i$ 的点往 $0/1$ 方向的边是否被删除维护，在查询时 pushdown 即可。对于将 $a_j\oplus x \ge g_{j-1}$ 也是类似标记添加一个满二叉树。查询时可以直接暴力走，因为若当前子树内没有满足要求的点就可以在查询后删除，均摊复杂度和插入复杂度一样都是 $\mathcal O(n\log V)$。
+
+## [AT_aalc001_q 移動回数](https://www.luogu.com.cn/problem/AT_aalc001_q)
+
+不知道为啥不太会线段树维护区间复合函数，严肃学习。好像对于较为简单的信息可以处理区间操作/变换后的结果。
+
+这个题能在线做的主要原因应该是当有出发点满足 $|x-y|\le 1$ 时，$|en_x-en_y|\le 1$，并且可以分讨出具体位置和贡献。对于每个线段树区间维护 $l,r,x,k$ 表示当出发点在 $[l,r]$ 时会产生最大贡献 $k$，最后位移为 $x$，然后所有出发点和贡献形成的函数就是类似先在 $[0,l)$ 向上然后 $[l,r]$ 不变最后 $(r,m]$ 下降，不难对这个信息进行合并，然后就做完了。
+
+还有[这个题](https://www.luogu.com.cn/problem/P14348)也是类似的，并且没必要写题解的将时间维减去坐标维。
+
+## [qoj9449 New School Term](https://qoj.ac/problem/9449/statement/zh_cn)
+
+按照从大到小贪心考虑能否将两个学生放在不同组中，使用拓展域并查集时若 $(a_i,b_i+2n)$ 或 $(a_i,b_i)$ 已经合并就没有影响，否则考虑能否将 $a_i$ 和 $b_i+2n$ 合并后还能分成两组大小为 $n$ 的集合。考虑直接暴力将所有目前确定的连通块的分成 $A,B(|A|\ge |B|)$，最后需要让 $\sum \pm(|A|-|B|)=0$，由于 $|A|-|B|$ 只有 $\mathcal O(\sqrt n)$ 种，用多重背包可以做到 $\mathcal O(\frac{n^2\sqrt n\log n}{\omega})$，注意分子是 $n^2$ 不是 $nm$ 因为每次一定会合并两个节点，一共只有 $\mathcal O(n)$ 次多重背包。
+
+发现每次做背包时只需要改变 $a_i,b_i,a_i+2n,b_i+2n$ 的所在连通块大小，其他物品体积都不会变，所以考虑随便设置一个大模数后在背包求方案数，这样就能支持 $\mathcal O(n)$ 单次退背包了。复杂度为 $\mathcal O(n^2+m\alpha(n))$。
+
+## [qoj9793 魔法草坪探险](https://qoj.ac/problem/9793/statement/zh_cn)
+
+如果使用子树内最大深度加次大深度的方式刻画直径会发现加法求最小值不好刻画，所以考虑对两个的 $\max$ 进行限制后二分答案。具体的，若直径为 $x$，则一定能找到一个节点或分离一条边的方式满足断开后整棵树分成若干个 $mxdep\le \frac x2$ 的连通块。$\Large{\color{red}\Diamond}$
+
+想到这里剩下就不太难了，对于每一条边计算断开这条边后形成的连通块的 $mxdep$ 和 $\sum_\text{v is leaf}dep_v$，加的边权显然只会影响叶子，可以二分答案或解方程做到 $\mathcal O(n\log n)/\mathcal O(n)$。
