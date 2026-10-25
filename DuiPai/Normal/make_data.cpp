@@ -12,18 +12,21 @@ inline void gmn(auto &x,auto y){(x>y)&&(x=y);}
 inline void gmx(auto &x,auto y){(x<y)&&(x=y);}
 using namespace std;
 const int maxn=2e5+10;
-int V=100;
 int n;
-int a[maxn];
+int a[maxn],b[maxn];
 inline ll rd(){return 1ll*rand()*rand();}
 int main(){
-    srand(chrono::system_clock::now().time_since_epoch().count());
-    n=rd()%5+1;int q=1000;
-    printf("%d %d\n",n,q);
-    for(int i=1;i<=n;i++)   printf("%d ",rd()%1000);puts("");
-    while(q--){
-        int l=rd()%n+1,r=rd()%n+1;
-        if(l>r)swap(l,r);
-        printf("%d %d\n",l,r);
+    srand(chrono::system_clock().now().time_since_epoch().count());
+    int V;
+    if(rd()&1)  V=10;else V=100;
+    n=rd()%V+1;
+    printf("%d\n",n);
+    while(true){
+        for(int i=1;i<=n;i++)   a[i]=rd()%V;
+        for(int i=1;i<=n;i++)   b[i]=rd()%V;
+        b[n]=accumulate(a+1,a+n+1,0)-accumulate(b+1,b+n,0);
+        if(b[n]>=0)break;
     }
+    for(int i=1;i<=n;i++)   printf("%d ",a[i]);puts("");
+    for(int i=1;i<=n;i++)   printf("%d ",b[i]);puts("");
 }

@@ -3,7 +3,8 @@
 #define eb emplace_back
 #define ep emplace
 #define pii pair<int,int>
-#define piii pair<int,pii>
+#define pll pair<ll,ll>
+#define plli pair<pll,int>
 #define fi first
 #define se second
 #define debug(...) fprintf(stderr,__VA_ARGS__)
@@ -13,47 +14,29 @@ inline void gmn(auto &x,auto y){(x>y)&&(x=y);}
 inline void gmx(auto &x,auto y){(x<y)&&(x=y);}
 using namespace std;
 bool mem1;
-const int maxn=2e7+10;
-int n,q;
-int a[maxn];
-piii b[maxn];
-struct DSU{
-    int fa[maxn];
-    void init(){iota(fa+1,fa+n+1,1);}
-    int find(int x){return fa[x]==x?x:fa[x]=find(fa[x]);}
-    inline void merge(int x,int y){fa[find(y)]=find(x);}
-    inline int operator[](int x){return find(x);}
-}U;
+const int maxn=2e5+10;
+int n;
+ll ans,tag;
+priority_queue<plli> q;
+ll a[maxn],b[maxn];
+bool check(){for(int i=1;i<=n;i++)if(a[i]^(b[i]+tag))return false;return true;}
 bool mem2;
 int main(){
     debug("%.2fMB\n",abs(&mem1-&mem2)/1024./1024);
-    scanf("%d%d",&n,&q);
-    for(int i=1;i<=n;i++)   scanf("%d",&a[i]);
-    while(q--){
-        int l,r;scanf("%d%d",&l,&r);
-        int m=0;
-        for(int i=l;i<=r;i++){
-            // if(i>l){
-            //     int j=max_element(a+l,a+i)-a;
-            //     b[++m]=piii(a[i]-a[j],pii(i,j));
-            // }
-            // if(i<r){
-            //     int j=min_element(a+i+1,a+r+1)-a;
-            //     b[++m]=piii(a[j]-a[i],pii(j,i));
-            // }
-            for(int j=l;j<i;j++)
-                b[++m]=piii(a[i]-a[j],pii(i,j));
-        }
-        sort(b+1,b+m+1);
-        U.init();
-        int ans=0;
-        for(int i=1;i<=m;i++){
-            int u=b[i].se.fi,v=b[i].se.se,w=b[i].fi;
-            u=U[u];v=U[v];
-            if(u==v)    continue;
-            // printf("%d %d %d\n",u,v,w);
-            U.merge(u,v);ans+=w;
-        }
-        printf("%d\n",ans);
+    scanf("%d",&n);
+    ll ans=0;
+    for(int i=1;i<=n;i++)   scanf("%lld",&a[i]);
+    for(int i=1;i<=n;i++)   scanf("%lld",&b[i]);
+    for(int i=1;i<=n;i++)q.ep(pll(b[i]-a[i],b[i]),i);
+    int cnt=0;
+    while(q.top().fi.fi+tag>0){
+        cnt++;if(cnt>100000)return puts("-1"),0;
+        int p=q.top().se;q.pop();
+        // printf("%d %d %d\n",p,a[p],b[p]+tag);
+        if(b[p]+tag<n-1)    return puts("-1"),0;
+        b[p]-=n;q.ep(pll(b[p]-a[p],b[p]),p);
+        tag++;ans++;
+        // for(int i=1;i<=n;i++)   printf("%d ",b[i]+tag);puts("");
     }
+    printf("%lld\n",ans);
 }

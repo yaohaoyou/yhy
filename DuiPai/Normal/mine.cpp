@@ -3,7 +3,8 @@
 #define eb emplace_back
 #define ep emplace
 #define pii pair<int,int>
-#define piii pair<int,pii>
+#define pll pair<ll,ll>
+#define plli pair<pll,int>
 #define fi first
 #define se second
 #define debug(...) fprintf(stderr,__VA_ARGS__)
@@ -13,59 +14,69 @@ inline void gmn(auto &x,auto y){(x>y)&&(x=y);}
 inline void gmx(auto &x,auto y){(x<y)&&(x=y);}
 using namespace std;
 bool mem1;
-const int maxn=2e6+10;
-int n,q;
-int a[maxn],c[maxn];
-piii b[maxn];
-struct DSU{
-    int fa[maxn];
-    void init(){iota(fa+1,fa+n+1,1);}
-    int find(int x){return fa[x]==x?x:fa[x]=find(fa[x]);}
-    inline void merge(int x,int y){fa[find(y)]=find(x);}
-    inline int operator[](int x){return find(x);}
-}U;
+const int maxn=2e5+10;
+const ll inf=1e13;
+int n;
+ll ans,tag;
+ll a[maxn],b[maxn],c[maxn],d[maxn];
+priority_queue<plli> q;
+bool check(){for(int i=1;i<=n;i++)if(a[i]^(b[i]+tag))return false;return true;}
 bool mem2;
 int main(){
+    // freopen("a.in","r",stdin);freopen("a.out","w",stdout);
     debug("%.2fMB\n",abs(&mem1-&mem2)/1024./1024);
-    scanf("%d%d",&n,&q);
-    for(int i=1;i<=n;i++)   scanf("%d",&a[i]);
-    while(q--){
-        int l,r;scanf("%d%d",&l,&r);
-        fill(c+1,c+n+1,0);
-        int m=0;pii mx=pii(a[l],l);ll ans=0;
-        for(int i=l+1;i<=r;i++){
-            if(a[i]>mx.fi){
-                c[mx.se]=a[i];
-                ans+=a[i]-mx.fi;
-            }
-            else{
-                c[mx.se]=a[i];
-                ans+=a[i]-mx.fi;
-                for(int j=l;j<i;j++)if(c[j]>a[i])ans-=c[j]-a[i],c[j]=a[i];
-            }
-            mx=max(mx,pii(a[i],i));
-            // if(i>l){
-                // int j=max_element(a+l,a+i)-a;
-                // b[++m]=piii(a[i]-a[j],pii(i,j));
-            // }
-            // if(i<r){
-                // int j=min_element(a+i+1,a+r+1)-a;
-                // b[++m]=piii(a[j]-a[i],pii(j,i));
-            // }
-            // for(int j=l;j<i;j++)
-            //     b[++m]=piii(a[i]-a[j],pii(i,j));
-        }
-        // sort(b+1,b+m+1);
-        // U.init();
-        // int ans=0;
-        // for(int i=1;i<=m;i++){
-        //     int u=b[i].se.fi,v=b[i].se.se,w=b[i].fi;
-        //     // printf("%d %d %d\n",u,v,w);
-        //     u=U[u];v=U[v];
-        //     if(u==v)    continue;
-        //     // puts("pick");
-        //     U.merge(u,v);ans+=w;
-        // }
-        printf("%lld\n",ans);
+    scanf("%d",&n);
+    ll ans=0;
+    for(int i=1;i<=n;i++)   scanf("%lld",&a[i]);
+    for(int i=1;i<=n;i++)   scanf("%lld",&b[i]);
+    if(check()) return puts("0"),0;
+    int lst=0;
+    for(int i=1;i<=n;i++){
+        if(i==1)    lst=(b[i]-a[i]+inf*n)%n;
+        else if(lst!=(b[i]-a[i]+inf*n)%n)  return puts("-1"),0;
     }
+    int cnt=0;
+    while(true){
+        cnt+=n;if(cnt>1e8)break;
+        bool flag=false;
+        for(int i=1;i<=n;i++){
+            if(b[i]+tag>=a[i]){
+                ll w=(b[i]+tag-a[i])/(n-1);
+                if(w){
+                    flag=true;
+                    ans+=w;tag+=w;
+                    b[i]-=w*n;
+                }
+            }
+        }
+        if(!flag)break;
+    }
+    ll mn=0;for(int i=1;i<=n;i++)gmn(mn,b[i]-a[i]),q.ep(pll(b[i]-a[i],b[i]),i);
+    for(int i=1;i<=n;i++)if(b[i]-mn>a[i]&&a[i]<n)d[a[i]]++;
+    for(int i=1;i<n;i++)d[i]+=d[i-1];
+    for(int i=0;i<n;i++)if(d[i]>i+1)return puts("-1"),0;
+    for(int i=1;i<=n;i++)   c[i]=(b[i]-a[i]-mn)/n;
+    int tim=0;
+    while((++tim)<=n+n&&q.top().fi.fi+tag>0){
+        int p=q.top().se;q.pop();
+        c[p]--;
+        if(c[p]<0||b[p]+tag<n-1)    return puts("-1"),0;
+        b[p]-=n;q.ep(pll(b[p]-a[p],b[p]),p);
+        tag++;
+    }
+    printf("%lld\n",-mn);
+    // while(q.top().fi+tag>=n-1){
+    //     cnt++;
+    //     if(cnt%10000==0)printf("%lld %d\n",q.top().fi+tag,cnt);
+    //     int p=q.top().se;q.pop();
+    //     ll w=(b[p]+tag-a[p])/(n-1);
+    //     if(b[p]+tag<n-1)    return puts("-1"),0;
+    //     if(w){
+    //         ans+=w;tag+=w;
+    //         b[p]-=w*n;
+    //         q.ep(b[p]-a[p],p);
+    //     }
+    //     else break;
+    // }
+    // debug("cnt = %d\n",cnt);
 }
