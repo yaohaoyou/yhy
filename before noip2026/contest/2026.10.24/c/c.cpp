@@ -13,30 +13,30 @@ inline void gmx(auto &x,auto y){(x<y)&&(x=y);}
 using namespace std;
 bool mem1;
 const int maxn=2e5+10,mod=998244353;
-struct mint{
+struct mit{
     int v;
-    mint(int _x=0){v=_x;}
+    mit(int _x=0){v=_x;}
     operator int()const{return v;}
     inline void operator+=(int y){v+=y;(v>=mod)&&(v-=mod);}
-    inline mint operator+(int y){y+=v;(y>=mod)&&(y-=mod);return y;}
+    inline mit operator+(int y){y+=v;(y>=mod)&&(y-=mod);return y;}
     inline void operator-=(int y){v-=y;(v<0)&&(v+=mod);}
-    inline mint operator-(int y){y=v-y;(y<0)&&(y+=mod);return y;}
+    inline mit operator-(int y){y=v-y;(y<0)&&(y+=mod);return y;}
     inline void operator*=(int y){v=1ull*v*y%mod;}
-    inline mint operator*(int y){return 1ull*v*y%mod;}
+    inline mit operator*(int y){return 1ull*v*y%mod;}
 };
-inline mint qpow(mint x,int y){mint res=1;while(y){if(y&1)res*=x;x*=x;y>>=1;}return res;}
+inline mit qpow(mit x,int y){mit res=1;while(y){if(y&1)res*=x;x*=x;y>>=1;}return res;}
 int n,m,q;
 int a[maxn],b[maxn];
-mint g[maxn],s[maxn];
-mint f[20][maxn],F[20][maxn];
+mit g[maxn],s[maxn];
+mit f[20][maxn],F[20][maxn];
 struct BIT{
     int now;
-    mint tr[maxn];int tim[maxn];
+    mit tr[maxn];int tim[maxn];
     inline int lowbit(int x){return x&-x;}
     inline void chk(int x){if(tim[x]^now)tim[x]=now,tr[x]=0;}
-    inline void add(int x,mint s){x++;while(x<=n+1){chk(x);tr[x]+=s;x+=lowbit(x);}}
-    inline mint que(int x){x++;mint res=0;while(x){chk(x);res+=tr[x];x^=lowbit(x);}return res;}
-    inline mint query(int l,int r){return l>r?mint(0):que(r)-que(l-1);}
+    inline void add(int x,mit s){x++;while(x<=n+1){chk(x);tr[x]+=s;x+=lowbit(x);}}
+    inline mit que(int x){x++;mit res=0;while(x){chk(x);res+=tr[x];x^=lowbit(x);}return res;}
+    inline mit query(int l,int r){return l>r?mit(0):que(r)-que(l-1);}
     void clear(){now++;}
 }T;
 void divide(int L,int R,int d){
@@ -61,7 +61,7 @@ void divide(int L,int R,int d){
     divide(L,mid,d+1);divide(mid+1,R,d+1);
     F[d][L]=F[d+1][L]+F[d+1][mid+1]+f[d][l]*f[d][r];
 }
-mint dvd(int L,int R,int d,int ql,int qr){
+mit dvd(int L,int R,int d,int ql,int qr){
     if(L==R)    return 0;
     int l=b[L-1]+1,r=b[R];
     if(l>=ql&&r<=qr)    return F[d][L];
@@ -83,7 +83,7 @@ int main(){
     divide(1,m,0);
     while(q--){
         int l,r;scanf("%d%d",&l,&r);
-        mint ans=dvd(1,m,0,l,r);
+        mit ans=dvd(1,m,0,l,r);
         int kl=lower_bound(b,b+m+1,l-1)-b+1,kr=upper_bound(b+1,b+m+1,r)-b-1;
         if(kl<=kr)  ans+=s[kr]-s[kl-1];
         if(--kl){
