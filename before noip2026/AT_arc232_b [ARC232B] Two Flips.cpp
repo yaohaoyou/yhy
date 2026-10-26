@@ -17,21 +17,36 @@ int n;
 int a[maxn],b[maxn],id[maxn][2];
 namespace Graph{
     const int maxm=maxn<<1;
-    #define go(x,i) for(int i=head[x],t=e[i].to,w=e[i].w;i;i=e[i].nxt,t=e[i].to,w=e[i].w)
-    int cnt=1,tot;
+    #define go(x,i) for(int i=head[x],t=e[i].to;i;i=e[i].nxt,t=e[i].to)
+    int cnt=1;
     int head[maxn];
-    struct edge{int nxt,to,w;}e[maxm];
-    inline void add(int u,int v,int w){e[++cnt]={head[u],v,w};head[u]=cnt;}
-    inline void adde(int u,int v,int w){add(u,v,w);add(v,u,w);}
-    inline void rebuild(){for(int i=0;i<=tot;i++)head[i]=0;cnt=1;}
+    struct edge{int nxt,to;}e[maxm];
+    inline void add(int u,int v){e[++cnt]={head[u],v};head[u]=cnt;}
+    inline void adde(int u,int v){add(u,v);add(v,u);}
+    inline void rebuild(){for(int i=0;i<=n;i++)head[i]=0;cnt=1;}
 }
 using namespace Graph;
+pii mn[maxn];
+int f[maxn];
+queue<int> q;
 bool mem2;
 void matt(int _cases){
-    scanf("%d",&n);tot=n<<1;
-    for(int i=1;i<=n;i++)   scanf("%d%d",&a[i],&b[i]),id[i][0]=++tot,id[i][1]=++tot;
-    for(int i=1;i<=n;i++){
-        adde(id[i][0],a[i],1);adde(id[i][0],id[i][1],0);adde(id[i][1],b[i],1);
+    rebuild();
+    scanf("%d",&n);
+    for(int i=1;i<=n;i++)   scanf("%d%d",&a[i],&b[i]),adde(a[i],b[i]);
+    n<<=1;
+    fill(f,f+cnt+1,1e9);
+    for(int i=1;i<=n;i++)   mn[i]=pii(1e9,1e9);
+    f[3]=0;q.ep(3);
+    while(!q.empty()){
+        int w=q.front(),u=e[w].to;q.pop();
+        go(u,i)if(i^w^1){
+            if(f[i]>f[w]+1){
+                f[i]=f[w]+1;
+                q.ep(i);
+            }
+        }
     }
+    printf("%d\n",f[4]==f[0]?-1:f[4]);
 }
 int main(){debug("%.2fMB\n",abs(&mem1-&mem2)/1024./1024);int T;scanf("%d",&T);for(int i=1;i<=T;i++)matt(i);}
