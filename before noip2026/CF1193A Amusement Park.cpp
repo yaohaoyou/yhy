@@ -48,7 +48,6 @@ int main(){
         for(int t=s&(s-1);t;t=(t-1)&s){
             int x=__lg(lb(s^t))+1;
             h[t]=h[t|(1<<x-1)]-__builtin_popcount(in[x]&(s^t^(1<<x-1)))+__builtin_popcount(out[x]&t);
-            // assert(h[t]==cross(s^t,t));
         }
         for(int t=s;t;t=(t-1)&s)if(bk[t]){
             if(__builtin_popcount(t)&1) g[s]+=g[s^t],f[s]+=f[s^t]+g[s^t]*h[t];

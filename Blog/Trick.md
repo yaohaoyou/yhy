@@ -515,3 +515,7 @@ $$
 ### [#9449. New School Term](https://qoj.ac/problem/9449/statement/zh_cn)
 
 01背包无法做撤销物品，可以转成求有多少种使容量到达 $x$ 的方案数然后对大质数取模判方案数是否为 $0$。
+
+### [AT_abc306_h Balance Scale](https://www.luogu.com.cn/problem/AT_abc306_h) & [P11714 主旋律](https://www.luogu.com.cn/problem/P11714)
+
+DAG 图计数考虑每次选出入度为 $0$ 的点然后删除，一直做这个过程直到删完就是 DAG 了。但是每次删的不一定是极大的零入度集合，所以要乘上 $(-1)^{|T|+1}$ 的容斥系数。若极大零入度集合为 $S$，有 $[|S|>0]=\sum _{T\sube S} (-1)^{|T|+1}$，也是 $[|S|>0]=\sum_{i=\color{red}1}^{|S|} (-1)^{i+1}\binom{|S|}{i}$。
