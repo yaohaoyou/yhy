@@ -1,6 +1,4 @@
 #include<bits/stdc++.h>
-#include<ext/pb_ds/assoc_container.hpp>
-#include<ext/pb_ds/hash_policy.hpp>
 #define ll long long
 #define eb emplace_back
 #define ep emplace
@@ -82,7 +80,7 @@ struct SGT1{
     #define setpos int p,int l,int r
     cvx tr[maxn<<2];
     ll Q(setpos,int pl,int pr,ll x){if(pl>pr)return -INF;if(l>=pl&&r<=pr)return tr[p].Q(x);setmid;ll res=-INF;if(pl<=mid)gmx(res,Q(lson,pl,pr,x));if(pr>mid)gmx(res,Q(rson,pl,pr,x));return res;}
-    void U(int x,line s){int p=1,l=0,r=n;while(l^r){setmid;tr[p].eb(s);(x<=mid)?(p=ls,r=mid):(p=rs,l=mid+1);}tr[p].eb(s);}
+    inline void U(int x,line s){int p=1,l=0,r=n;while(l^r){setmid;tr[p].eb(s);(x<=mid)?(p=ls,r=mid):(p=rs,l=mid+1);}tr[p].eb(s);}
 }T0;
 struct SGT2{
     #define ls p<<1
@@ -94,10 +92,11 @@ struct SGT2{
     #define setpos int p,int l,int r
     convex tr[maxn<<2];
     void U(setpos,int pl,int pr,line x){if(pl>pr)return;if(l>=pl&&r<=pr)return tr[p].eb(x);setmid;if(pl<=mid)U(lson,pl,pr,x);if(pr>mid)U(rson,pl,pr,x);}
-    ll Q(int x,ll s){int p=1,l=0,r=n;ll res=-INF;while(l^r){setmid;gmx(res,tr[p].Q(s));(x<=mid)?(p=ls,r=mid):(p=rs,l=mid+1);}gmx(res,tr[p].Q(s));return res;}
+    inline ll Q(int x,ll s){int p=1,l=0,r=n;ll res=-INF;while(l^r){setmid;gmx(res,tr[p].Q(s));(x<=mid)?(p=ls,r=mid):(p=rs,l=mid+1);}gmx(res,tr[p].Q(s));return res;}
 }T1;
-__gnu_pbds::gp_hash_table<int,int> mp[maxn];
-void chg(int x,int t){if(x&&tim[x]>0&&b[x].fi<=b[x].se)mp[x][tim[x]]=t-1;tim[x]=t;}
+vector<pii> mp[maxn];
+int ps[maxn];
+inline void chg(int x,int t){if(x&&tim[x]>0&&b[x].fi<=b[x].se)mp[x].eb(tim[x],t-1);tim[x]=t;}
 bool mem2;
 int main(){
     // freopen("seq.in","r",stdin);freopen("seq.out","w",stdout);
@@ -117,7 +116,6 @@ int main(){
                 chg(mx,i);
                 mex.erase(mx);
                 b[mx]=pii(1,0);
-                tim[mx]=-1;
             }
             else{
                 chg(mx,i);
@@ -127,7 +125,7 @@ int main(){
         int l=b[x].fi,r=b[x].se;
         if(l<=r){
             chg(x,i);
-            b[x]=pii(1,0);tim[x]=-1;
+            b[x]=pii(1,0);
             mex.erase(x);
             for(int j=x+1;;j++){
                 int p=max(i-k+1,lst[j]+1);
@@ -144,7 +142,7 @@ int main(){
     for(int i:mex)if(b[i].fi&&b[i].fi<=b[i].se)chg(i,n+1);
     mex.clear();mems(lst,0);fill(b,b+n+1,pii(1,0));
     
-    w[0]=0;T0.U(0,line(0,0));T1.U(all,0,mp[0][0],line(0,w[0]));
+    w[0]=0;T0.U(0,line(0,0));
     mex.ep(0);
     for(int i=1;i<=n;i++){
         f[i]=f[i-1];
@@ -160,7 +158,11 @@ int main(){
             else{
                 b[mx].fi++;
                 w[mx]=T0.Q(all,b[mx].fi-1,b[mx].se-1,-mx);
-                T1.U(all,i,mp[mx][i],line(mx,w[mx]));
+                if(mx){
+                    // while(mp[mx].front().fi!=i) mp[mx].pop_front();
+                    while(ps[mx]+1<mp[mx].size()&&mp[mx][ps[mx]+1].fi<=i)ps[mx]++;
+                    T1.U(all,i,mp[mx][ps[mx]].se,line(mx,w[mx]));
+                }
             }
         }
         int l=b[x].fi,r=b[x].se;
@@ -169,18 +171,17 @@ int main(){
             mex.erase(x);
             for(int j=x+1;;j++){
                 int p=max(i-k+1,lst[j]+1);
-                // debug("j = %d %d\n",j,p);
                 if(p<=r){
                     b[j]=pii(p,r);mex.ep(j);
                     w[j]=T0.Q(all,b[j].fi-1,b[j].se-1,-j);
-                    T1.U(all,i,mp[j][i],line(j,w[j]));
+                    while(ps[j]+1<mp[j].size()&&mp[j][ps[j]+1].fi<=i)ps[j]++;
+                    T1.U(all,i,mp[j][ps[j]].se,line(j,w[j]));
                 }
                 if(p<=l)    break;
                 gmn(r,p-1);
             }
         }
         f[i]=max(f[i-1],T1.Q(i,s[i]));
-        // printf("f[%d] = %lld\n",i,f[i]);
         T0.U(i,line(s[i],f[i]));
         lst[x]=i;
     }
