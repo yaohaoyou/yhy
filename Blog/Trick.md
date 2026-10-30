@@ -1,3 +1,9 @@
+其他：正难则反、反悔贪心。
+
+数据结构：分治、二分答案、选最多个不交区间可以倍增预处理从 $j$ 跳 $2^i$ 个区间后的最小右端点。
+
+图论：圆方树、DAG 容斥拆零度点。
+
 ### [离散对数是个谎言](http://www.gdfzoj.com:23380/contest/858/problem/8590)
 
 正难则反，将函数带入后逆着求。
@@ -235,7 +241,7 @@ $\forall S\in X,|S|-|N'(S)|=|S|-|N(S)\cup D|=|S|-|N(S)|-d\le 0$，即 $\forall S
 
 两个下凸包做 (min/max,+) 可以直接归并差分数组，$O(n+m)$ 做，此题中使用可并堆维护差分数组做到均摊单次 $\mathcal O(\log_2(n+m))$。
 
-一个下凸包和另一个平凡函数可以 $O(n\log_2(n+m))$ 做。
+一个下凸包和另一个平凡函数可以 $O(n\log_2(n+m))$ 做。改写成 $c_i=\max a_j+b_{i-j}=\max a_j+w(j,i)$，若 $b$ 下凸则 $w$ 满足四边形不等式，有决策单调性。
 
 [对顶堆](https://oi-wiki.org/ds/binary-heap/#%E5%AF%B9%E9%A1%B6%E5%A0%86)可以一定情况下解决堆无法做区间加的情况。
 
@@ -253,7 +259,7 @@ mex = 补集的 min。在排列中，一段区间 $[l,r]$ 的 mex 可以变为 $
 
 ### [Yet Another Mex Problem](https://qoj.ac/contest/1392/problem/7605)
 
-$i=1\to n$，直接维护 $1\le j\le i,\operatorname{mex} [j,i]$ 的集合 $S_i$，可以得到 $\sum |S_i|=\mathcal O(n)$。
+$i=1\to n$，直接维护 $1\le j\le i,\operatorname{mex} [j,i]$ 的集合 $S_i$，可以得到 $\sum |S_i\Delta S_{i-1}|=\mathcal O(n)$，其中 $|x\Delta y|$ 表示 $x$ 修改到 $y$ 的最小次数（对称差）。
 ::::info[证明]
 首先显然 $\operatorname{mex}[i,j] \le n$，其次由于若 $[l,r]\sube [L,R]$ $\operatorname{mex}[l,r]\le \operatorname{mex}[L,R]$，所以列出一个矩形维护 $a_{i,j}=\operatorname{mex}[i,j]$，则每个数字会出现在一个连通块内，所以直接遍历 $S_i$ 的复杂度为 $\mathcal O(n)$。
 ::::
@@ -268,7 +274,7 @@ ST 表可以实现操作和查询分离的区间取 min，区间查询 min（$\m
 
 首先 $T$ 的点分树 $T'$ 满足对于两个点 $u,v$，$lca_{T'}(u,v)$ 在 $T$ 上 $u$ 到 $v$ 的路径上，所以 $dis_T(u,v)=dis_T(u,lca_{T'}(u,v))+dis_T(lca_{T'}(u,v),v)$。这个是经典结论，在点分治过程中证明即可。
 
-此题需要的结论：一个 $T$ 上的连通块点集 $S$ 满足在 $T'$ 中存在一个点 $u$ 满足 $\forall x\in S,x\in subtree_{T'}u$。
+此题需要的结论：一个 $T$ 上的连通块点集 $S$ 满足在 $T'$ 中存在一个点 $u\in S$ 满足 $\forall x\in S,x\in subtree_{T'}u$。
 
 ### 关于 AC 自动机的 fail 树
 
@@ -356,7 +362,7 @@ n^k=\sum_{i=0}^k n^{\underline i}{k\brace i}=\sum_{i=0}^k \binom{n}{i}i!{k\brace
 $$
 
 ### [AT_abc221_h Count Multiset](https://www.luogu.com.cn/problem/AT_abc221_h)
-将求 multiset/set 方案书转化成每次操作在末尾加入 0 或整体 +1。
+将求 multiset/set 方案数转化成每次操作在末尾加入 0 或整体 +1。
 
 ### [盆栽展示](https://newoj.daimayuan.top/p/4721?tid=69875186f0fd3b148a82e96c)
 对于转移 $f_i=\min_{j<i}f_j+(a_i\oplus a_j)$，直接做复杂度是 $\mathcal O(n^2)$，若还有 $a_i\le V$ 的限制可以通过将 $f_i$ 存进 $buc_{a_i}$ 中，转移变成 $\mathcal O(nV)$。但是此时修改的复杂度为 $\mathcal O(1)$，查询复杂度为 $\mathcal O(V)$，考虑平衡一下，将桶 $buc_x$改成 $buc_{i,j}$ 表示 $i=\lfloor \frac{x}{\sqrt V}\rfloor,j=x\bmod \sqrt V$，修改时枚举 $i$，查询时枚举 $j$，复杂度优化成 $\mathcal O(n\sqrt V)$。
@@ -416,7 +422,7 @@ $$
 注意：要使两个大小为 $x,y$ 的连通块联通可以有 $xy$ 种连边方式。拓展的证明在[这里](https://www.cnblogs.com/SigmaToT/p/20275424)。
 
 ### [CF1528F AmShZ Farm](https://www.luogu.com.cn/problem/CF1528F)
-$a$ 满足每个数加上一个非负整数后可以成为 $[1,n]$ 的排列，可以使用一个模型转化成：有 $n+1$ 个椅子，每个人想坐在 $a_i$ 上，如果当前座位上有人，就移到下一个位置上。若 $n+1$ 的椅子上没有人就满足，否则就不满足。随后可以在 $n+1$ 与 $1$ 连一条边，然后形成一个环，依旧是当 $n+1$ 上没有人就满足。因为这个环上的每个位置都是本质相同的，所以有 $\frac 1n$ 的概率满足。
+$a$ 满足每个数加上一个非负整数后可以成为 $[1,n]$ 的排列，可以使用一个模型转化成：有 $n+1$ 个椅子，每个人想坐在 $a_i$ 上，如果当前座位上有人，就移到下一个位置上。若 $n+1$ 的椅子上没有人就满足，否则就不满足。随后可以在 $n+1$ 与 $1$ 连一条边，然后形成一个环，依旧是当 $n+1$ 上没有人就满足。若开始放在 $n+1$ 的位置就一定不合法，所以允许人坐在 $n+1$ 的位置（反正不会算入答案）。因为这个环上的每个位置都是本质相同的，所以有 $\frac 1{n+1}$ 的概率成功，答案就是 $\frac{(n+1)^n}{n+1}=(n+1)^{n-1}$。
 
 ### [QOJ14973 Welcome to Math Kingdom!](https://qoj.ac/problem/14973)
 对于限制极度宽松的构造题，可以手动增加一些好做的限制来寻找和发现更强的性质。这题中，带入 $a=c=1$ 和 $b^2-b+1=d^2-d+1$ 的限制会更加好做，最后可以再调整到正确的答案。
@@ -519,3 +525,8 @@ $$
 ### [AT_abc306_h Balance Scale](https://www.luogu.com.cn/problem/AT_abc306_h) & [P11714 主旋律](https://www.luogu.com.cn/problem/P11714)
 
 DAG 图计数考虑每次选出入度为 $0$ 的点然后删除，一直做这个过程直到删完就是 DAG 了。但是每次删的不一定是极大的零入度集合，所以要乘上 $(-1)^{|T|+1}$ 的容斥系数。若极大零入度集合为 $S$，有 $[|S|>0]=\sum _{T\sube S} (-1)^{|T|+1}$，也是 $[|S|>0]=\sum_{i=\color{red}1}^{|S|} (-1)^{i+1}\binom{|S|}{i}$。
+
+### [好梦一日游](https://www.yundouxueyuan.com/p/YDOIp2023D?tid=6ae34e0123850bfd09464b17)
+
+先阶梯化贡献，然后有 $[\max(a,b)\ge t]=\max(0,[a\ge t]-[b\ge t])+[b\ge t]$（本质是 $\max(a,b)=\max(0,a-b)+b$）。
+
