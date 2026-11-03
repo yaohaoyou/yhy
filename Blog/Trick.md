@@ -530,3 +530,8 @@ DAG 图计数考虑每次选出入度为 $0$ 的点然后删除，一直做这�
 
 先阶梯化贡献，然后有 $[\max(a,b)\ge t]=\max(0,[a\ge t]-[b\ge t])+[b\ge t]$（本质是 $\max(a,b)=\max(0,a-b)+b$）。
 
+### [CF2165D Path Split](https://www.luogu.com.cn/problem/CF2165D)
+
+DAG 最小链覆盖 $+$ **二分图匹配** $=n$。
+
+其中二分图为将 $n$ 个点拆成 $in_i,out_i$，对于一条 DAG 中的边 $(u,v)$ 建立 $(out_u,in_v)$ 的边。这样的二分图中的一个匹配对应 DAG 上的若干条不交路径或若干个不交环（因为是 DAG 所以不可能是环）。
