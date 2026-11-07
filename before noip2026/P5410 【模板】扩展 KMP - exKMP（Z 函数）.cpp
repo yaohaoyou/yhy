@@ -36,7 +36,7 @@ int main(){
     }
     nx[1]=n;
     ll ans=0;
-    for(int i=1;i<=n;i++)ans^=1ll*i*(nx[i]+1);
+    for(int i=1;i<=n;i++)ans^=1ll*i*(nx[i]+1),printf("%d ",nx[i]);
     printf("%lld\n",ans);
     ans=0;
     for(int i=1;i<=m;i++)ans^=1ll*i*(ex[i]+1);
