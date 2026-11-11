@@ -567,3 +567,20 @@ menger定理（还没用过）：最多边不相交 $s\to t$ 路径数 $=s\to t$
 在实数范围内选点或区间时先尝试使用非微积分知识，思考在理想情况下的本质，最后都能转化成只考虑 $n$ 个离散节点的问题。
 
 结论：在 $[0,1]$ 中随机选 $n$ 个数，期望第 $k$ 小位置是 $\frac{k}{n+1}$，可以理解成分成了 $n+1$ 个段，可以认为这每段长度都是 $\frac 1{n+1}$。
+
+### [CF2228E2 Amanojaku and Sequence (Hard Version)](https://www.luogu.com.cn/problem/CF2228E2)
+
+$$
+F(n,m)=\sum_{i=0}^n \binom{m+i}m=\binom{n+m+1}{m+1}\\
+G(n,m)=\sum_{i=0}^n i\binom{m+i}m=(m+1)\binom{m+n+1}{m+2}\\
+H(n,m)=\sum_{i=0}^n i^2\binom{m+i}m=(m+1)\binom{m+n+1}{m+2}+(m+1)(m+2)\binom{m+n+1}{m+3}
+$$
+
+证明：
+$$
+F(n,m)=\sum_{i=0}^n \binom{m+i+1}{m+1}-\binom{m+i}{m+1}=\binom{m+n+1}{m+1}\\
+G(n,m)=\sum_{i=0}^n i\binom{m+i}m=\sum_{i=0}^n \frac{(m+i)!}{m!(i-1)!}=(m+1)\sum_{i=0}^n \binom{m+i}{m+1}=(m+1)\binom{m+n+1}{m+2}\\
+H(n,m)=\sum_{i=0}^n i^2\binom{m+i}m=\sum_{i=0}^n i\binom{m+i}m+i(i-1)\binom{m+i}m=G(n,m)+\sum_{i=0}^n\frac{(m+i)!}{m!(i-2)!}\\
+=G(n,m)+(m+1)(m+2)\sum_{i=0}^n \binom {m+i}{m+2}=(m+1)\binom{m+n+1}{m+2}+(m+1)(m+2)\binom{m+n+1}{m+3}
+$$
+实际上应该可以继续拆下去做 $\sum i^k\binom{m+i}m$，这里主要用到的技巧是在获得 $\frac{(m+i)!}{m!(i-1)!}$ 时分子分母补一个常数 $(m+1)$，然后就能写成组合数了。
