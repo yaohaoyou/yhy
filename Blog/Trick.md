@@ -584,3 +584,7 @@ H(n,m)=\sum_{i=0}^n i^2\binom{m+i}m=\sum_{i=0}^n i\binom{m+i}m+i(i-1)\binom{m+i}
 =G(n,m)+(m+1)(m+2)\sum_{i=0}^n \binom {m+i}{m+2}=(m+1)\binom{m+n+1}{m+2}+(m+1)(m+2)\binom{m+n+1}{m+3}
 $$
 实际上应该可以继续拆下去做 $\sum i^k\binom{m+i}m$，这里主要用到的技巧是在获得 $\frac{(m+i)!}{m!(i-1)!}$ 时分子分母补一个常数 $(m+1)$，然后就能写成组合数了。
+
+### [CF303E Random Ranking](https://www.luogu.com.cn/problem/CF303E)
+
+[退背包的 trick](https://www.cnblogs.com/Dreamerkk/p/17703589.html)

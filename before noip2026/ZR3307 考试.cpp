@@ -19,19 +19,52 @@ struct mit{
     int v;
     mit(ll _x=0){v=_x%mod;}
     operator int()const{return v;}
-    inline void operator+=(int y){v+=y;(v>=mod)&&(v-=mod);}
+    inline int& operator+=(int y){v+=y;(v>=mod)&&(v-=mod);return v;}
     inline mit operator+(int y){y+=v;(y>=mod)&&(y-=mod);return y;}
-    inline void operator-=(int y){v-=y;(v<0)&&(v+=mod);}
+    inline int& operator-=(int y){v-=y;(v<0)&&(v+=mod);return v;}
     inline mit operator-(int y){y=v-y;(y<0)&&(y+=mod);return y;}
-    inline void operator*=(int y){v=1ull*v*y%mod;}
+    inline int& operator*=(int y){return v=1ull*v*y%mod;}
     inline mit operator*(int y){return 1ull*v*y%mod;}
 };
 inline mit qpow(mit x,int y){mit res=1;while(y){if(y&1)res*=x;x*=x;y>>=1;}return res;}
-int n,m;
+int n,m,x;
 pii a[maxn];
 int d[maxn<<1];
-mit f[2][maxn][maxn],inv[maxn],I[maxn];  // f[i][j][k] 表示前 i 个人有 j 个 < 当前区间，k 个在当前区间的概率
+mit f[maxn][maxn],inv[maxn],I[maxn];  // f[j][k] 表示有 j 个 < 当前区间，k 个在当前区间的概率
 mit ans[maxn][maxn];
+void trans(int i,int sz){
+    sz++;
+    mit pa=0,pb=0,pc=0;
+    if(a[i].fi<=x&&a[i].se>x)   pa=I[i]*(d[x]-d[a[i].fi]),pb=I[i]*(d[x+1]-d[x]),pc=I[i]*(d[a[i].se]-d[x+1]);
+    else if(a[i].fi>x)  pc=1;
+    else    pa=1;
+    for(int j=sz;~j;j--)for(int k=sz-j;~k;k--){
+        f[j][k]*=pc;
+        if(j)f[j][k]+=f[j-1][k]*pa;
+        if(k)f[j][k]+=f[j][k-1]*pb;
+    }
+}
+void dvd(int l,int r){
+    if(l==r){
+        int p=l;
+        if(a[p].fi<=x&&x<a[p].se){
+            mit P=mit(d[x+1]-d[x])*I[p];
+            for(int i=0;i<=n;i++)for(int j=0;i+j<=n;j++)if(f[i][j]){
+                ans[p][i+1]+=f[i][j]*inv[j+1]*P;
+                ans[p][i+j+2]-=f[i][j]*inv[j+1]*P;
+            }
+        }
+        return;
+    }
+    mit g[maxn][maxn];int sz=l-1+n-r;
+    for(int i=0;i<=sz;i++)for(int j=0;j<=sz;j++)g[i][j]=f[i][j];
+    int mid=(l+r)>>1;
+    for(int i=r;i>mid;i--)   trans(i,l-1+n-i);
+    dvd(l,mid);
+    memc(f,g);
+    for(int i=l;i<=mid;i++) trans(i,i-1+n-r);
+    dvd(mid+1,r);
+}
 bool mem2;
 int main(){
     debug("%.2fMB\n",abs(&mem1-&mem2)/1024./1024);
@@ -40,30 +73,10 @@ int main(){
     for(int i=1;i<=n;i++)   inv[i]=qpow(i,mod-2);
     sort(d+1,d+m+1);m=unique(d+1,d+m+1)-d-1;
     for(int i=1;i<=n;i++)   a[i].fi=lower_bound(d+1,d+m+1,a[i].fi)-d,a[i].se=lower_bound(d+1,d+m+1,a[i].se)-d;
-    for(int p=1;p<=n;p++){
-        for(int x=a[p].fi;x<a[p].se;x++){
-            mems(f,0);
-            bool o=true;
-            f[0][0][0]=1;
-            for(int i=1;i<=n;i++)if(i^p){
-                mems(f[o],0);
-                for(int j=0;j<=i;j++)for(int k=0;j+k<=i;k++)if(f[!o][j][k]){
-                    mit pa=0,pb=0,pc=0;
-                    if(a[i].fi<=x&&a[i].se>x)   pa=I[i]*(d[x]-d[a[i].fi]),pb=I[i]*(d[x+1]-d[x]),pc=I[i]*(d[a[i].se]-d[x+1]);
-                    else if(a[i].fi>x)  pc=1;
-                    else    pa=1;
-                    f[o][j+1][k]+=f[!o][j][k]*pa;
-                    f[o][j][k+1]+=f[!o][j][k]*pb;
-                    f[o][j][k]+=f[!o][j][k]*pc;
-                }
-                o^=1;
-            }
-            o^=1;
-            mit P=mit(d[x+1]-d[x])*(d[a[p].se]-d[a[p].fi]);
-            for(int i=0;i<=n;i++)for(int j=0;i+j<=n;j++)if(f[o][i][j])for(int k=1;k<=j+1;k++){
-                ans[p][i+k]+=f[o][i][j]*inv[j+1]*P;
-            }
-        }
+    for(x=1;x<=m;x++){
+        mems(f,0);
+        f[0][0]=1;
+        dvd(1,n);
     }
-    for(int i=1;i<=n;i++,puts(""))for(int j=1;j<=n;j++)printf("%d ",ans[i][j]);
+    for(int i=1;i<=n;i++,puts(""))for(int j=1;j<=n;j++)printf("%d ",ans[i][j]+=ans[i][j-1]);
 }
