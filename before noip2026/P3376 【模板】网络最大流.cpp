@@ -62,4 +62,7 @@ int main(){
     scanf("%d%d%d%d",&n,&m,&S,&T);
     for(int i=1;i<=m;i++){int u,v,w;scanf("%d%d%d",&u,&v,&w);adde(u,v,w);}
     printf("%lld\n",dinic());
+    for(int u=1;u<=n;u++){
+        go(u,i)if(!w)printf("%d %d\n",u,t);
+    }
 }

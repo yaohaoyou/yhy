@@ -65,14 +65,13 @@ int main(){
         else for(ll i:nw)v.eb(i);
     }
     sort(v.begin(),v.end());
-    ll sum=0;for(ll i:v)sum+=a[i],fr[a[i]].eb(i),cnt[a[i]]++;
     // for(int i=1;i<=n;i++){
     //     printf("%d : ",i);for(int j:fr[i])    printf("%d ",j);
     //     puts("");
     // }
     // printf("%d %d\n",a[v.back()],p);
     assert(a[v.back()]==p);
-    for(int i=1;i<=n;i++)   printf("%d\n",cnt[i]);puts("");
+    // for(int i=1;i<=n;i++)   printf("%d\n",cnt[i]);puts("");
     while(q--){
         int x;scanf("%d",&x);
         ll l=0,r=1e18,ans=0;
