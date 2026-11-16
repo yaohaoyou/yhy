@@ -2,7 +2,7 @@
 
 数据结构：笛卡尔树、分治、二分答案（整体二分）、操作分块、选最多个不交区间可以倍增预处理从 $j$ 跳 $2^i$ 个区间后的最小右端点。
 
-图论：圆方树、DAG 容斥拆零度点、Kruskal 重构树/最小瓶颈树、网络流、代表元思想。
+图论：仙人掌$\to$圆方树、DAG 容斥拆零度点、Kruskal 重构树/最小瓶颈树、网络流、代表元思想。
 
 ### [离散对数是个谎言](http://www.gdfzoj.com:23380/contest/858/problem/8590)
 
@@ -588,3 +588,11 @@ $$
 ### [CF303E Random Ranking](https://www.luogu.com.cn/problem/CF303E)
 
 [退背包的 trick](https://www.cnblogs.com/Dreamerkk/p/17703589.html)
+
+### [qoj1348 仙人掌图](https://qoj.ac/problem/1348/statement/zh_cn)
+
+看到仙人掌考虑圆方树。
+
+### [数据结构相关 trick](https://www.luogu.me/article/wc0qedq6)
+
+末尾插入删除，求区间信息，且合并复杂度较高，但插入复杂度较低（如凸包）。线段树的每一层的最后一个节点不建出凸包，查询到的时候往下递归，若删到之前建过的节点就重构。复杂度均摊 $\mathcal O(n\log nB+q\log nQ)$，其中维护的信息单次插入复杂度 $\mathcal O(B)$，单次查询 $\mathcal O(Q)$。

@@ -15,64 +15,57 @@ inline void gmn(auto &x,auto y){(x>y)&&(x=y);}
 inline void gmx(auto &x,auto y){(x<y)&&(x=y);}
 using namespace std;
 bool mem1;
-const int maxn=1e7+10,bs=20261114;
-int n,ans=0;
-// int a[maxn];
-bool f[maxn];
-unordered_set<ull> s;//,out;
-ull Hash(vector<int> &A){
-    ull res=0;
-    for(int i:A)res=res*bs+i;
-    return res;
+const int maxn=1e7+10,mod=998244353;
+struct mit{
+    int v;
+    mit(ll _x=0){v=_x%mod;}
+    operator int()const{return v;}
+    inline void operator+=(int y){v+=y;(v>=mod)&&(v-=mod);}
+    inline mit operator+(int y){y+=v;(y>=mod)&&(y-=mod);return y;}
+    inline void operator-=(int y){v-=y;(v<0)&&(v+=mod);}
+    inline mit operator-(int y){y=v-y;(y<0)&&(y+=mod);return y;}
+    inline void operator*=(int y){v=1ull*v*y%mod;}
+    inline mit operator*(int y){return 1ull*v*y%mod;}
+};
+inline mit qpow(mit x,int y){mit res=1;while(y){if(y&1)res*=x;x*=x;y>>=1;}return res;}
+int n;
+int a[maxn];
+bool vis[maxn];
+mit fac[maxn],inv[maxn];
+void init(){
+    n=1e7;
+    fac[0]=1;for(int i=1;i<=n;i++)fac[i]=fac[i-1]*i;
+    inv[n]=qpow(fac[n],mod-2);for(int i=n-1;~i;i--)inv[i]=inv[i+1]*(i+1);
 }
-bool is_perm(vector<int> &A){
-    for(int i:A)f[i]=true;
-    bool ret=count(f+1,f+n+1,1)==n;
-    for(int i:A)f[i]=false;
-    return ret;
+bool is_perm(){
+    for(int i=1;i<=n;i++)vis[a[i]]=true;
+    if(count(vis+1,vis+n+1,1)==1) exit(printf("%d\n",fac[n])&0);
+    return !count(vis+1,vis+n+1,0);
 }
-void dfs(vector<int> a){
-    ull H=Hash(a);
-    if(s.find(H)!=s.end())  return;
-    s.ep(H);
-    ans+=is_perm(a);
-    // if(is_perm(a))  out.ep(a);
-    bool fl=false;
-    for(int i=0;i<n;i++){
-        int j=(i+1)%n,k=(i+2)%n;
-        if(a[i]==a[j]&&a[i]==a[k]){
-            for(int x=1;x<=n;x++){
-                for(int y=1;y<=n;y++){
-                    for(int b:{i,j,k})for(int c:{i,j,k})if(b^c){
-                        fl=true;
-                        swap(a[b],x);swap(a[c],y);
-                        dfs(a);
-                        swap(a[b],x);swap(a[c],y);
-                    }
-                }
-            }
-        }
+bool check_no(){
+    mems(vis,0);a[0]=a[1];
+    for(int i=1;i<=n;i++)if(a[i]!=a[i-1]){
+        int j=i;while(a[(j-1)%n+1]==a[i])j++;
+        if(vis[a[i]])return true;
+        vis[a[i]]=true;
+        i=j-1;
     }
-    
-    // for(int i:a)f[i]=true;
-    // if(fl&&count(f+1,f+n+1,1)==n-2){
-    //     out.ep(a);
-    // }
-    // for(int i:a)f[i]=false;
+    for(int i=1;i<=n;i++)if(a[i]==a[i%n+1]&&a[i]==a[(i+1)%n+1])return false;
+    return true;
 }
 bool mem2;
 int main(){
-    freopen("fx.in","r",stdin);freopen("fx.out","w",stdout);
+    // freopen("fx.in","r",stdin);freopen("fx.out","w",stdout);
+    init();
     debug("%.2fMB\n",abs(&mem1-&mem2)/1024./1024);
-    vector<int> a;
-    scanf("%d",&n);a.resize(n);
-    for(int i=1;i<=n;i++)   scanf("%d",&a[i-1]);
-    if(is_perm(a))  return puts("1"),0;
-    if(n>4){
-        int ans=1;for(int i=1;i<=n;i++)ans=1ull*ans*i%998244353;
-        printf("%d\n",ans);return 0;
-    }
-    dfs(a);
+    scanf("%d",&n);
+    for(int i=1;i<=n;i++)   scanf("%d",&a[i]);
+    if(is_perm())  return puts("1"),0;
+    if(check_no())   return puts("0"),0;
+    mems(vis,0);for(int i=1;i<=n;i++)vis[a[i]]=true;
+    int r=count(vis+1,vis+n+1,0),k=count(vis+1,vis+n+1,1);
+    mit ans=fac[n]*inv[k-1];
+    if(n>=r*3)   ans-=mit(n)*k*fac[n-2*r-1]*inv[n-3*r];
+    if(r==2&&n>=6&&!(n&1))  ans*=(mod+1)>>1;
     printf("%d\n",ans);
-    // for(auto a:out){for(int i:a)printf("%d ",i);puts("");}
 }
