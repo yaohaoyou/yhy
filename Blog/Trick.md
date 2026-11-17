@@ -596,3 +596,9 @@ $$
 ### [数据结构相关 trick](https://www.luogu.me/article/wc0qedq6)
 
 末尾插入删除，求区间信息，且合并复杂度较高，但插入复杂度较低（如凸包）。线段树的每一层的最后一个节点不建出凸包，查询到的时候往下递归，若删到之前建过的节点就重构。复杂度均摊 $\mathcal O(n\log nB+q\log nQ)$，其中维护的信息单次插入复杂度 $\mathcal O(B)$，单次查询 $\mathcal O(Q)$。
+
+### [幸福刑](https://newoj.daimayuan.top/p/5913?tid=6afad454413eca1484b040b2)
+
+对于任意序列 $a_1,a_2,\dots a_n$，前缀 $a_1,\dots a_i$ 若有绝对众数 $x$，则所有前缀的 $x$ 只有 $\mathcal O(\log n)$ 种。若还有权值 $w_i$，则前缀的带权绝对众数的 $x$ 只有 $\mathcal O(\log \sum w_i)$。
+
+摩尔投票就是记录 $(cnt,id)$，若加入的是 $id$ 就 $cnt\gets cnt+1$，否则 $cnt\gets cnt-1$，若加入前 $cnt=0$ 就将 $id$ 设为加入的数。若序列有绝对众数则操作完的 $id$ 就是，否则需要再重新判一遍。本身好像没什么用，但是求区间绝对众数时可以在线段树维护区间的 $(cnt,id)$，合并就 $id$ 相同就求和，否则保留更大的 $id$，然后 $cnt$ 作差，只有在存在绝对众数时才是正确的。
