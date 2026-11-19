@@ -149,5 +149,7 @@
     "touchfish.enableX": false,
     "touchfish.enableXhs": false,
     "touchfish.enableXiaoyuzhou": false,
-    "editor.editContext": false
+    "editor.editContext": false,
+    "cph-ng.problem.templateFile": "",
+    "cph-ng.companion.customPathScript": "D:/yhy/defaultScript.js"
 }
