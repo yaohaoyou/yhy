@@ -618,3 +618,7 @@ $$
 ### [SP2939 QTREE5 - Query on a tree V](https://www.luogu.com.cn/problem/SP2939)
 
 重剖后重链区间的轻子树的 dfs 序形成一个区间。形式化地，重链上的一个两端为 $L,R$ 的区间（$L$ 是 $R$ 的祖先）的轻子树 dfs 序并集为 $[out_R+1,out_L]$。
+
+### [P14203 这次要永远 做朋友](https://www.luogu.com.cn/problem/P14203)
+
+绝对众数为 $x$ 的区间的并集大小只有 $3cnt_x$，证明考虑加入一个新的 $x$ 左右端点至多有一个拓展 $1$ 次。
